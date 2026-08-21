@@ -52,3 +52,4 @@ electiveSchema.index({ code: 1, year: 1, term: 1 }, { unique: true });
 electiveSchema.index({ year: 1, term: 1, isActive: 1 });
 
 export const Elective = mongoose.model<IElective>('Elective', electiveSchema);
+export default Elective;

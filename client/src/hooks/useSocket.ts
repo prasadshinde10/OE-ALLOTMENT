@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getSocket, disconnectSocket } from '../lib/socket';
 import { Socket } from 'socket.io-client';
 
-export function useSocket() {
+export function useSocket(year?: number | string) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -14,7 +14,9 @@ export function useSocket() {
 
     const onConnect = () => {
       setIsConnected(true);
-      s.emit('join-year');
+      if (year) {
+        s.emit('join-year', Number(year));
+      }
     };
 
     const onDisconnect = () => setIsConnected(false);
@@ -24,12 +26,16 @@ export function useSocket() {
 
     s.connect();
 
+    if (s.connected && year) {
+      s.emit('join-year', Number(year));
+    }
+
     return () => {
       s.off('connect', onConnect);
       s.off('disconnect', onDisconnect);
       disconnectSocket();
     };
-  }, []);
+  }, [year]);
 
   return { socket, isConnected };
 }

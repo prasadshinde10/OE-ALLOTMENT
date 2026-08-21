@@ -40,3 +40,4 @@ const termConfigSchema = new Schema<ITermConfig>(
 termConfigSchema.index({ term: 1, year: 1 }, { unique: true });
 
 export const TermConfig = mongoose.model<ITermConfig>('TermConfig', termConfigSchema);
+export default TermConfig;

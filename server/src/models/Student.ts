@@ -108,3 +108,4 @@ studentSchema.index({ year: 1, allocatedElectiveId: 1 });
 studentSchema.index({ year: 1, allocatedTerm: 1 });
 
 export const Student = mongoose.model<IStudent>('Student', studentSchema);
+export default Student;

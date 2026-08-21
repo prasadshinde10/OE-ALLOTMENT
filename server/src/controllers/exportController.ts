@@ -24,7 +24,7 @@ export const exportStudents = async (req: Request, res: Response): Promise<void>
       { header: 'Allocated Term', key: 'allocatedTerm', width: 15 },
     ];
 
-    students.forEach(student => {
+    students.forEach((student: any) => {
       worksheet.addRow(student);
     });
 
@@ -60,7 +60,7 @@ export const exportAllocations = async (req: Request, res: Response): Promise<vo
       { header: 'Allocation Time', key: 'allocationTimestamp', width: 25 },
     ];
 
-    students.forEach(student => {
+    students.forEach((student: any) => {
       worksheet.addRow({
         hallTicketNumber: student.hallTicketNumber,
         name: student.name,

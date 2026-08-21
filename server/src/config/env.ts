@@ -4,14 +4,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const envSchema = z.object({
-  MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
-  JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
-  GMAIL_USER: z.string().email('GMAIL_USER must be a valid email'),
-  GMAIL_APP_PASSWORD: z.string().min(1, 'GMAIL_APP_PASSWORD is required'),
+  MONGO_URI: z.string().default('mongodb://localhost:27017/oe_allotment'),
+  JWT_SECRET: z.string().default('oe_allotment_development_secret_key_2026'),
+  GMAIL_USER: z.string().default('admin@mit.asia'),
+  GMAIL_APP_PASSWORD: z.string().default('your_app_password_here'),
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   ALLOWED_EMAIL_DOMAIN: z.string().default('mit.asia'),
   PORT: z.coerce.number().default(5000),
-  CLIENT_URL: z.string().url().default('http://localhost:3000'),
+  CLIENT_URL: z.string().default('http://localhost:3000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 

@@ -13,7 +13,7 @@ export default function AdminTermConfigPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    termName: '', year: 1, registrationOpensAt: '', registrationClosesAt: ''
+    term: '', year: 1, registrationOpensAt: '', registrationClosesAt: ''
   })
 
   useEffect(() => {
@@ -33,14 +33,14 @@ export default function AdminTermConfigPage() {
     if (config) {
       setEditingId(config._id)
       setFormData({
-        termName: config.termName,
+        term: config.term,
         year: config.year,
         registrationOpensAt: new Date(config.registrationOpensAt).toISOString().slice(0, 16),
         registrationClosesAt: new Date(config.registrationClosesAt).toISOString().slice(0, 16)
       })
     } else {
       setEditingId(null)
-      setFormData({ termName: '', year: 1, registrationOpensAt: '', registrationClosesAt: '' })
+      setFormData({ term: '', year: 1, registrationOpensAt: '', registrationClosesAt: '' })
     }
     setIsModalOpen(true)
   }
@@ -63,7 +63,7 @@ export default function AdminTermConfigPage() {
   }
 
   const columns = [
-    { header: 'Term Name', accessor: 'termName' },
+    { header: 'Term', accessor: 'term' },
     { header: 'Year', accessor: 'year' },
     { header: 'Opens At', accessor: (row: TermConfig) => new Date(row.registrationOpensAt).toLocaleString() },
     { header: 'Closes At', accessor: (row: TermConfig) => new Date(row.registrationClosesAt).toLocaleString() },
@@ -99,7 +99,7 @@ export default function AdminTermConfigPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? 'Edit Term Config' : 'Add Term Config'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Term Name" value={formData.termName} onChange={e => setFormData({...formData, termName: e.target.value})} required placeholder="e.g. 2024-Fall" />
+          <Input label="Term" value={formData.term} onChange={e => setFormData({...formData, term: e.target.value})} required placeholder="e.g. 2026-Odd" />
           <Input label="Year" type="number" value={formData.year} onChange={e => setFormData({...formData, year: Number(e.target.value)})} required min={1} max={4} />
           <Input label="Registration Opens At" type="datetime-local" value={formData.registrationOpensAt} onChange={e => setFormData({...formData, registrationOpensAt: e.target.value})} required />
           <Input label="Registration Closes At" type="datetime-local" value={formData.registrationClosesAt} onChange={e => setFormData({...formData, registrationClosesAt: e.target.value})} required />

@@ -19,7 +19,7 @@ export default function SelectElectivePage() {
   const [modalData, setModalData] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' })
 
   // Hooks ensure real-time seat counts
-  const seatCounts = useSeatCounts(user?.year?.toString() || '1')
+  const { seatCounts } = useSeatCounts(user?.year)
 
   useEffect(() => {
     fetchData()
@@ -34,13 +34,14 @@ export default function SelectElectivePage() {
         api.get('/api/admin/term-configs')
       ])
       
-      setElectives(electivesRes.data.data)
-      if (statusRes.data.allocation) {
-        setAllocationStatus(statusRes.data.allocation)
+      setElectives(electivesRes.data.data || [])
+      const allocation = statusRes.data.data || statusRes.data.allocation
+      if (allocation && allocation.allocatedElectiveName) {
+        setAllocationStatus(allocation)
       }
       
-      const currentYearConfig = configsRes.data.data.find((c: TermConfig) => c.year === Number(user?.year) && new Date() <= new Date(c.registrationClosesAt))
-      setTermConfig(currentYearConfig || configsRes.data.data[0]) // Fallback
+      const currentYearConfig = (configsRes.data.data || []).find((c: TermConfig) => c.year === Number(user?.year) && new Date() <= new Date(c.registrationClosesAt))
+      setTermConfig(currentYearConfig || (configsRes.data.data && configsRes.data.data[0]) || null)
     } catch (err: any) {
       toast.error('Failed to load data')
     } finally {
@@ -111,8 +112,8 @@ export default function SelectElectivePage() {
               <span className="text-xl">✅</span>
             </div>
             <div className="ml-3">
-              <h3 className="text-lg font-medium text-indigo-800">You are allocated to {allocationStatus.electiveName}</h3>
-              <p className="mt-1 text-sm text-indigo-700">Code: {allocationStatus.electiveCode}</p>
+              <h3 className="text-lg font-medium text-indigo-800">You are allocated to {allocationStatus.allocatedElectiveName || allocationStatus.electiveName}</h3>
+              <p className="mt-1 text-sm text-indigo-700">Term: {allocationStatus.allocatedTerm || '-'}</p>
             </div>
           </div>
         </div>
@@ -127,7 +128,8 @@ export default function SelectElectivePage() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {electives.map(elective => {
-          const filled = seatCounts[elective._id]?.seatsFilled || elective.seatsFilled || 0
+          const seatUpdate = seatCounts.find((s) => s.electiveId === elective._id)
+          const filled = seatUpdate ? seatUpdate.seatsFilled : (elective.seatsFilled || 0)
           const capacity = elective.capacity
           const available = capacity - filled
           const isFull = available <= 0

@@ -29,7 +29,7 @@ export default function TeacherDashboard() {
       const params = new URLSearchParams(filters as any).toString()
       const res = await api.get(`/api/students?${params}`)
       setStudents(res.data.data)
-      setTotal(res.data.pagination.total)
+      setTotal(res.data.total || res.data.pagination?.total || 0)
     } catch (err) {
       console.error(err)
     } finally {
@@ -67,8 +67,8 @@ export default function TeacherDashboard() {
     { header: 'Name', accessor: 'name' },
     { header: 'Class', accessor: 'class' },
     { header: 'Year', accessor: 'year' },
-    { header: 'Elective', accessor: (row: any) => row.allocatedElective?.name || 'Unallocated' },
-    { header: 'Allocated At', accessor: (row: any) => row.allocationTime ? new Date(row.allocationTime).toLocaleString() : '-' },
+    { header: 'Elective', accessor: (row: any) => row.allocatedElectiveName || 'Unallocated' },
+    { header: 'Allocated At', accessor: (row: any) => row.allocationTimestamp ? new Date(row.allocationTimestamp).toLocaleString() : '-' },
   ]
 
   return (

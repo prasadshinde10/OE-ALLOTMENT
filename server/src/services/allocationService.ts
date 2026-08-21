@@ -39,7 +39,7 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
     throw err;
   }
   
-  student.allocatedElectiveId = elective._id as string;
+  student.allocatedElectiveId = elective._id as mongoose.Types.ObjectId;
   student.allocatedElectiveName = elective.name;
   student.allocatedTerm = termConfig.term;
   student.allocationTimestamp = new Date();
@@ -51,7 +51,7 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
 
 export const transferSeat = async (studentId: string, newElectiveId: string, adminId: string) => {
   const session = await mongoose.startSession();
-  let result;
+  let result: { student: any; newElective: any; oldElectiveId: any } | undefined;
   
   try {
     await session.withTransaction(async () => {
@@ -78,7 +78,7 @@ export const transferSeat = async (studentId: string, newElectiveId: string, adm
         throw new Error('Target elective is full or unavailable');
       }
       
-      student.allocatedElectiveId = newElective._id as string;
+      student.allocatedElectiveId = newElective._id as mongoose.Types.ObjectId;
       student.allocatedElectiveName = newElective.name;
       student.allocatedTerm = newElective.term;
       student.allocationTimestamp = new Date();

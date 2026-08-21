@@ -54,3 +54,4 @@ auditLogSchema.index({ actorId: 1, timestamp: -1 });
 auditLogSchema.index({ targetId: 1 });
 
 export const AuditLog = mongoose.model<IAuditLog>('AuditLog', auditLogSchema);
+export default AuditLog;

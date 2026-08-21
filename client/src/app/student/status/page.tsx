@@ -15,7 +15,10 @@ export default function StudentStatusPage() {
     const fetchStatus = async () => {
       try {
         const res = await api.get('/api/allocation/my-status')
-        setStatus(res.data.allocation)
+        const allocation = res.data.data || res.data.allocation
+        if (allocation && allocation.allocatedElectiveName) {
+          setStatus(allocation)
+        }
       } catch (err) {
         console.error(err)
       } finally {
@@ -41,21 +44,23 @@ export default function StudentStatusPage() {
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.name}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Hall Ticket Number</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.hallTicketNumber}</dd>
+              <dt className="text-sm font-medium text-gray-500">Email</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.email}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-              <dt className="text-sm font-medium text-gray-500">Class / Year</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.class} / Year {user?.year}</dd>
+              <dt className="text-sm font-medium text-gray-500">Year</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Year {user?.year}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Allocation Status</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {status ? (
+                {status && status.allocatedElectiveName ? (
                   <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                    <h4 className="text-lg font-bold text-green-800">{status.electiveName}</h4>
-                    <p className="text-green-700">Code: {status.electiveCode}</p>
-                    <p className="text-xs text-green-600 mt-2">Allocated at: {new Date(status.allocatedAt).toLocaleString()}</p>
+                    <h4 className="text-lg font-bold text-green-800">{status.allocatedElectiveName}</h4>
+                    <p className="text-green-700">Term: {status.allocatedTerm || '-'}</p>
+                    <p className="text-xs text-green-600 mt-2">
+                      Allocated at: {status.allocationTimestamp ? new Date(status.allocationTimestamp).toLocaleString() : '-'}
+                    </p>
                   </div>
                 ) : (
                   <div className="text-yellow-600 font-medium">

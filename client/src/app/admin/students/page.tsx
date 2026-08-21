@@ -28,7 +28,7 @@ export default function AdminStudentsPage() {
       const params = new URLSearchParams(filters as any).toString()
       const res = await api.get(`/api/students?${params}`)
       setStudents(res.data.data)
-      setTotal(res.data.pagination.total)
+      setTotal(res.data.total || res.data.pagination?.total || 0)
     } catch (err) {
       toast.error('Failed to load students')
     }
@@ -97,7 +97,7 @@ export default function AdminStudentsPage() {
     { header: 'HT Number', accessor: 'hallTicketNumber' },
     { header: 'Name', accessor: 'name' },
     { header: 'Year/Class', accessor: (row: Student) => `${row.year} / ${row.class}` },
-    { header: 'Elective', accessor: (row: Student) => row.allocatedElective?.name || 'None' },
+    { header: 'Elective', accessor: (row: Student) => row.allocatedElectiveName || 'None' },
     { 
       header: 'Actions', 
       accessor: (row: Student) => (

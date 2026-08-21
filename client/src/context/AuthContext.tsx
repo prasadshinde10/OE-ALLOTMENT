@@ -7,7 +7,8 @@ interface AuthContextType {
   token: string | null;
   user: DecodedUser | null;
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  loading: boolean;
+  login: (token: string, userData?: any) => void;
   logout: () => void;
 }
 

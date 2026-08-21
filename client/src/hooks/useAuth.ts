@@ -14,6 +14,7 @@ export function useAuth() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<DecodedUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const decodeToken = (tokenStr: string): DecodedUser | null => {
     try {
@@ -32,20 +33,26 @@ export function useAuth() {
   };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-      const decoded = decodeToken(storedToken);
-      if (decoded) {
-        setUser(decoded);
-        setIsAuthenticated(true);
-      } else {
-        localStorage.removeItem('token');
+    try {
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        setToken(storedToken);
+        const decoded = decodeToken(storedToken);
+        if (decoded) {
+          setUser(decoded);
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('token');
+        }
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const login = useCallback((newToken: string) => {
+  const login = useCallback((newToken: string, _userData?: any) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
     const decoded = decodeToken(newToken);
@@ -63,5 +70,5 @@ export function useAuth() {
     window.location.href = '/';
   }, []);
 
-  return { user, token, isAuthenticated, login, logout };
+  return { user, token, isAuthenticated, loading, login, logout };
 }

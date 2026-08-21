@@ -25,7 +25,7 @@ export const allocateElective = async (req: Request, res: Response): Promise<voi
       actorId: user.userId,
       actorRole: 'student',
       targetType: 'student',
-      targetId: result.student._id as string,
+      targetId: String(result.student._id),
       after: { electiveId: result.elective._id, electiveName: result.elective.name, term: result.student.allocatedTerm },
     });
 
@@ -67,7 +67,7 @@ export const getSeatCounts = async (req: Request, res: Response): Promise<void> 
     if (term) filter.term = term;
 
     const electives = await Elective.find(filter);
-    const data = electives.map(e => ({
+    const data = electives.map((e: any) => ({
       _id: e._id,
       name: e.name,
       code: e.code,

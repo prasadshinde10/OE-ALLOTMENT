@@ -22,7 +22,7 @@ export default function AdminAuditLogPage() {
       const params = new URLSearchParams(filters as any).toString()
       const res = await api.get(`/api/admin/audit-log?${params}`)
       setLogs(res.data.data)
-      setTotal(res.data.pagination.total)
+      setTotal(res.data.total || res.data.pagination?.total || 0)
     } catch (err) {
       console.error(err)
     }
@@ -57,22 +57,31 @@ export default function AdminAuditLogPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="font-semibold">Action:</span> {selectedLog.action}</div>
+              <div><span className="font-semibold">Actor Role:</span> {selectedLog.actorRole}</div>
               <div><span className="font-semibold">Actor ID:</span> {selectedLog.actorId}</div>
               <div><span className="font-semibold">Target Type:</span> {selectedLog.targetType}</div>
-              <div><span className="font-semibold">Target ID:</span> {selectedLog.targetId}</div>
+              <div><span className="font-semibold">Target ID:</span> {selectedLog.targetId || '-'}</div>
+              <div><span className="font-semibold">Timestamp:</span> {new Date(selectedLog.timestamp).toLocaleString()}</div>
             </div>
             
-            {selectedLog.details?.previousState && (
+            {selectedLog.before && (
               <div>
-                <h4 className="font-semibold text-sm mb-1">Previous State:</h4>
-                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">{JSON.stringify(selectedLog.details.previousState, null, 2)}</pre>
+                <h4 className="font-semibold text-sm mb-1 text-red-600">Before:</h4>
+                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">{JSON.stringify(selectedLog.before, null, 2)}</pre>
               </div>
             )}
             
-            {selectedLog.details?.newState && (
+            {selectedLog.after && (
               <div>
-                <h4 className="font-semibold text-sm mb-1">New State:</h4>
-                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">{JSON.stringify(selectedLog.details.newState, null, 2)}</pre>
+                <h4 className="font-semibold text-sm mb-1 text-green-600">After:</h4>
+                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">{JSON.stringify(selectedLog.after, null, 2)}</pre>
+              </div>
+            )}
+
+            {selectedLog.metadata && (
+              <div>
+                <h4 className="font-semibold text-sm mb-1 text-blue-600">Metadata:</h4>
+                <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-40">{JSON.stringify(selectedLog.metadata, null, 2)}</pre>
               </div>
             )}
             
