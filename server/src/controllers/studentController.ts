@@ -6,17 +6,18 @@ import { transferSeat } from '../services/allocationService';
 
 export const getStudents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { year, class: sClass, term, elective, search, page = 1, limit = 10 } = req.query;
+    const { year, branch, class: sClass, term, elective, search, page = 1, limit = 10 } = req.query;
     const filter: any = {};
-    if (year) filter.year = year;
-    if (sClass) filter.class = sClass;
+    if (year) filter.year = Number(year);
+    if (branch || sClass) filter.branch = branch || sClass;
     if (term) filter.allocatedTerm = term;
     if (elective) filter.allocatedElectiveId = elective;
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
         { hallTicketNumber: { $regex: search, $options: 'i' } },
-        { instituteEmail: { $regex: search, $options: 'i' } }
+        { instituteEmail: { $regex: search, $options: 'i' } },
       ];
     }
 
@@ -55,7 +56,17 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
       res.status(404).json({ success: false, message: 'Student not found' });
       return;
     }
-    const updated = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    const updates = { ...req.body };
+    delete updates.password;
+    delete updates.resetPasswordToken;
+    delete updates.resetPasswordExpiresAt;
+    delete updates.otpHash;
+    delete updates.otpExpiresAt;
+    delete updates.otpAttempts;
+    delete updates.lastOtpSentAt;
+
+    const updated = await Student.findByIdAndUpdate(req.params.id, updates, { new: true });
 
     await logAudit({
       action: 'STUDENT_EDIT',
@@ -64,7 +75,7 @@ export const updateStudent = async (req: Request, res: Response): Promise<void> 
       targetType: 'student',
       targetId: req.params.id,
       before: oldStudent,
-      after: updated
+      after: updated,
     });
 
     res.status(200).json({ success: true, data: updated });
@@ -91,7 +102,7 @@ export const reassignElective = async (req: Request, res: Response): Promise<voi
       io.to(`year-${result.student.year}`).emit('seat-changed', {
         electiveId: result.newElective._id,
         seatsFilled: result.newElective.seatsFilled,
-        capacity: result.newElective.capacity
+        capacity: result.newElective.capacity,
       });
       if (result.oldElectiveId) {
         const oldE = await Elective.findById(result.oldElectiveId);
@@ -99,7 +110,7 @@ export const reassignElective = async (req: Request, res: Response): Promise<voi
           io.to(`year-${result.student.year}`).emit('seat-changed', {
             electiveId: oldE._id,
             seatsFilled: oldE.seatsFilled,
-            capacity: oldE.capacity
+            capacity: oldE.capacity,
           });
         }
       }
@@ -122,7 +133,13 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
       await Elective.findByIdAndUpdate(student.allocatedElectiveId, { $inc: { seatsFilled: -1 } });
     }
     await Student.findByIdAndDelete(req.params.id);
-    await logAudit({ action: 'STUDENT_DELETE', actorId: (req as any).user.userId, actorRole: 'admin', targetType: 'student', targetId: req.params.id });
+    await logAudit({
+      action: 'STUDENT_DELETE',
+      actorId: (req as any).user.userId,
+      actorRole: 'admin',
+      targetType: 'student',
+      targetId: req.params.id,
+    });
 
     res.status(200).json({ success: true, message: 'Student deleted successfully' });
   } catch (error: any) {

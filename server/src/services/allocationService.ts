@@ -34,7 +34,7 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
   );
   
   if (!elective) {
-    const err = new Error('This elective is now full or unavailable');
+    const err = new Error('This elective is full. No seats are currently available.');
     (err as any).status = 409;
     throw err;
   }
@@ -50,41 +50,90 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
 };
 
 export const transferSeat = async (studentId: string, newElectiveId: string, adminId: string) => {
-  const session = await mongoose.startSession();
-  let result: { student: any; newElective: any; oldElectiveId: any } | undefined;
+  const student = await Student.findById(studentId);
+  if (!student) throw new Error('Student not found');
   
+  const oldElectiveId = student.allocatedElectiveId;
+  if (oldElectiveId && String(oldElectiveId) === String(newElectiveId)) {
+    throw new Error('Student is already allocated to this elective');
+  }
+
+  // Try with transaction first (if replica set is active)
   try {
-    await session.withTransaction(async () => {
-      const student = await Student.findById(studentId).session(session);
-      if (!student) throw new Error('Student not found');
-      
-      const oldElectiveId = student.allocatedElectiveId;
-      
-      if (oldElectiveId) {
-        await Elective.findOneAndUpdate(
-          { _id: oldElectiveId, seatsFilled: { $gt: 0 } },
-          { $inc: { seatsFilled: -1 } },
-          { session }
+    const session = await mongoose.startSession();
+    let result: { student: any; newElective: any; oldElectiveId: any } | undefined;
+    try {
+      await session.withTransaction(async () => {
+        const studentDoc = await Student.findById(studentId).session(session);
+        if (!studentDoc) throw new Error('Student not found');
+        
+        if (oldElectiveId) {
+          await Elective.findOneAndUpdate(
+            { _id: oldElectiveId, seatsFilled: { $gt: 0 } },
+            { $inc: { seatsFilled: -1 } },
+            { session }
+          );
+        }
+        
+        const newElective = await Elective.findOneAndUpdate(
+          { _id: newElectiveId, $expr: { $lt: ['$seatsFilled', '$capacity'] }, isActive: true },
+          { $inc: { seatsFilled: 1 } },
+          { session, new: true }
         );
-      }
-      
+        
+        if (!newElective) {
+          throw new Error('Target elective is full or unavailable');
+        }
+        
+        studentDoc.allocatedElectiveId = newElective._id as mongoose.Types.ObjectId;
+        studentDoc.allocatedElectiveName = newElective.name;
+        studentDoc.allocatedTerm = newElective.term;
+        studentDoc.allocationTimestamp = new Date();
+        await studentDoc.save({ session });
+        
+        await AuditLog.create([{
+          action: 'REASSIGN_SEAT',
+          actorId: adminId,
+          actorRole: 'admin',
+          targetType: 'student',
+          targetId: studentDoc._id,
+          before: { electiveId: oldElectiveId },
+          after: { electiveId: newElective._id }
+        }], { session });
+        
+        result = { student: studentDoc, newElective, oldElectiveId };
+      });
+      return result;
+    } finally {
+      session.endSession();
+    }
+  } catch (err: any) {
+    // If transactions are not supported on this MongoDB instance, fall back to atomic sequence
+    if (err.message && (err.message.includes('Transaction') || err.message.includes('replica set') || err.code === 20)) {
       const newElective = await Elective.findOneAndUpdate(
         { _id: newElectiveId, $expr: { $lt: ['$seatsFilled', '$capacity'] }, isActive: true },
         { $inc: { seatsFilled: 1 } },
-        { session, new: true }
+        { new: true }
       );
       
       if (!newElective) {
         throw new Error('Target elective is full or unavailable');
       }
-      
+
+      if (oldElectiveId) {
+        await Elective.findOneAndUpdate(
+          { _id: oldElectiveId, seatsFilled: { $gt: 0 } },
+          { $inc: { seatsFilled: -1 } }
+        );
+      }
+
       student.allocatedElectiveId = newElective._id as mongoose.Types.ObjectId;
       student.allocatedElectiveName = newElective.name;
       student.allocatedTerm = newElective.term;
       student.allocationTimestamp = new Date();
-      await student.save({ session });
-      
-      await AuditLog.create([{
+      await student.save();
+
+      await AuditLog.create({
         action: 'REASSIGN_SEAT',
         actorId: adminId,
         actorRole: 'admin',
@@ -92,13 +141,10 @@ export const transferSeat = async (studentId: string, newElectiveId: string, adm
         targetId: student._id,
         before: { electiveId: oldElectiveId },
         after: { electiveId: newElective._id }
-      }], { session });
-      
-      result = { student, newElective, oldElectiveId };
-    });
-  } finally {
-    session.endSession();
+      });
+
+      return { student, newElective, oldElectiveId };
+    }
+    throw err;
   }
-  
-  return result;
 };

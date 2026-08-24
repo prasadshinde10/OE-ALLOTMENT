@@ -13,7 +13,7 @@ export default function AdminTermConfigPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    term: '', year: 1, registrationOpensAt: '', registrationClosesAt: ''
+    term: 'Sem-1', year: 1, registrationOpensAt: '', registrationClosesAt: ''
   })
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function AdminTermConfigPage() {
       })
     } else {
       setEditingId(null)
-      setFormData({ term: '', year: 1, registrationOpensAt: '', registrationClosesAt: '' })
+      setFormData({ term: 'Sem-1', year: 1, registrationOpensAt: '', registrationClosesAt: '' })
     }
     setIsModalOpen(true)
   }
@@ -63,7 +63,7 @@ export default function AdminTermConfigPage() {
   }
 
   const columns = [
-    { header: 'Term', accessor: 'term' },
+    { header: 'Semester', accessor: 'term' },
     { header: 'Year', accessor: 'year' },
     { header: 'Opens At', accessor: (row: TermConfig) => new Date(row.registrationOpensAt).toLocaleString() },
     { header: 'Closes At', accessor: (row: TermConfig) => new Date(row.registrationClosesAt).toLocaleString() },
@@ -99,7 +99,19 @@ export default function AdminTermConfigPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingId ? 'Edit Term Config' : 'Add Term Config'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Term" value={formData.term} onChange={e => setFormData({...formData, term: e.target.value})} required placeholder="e.g. 2026-Odd" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Semester</label>
+            <select 
+              value={formData.term} 
+              onChange={e => setFormData({...formData, term: e.target.value})} 
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border" 
+              required
+            >
+              {Array.from({ length: 8 }, (_, i) => (
+                <option key={`sem-${i+1}`} value={`Sem-${i+1}`}>Sem-{i+1}</option>
+              ))}
+            </select>
+          </div>
           <Input label="Year" type="number" value={formData.year} onChange={e => setFormData({...formData, year: Number(e.target.value)})} required min={1} max={4} />
           <Input label="Registration Opens At" type="datetime-local" value={formData.registrationOpensAt} onChange={e => setFormData({...formData, registrationOpensAt: e.target.value})} required />
           <Input label="Registration Closes At" type="datetime-local" value={formData.registrationClosesAt} onChange={e => setFormData({...formData, registrationClosesAt: e.target.value})} required />

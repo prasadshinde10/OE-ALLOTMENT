@@ -13,6 +13,7 @@ export default function Sidebar() {
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/electives', label: 'Electives', icon: '📚' },
     { href: '/admin/students', label: 'Students', icon: '🎓' },
+    { href: '/admin/branches', label: 'Branches', icon: '🏫' },
     { href: '/admin/duplicates', label: 'Duplicates', icon: '👥' },
     { href: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
     { href: '/admin/term-config', label: 'Term Config', icon: '⚙️' },

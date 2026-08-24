@@ -44,14 +44,23 @@ export const createElective = async (req: Request, res: Response): Promise<void>
 
 export const updateElective = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, capacity, isActive } = req.body;
+    const { name, code, offeredByDepartment, year, term, capacity, isActive } = req.body;
     const oldElective = await Elective.findById(req.params.id);
     if (!oldElective) {
       res.status(404).json({ success: false, message: 'Elective not found' });
       return;
     }
 
-    const updated = await Elective.findByIdAndUpdate(req.params.id, { name, capacity, isActive }, { new: true });
+    const updates: any = {};
+    if (name !== undefined) updates.name = name;
+    if (code !== undefined) updates.code = code;
+    if (offeredByDepartment !== undefined) updates.offeredByDepartment = offeredByDepartment;
+    if (year !== undefined) updates.year = year;
+    if (term !== undefined) updates.term = term;
+    if (capacity !== undefined) updates.capacity = capacity;
+    if (isActive !== undefined) updates.isActive = isActive;
+
+    const updated = await Elective.findByIdAndUpdate(req.params.id, updates, { new: true });
     
     await logAudit({ 
       action: 'ELECTIVE_UPDATE', 

@@ -6,14 +6,15 @@ import { useAuthContext } from '@/context/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function StudentLoginPage() {
   const router = useRouter()
   const { login } = useAuthContext()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    email: '',
-    hallTicketNumber: ''
+    instituteEmail: '',
+    password: ''
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,11 +23,6 @@ export default function StudentLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!/^\d{12}$/.test(formData.hallTicketNumber)) {
-      toast.error('Hall Ticket Number must be 12 digits')
-      return
-    }
-
     try {
       setLoading(true)
       const res = await api.post('/api/auth/student/login', formData)
@@ -34,7 +30,14 @@ export default function StudentLoginPage() {
       toast.success('Login successful')
       router.push('/student/status')
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
+      if (err.response?.data?.needsVerification) {
+        toast.error('Please verify your email first')
+        router.push(`/verify-otp?email=${encodeURIComponent(formData.instituteEmail)}`)
+      } else if (err.response?.data?.message?.toLowerCase().includes('password')) {
+        toast.error(err.response?.data?.message || 'Invalid password. Try reset password if not set.')
+      } else {
+        toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
+      }
     } finally {
       setLoading(false)
     }
@@ -50,17 +53,34 @@ export default function StudentLoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input label="Institute Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
-            <Input label="Hall Ticket Number" type="text" name="hallTicketNumber" value={formData.hallTicketNumber} onChange={handleChange} required maxLength={12} />
+            <Input 
+              label="Institute Email" 
+              type="email" 
+              name="instituteEmail" 
+              value={formData.instituteEmail} 
+              onChange={handleChange} 
+              required 
+            />
+            <Input 
+              label="Password" 
+              type="password" 
+              name="password" 
+              value={formData.password} 
+              onChange={handleChange} 
+              required 
+            />
 
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Logging in...' : 'Sign In'}
             </Button>
             
-            <div className="mt-4 text-center">
-              <a href="/register" className="text-sm text-indigo-600 hover:text-indigo-500">
-                Not registered yet? Click here to register.
-              </a>
+            <div className="flex flex-col items-center gap-2 mt-4">
+              <Link href="/forgot-password/student" className="text-sm text-indigo-600 hover:text-indigo-500">
+                Forgot Password?
+              </Link>
+              <Link href="/register" className="text-sm text-indigo-600 hover:text-indigo-500">
+                Don't have an account? Register here
+              </Link>
             </div>
           </form>
         </div>

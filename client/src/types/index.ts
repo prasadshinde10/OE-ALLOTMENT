@@ -1,13 +1,17 @@
 export interface Student {
   _id: string;
   hallTicketNumber: string;
-  name: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
   instituteEmail: string;
   mobileNumber: string;
-  class: string;
+  branch: string;
+  semester: string;
   rollNumber: string;
   year: 1 | 2 | 3;
   isVerified: boolean;
+  password?: string;
   allocatedElectiveId?: string;
   allocatedElectiveName?: string;
   allocatedTerm?: string;
@@ -20,18 +24,25 @@ export interface Elective {
   _id: string;
   name: string;
   code: string;
+  offeredByDepartment?: string;
   year: 1 | 2 | 3;
   term: string;
   capacity: number;
   seatsFilled: number;
   isActive: boolean;
   remaining?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SeatCount {
-  electiveId: string;
-  electiveName: string;
-  electiveCode: string;
+  _id?: string;
+  electiveId?: string;
+  name?: string;
+  code?: string;
+  electiveName?: string;
+  electiveCode?: string;
+  offeredByDepartment?: string;
   capacity: number;
   seatsFilled: number;
   remaining: number;

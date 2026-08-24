@@ -16,7 +16,7 @@ export default function StudentStatusPage() {
       try {
         const res = await api.get('/api/allocation/my-status')
         const allocation = res.data.data || res.data.allocation
-        if (allocation && allocation.allocatedElectiveName) {
+        if (allocation) {
           setStatus(allocation)
         }
       } catch (err) {
@@ -41,7 +41,9 @@ export default function StudentStatusPage() {
           <dl className="sm:divide-y sm:divide-gray-200">
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Full name</dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.name}</dd>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {status ? `${status.firstName} ${status.middleName || ''} ${status.lastName}`.replace(/\s+/g, ' ').trim() : user?.name}
+              </dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Email</dt>
@@ -52,12 +54,20 @@ export default function StudentStatusPage() {
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">Year {user?.year}</dd>
             </div>
             <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Semester</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{status?.semester || '-'}</dd>
+            </div>
+            <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Branch</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{status?.branch || '-'}</dd>
+            </div>
+            <div className="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Allocation Status</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {status && status.allocatedElectiveName ? (
                   <div className="bg-green-50 border border-green-200 rounded-md p-4">
                     <h4 className="text-lg font-bold text-green-800">{status.allocatedElectiveName}</h4>
-                    <p className="text-green-700">Term: {status.allocatedTerm || '-'}</p>
+                    <p className="text-green-700">Semester: {status.allocatedTerm || '-'}</p>
                     <p className="text-xs text-green-600 mt-2">
                       Allocated at: {status.allocationTimestamp ? new Date(status.allocationTimestamp).toLocaleString() : '-'}
                     </p>

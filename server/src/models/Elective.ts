@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IElective extends Document {
   name: string;
   code: string;
+  offeredByDepartment?: string;
   year: number;
   term: string;
   capacity: number;
@@ -22,6 +23,11 @@ const electiveSchema = new Schema<IElective>(
       type: String,
       required: true,
     },
+    offeredByDepartment: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     year: {
       type: Number,
       required: true,
@@ -30,6 +36,7 @@ const electiveSchema = new Schema<IElective>(
     term: {
       type: String,
       required: true,
+      enum: ['Sem-1','Sem-2','Sem-3','Sem-4','Sem-5','Sem-6','Sem-7','Sem-8'],
     },
     capacity: {
       type: Number,

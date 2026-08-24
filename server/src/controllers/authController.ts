@@ -1,51 +1,99 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import Student from '../models/Student';
 import User from '../models/User';
 import { logAudit } from '../services/auditService';
 import { sendAndStoreOtp, verifyOtp as verifyOtpService, canResendOtp } from '../services/otpService';
+import { sendResetPasswordEmail } from '../config/mailer';
 import { env } from '../config/env';
 
 export const sendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { hallTicketNumber, name, instituteEmail, mobileNumber, class: studentClass, rollNumber, year } = req.body;
-    
-    if (!instituteEmail.endsWith('@mit.asia')) {
-      res.status(400).json({ success: false, message: 'Only @mit.asia emails are allowed' });
+    const {
+      hallTicketNumber,
+      firstName,
+      middleName,
+      lastName,
+      instituteEmail,
+      mobileNumber,
+      branch,
+      semester,
+      rollNumber,
+      year,
+      password,
+    } = req.body;
+
+    if (!instituteEmail || !instituteEmail.endsWith(`@${env.ALLOWED_EMAIL_DOMAIN}`)) {
+      res.status(400).json({ success: false, message: `Only @${env.ALLOWED_EMAIL_DOMAIN} emails are allowed` });
       return;
     }
     if (!/^\d{12}$/.test(hallTicketNumber)) {
       res.status(400).json({ success: false, message: 'Invalid hall ticket number format (must be 12 digits)' });
       return;
     }
-    if (!name || !mobileNumber || !studentClass || !rollNumber || !year) {
-      res.status(400).json({ success: false, message: 'All fields are required' });
+    if (!firstName || !lastName || !mobileNumber || !branch || !semester || !rollNumber || !year || !password) {
+      res.status(400).json({ success: false, message: 'All required fields must be provided' });
+      return;
+    }
+    if (password.length < 6) {
+      res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
       return;
     }
 
-    let student = await Student.findOne({ $or: [{ instituteEmail }, { hallTicketNumber }] });
-    
+    let student = await Student.findOne({
+      $or: [{ instituteEmail: instituteEmail.toLowerCase() }, { hallTicketNumber }],
+    });
+
     if (student) {
       if (student.isVerified) {
         res.status(400).json({ success: false, message: 'Already registered and verified' });
         return;
       }
-      student.name = name;
+      student.firstName = firstName;
+      student.middleName = middleName || '';
+      student.lastName = lastName;
       student.mobileNumber = mobileNumber;
-      student.class = studentClass;
+      student.branch = branch;
+      student.semester = semester;
       student.rollNumber = rollNumber;
       student.year = year;
+      student.password = password; // pre-save hook will hash it
     } else {
       student = new Student({
-        hallTicketNumber, name, instituteEmail, mobileNumber, class: studentClass, rollNumber, year, isVerified: false
+        hallTicketNumber,
+        firstName,
+        middleName: middleName || '',
+        lastName,
+        instituteEmail: instituteEmail.toLowerCase(),
+        mobileNumber,
+        branch,
+        semester,
+        rollNumber,
+        year,
+        password,
+        isVerified: false,
       });
     }
 
     await student.save();
     await sendAndStoreOtp(student.id);
 
-    await logAudit({ action: 'OTP_SEND', actorId: student.id, actorRole: 'system', targetType: 'student', targetId: student.id, metadata: { email: instituteEmail } });
-    res.status(200).json({ success: true, message: 'OTP sent to your email' });
+    await logAudit({
+      action: 'OTP_SEND',
+      actorId: student.id,
+      actorRole: 'system',
+      targetType: 'student',
+      targetId: student.id,
+      metadata: { email: instituteEmail },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email',
+      data: { studentId: student._id, email: student.instituteEmail },
+    });
   } catch (error: any) {
     if (error.code === 11000) {
       res.status(400).json({ success: false, message: 'Email, Hall Ticket, or Mobile Number already exists' });
@@ -57,24 +105,66 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
 
 export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, otp } = req.body;
-    const result = await verifyOtpService(email, otp);
-    
+    const { email, studentId, otp } = req.body;
+    let studentEmail = email;
+
+    if (!studentEmail && studentId) {
+      const student = await Student.findById(studentId);
+      if (student) studentEmail = student.instituteEmail;
+    }
+
+    if (!studentEmail) {
+      res.status(400).json({ success: false, message: 'Email or Student ID is required' });
+      return;
+    }
+
+    const result = await verifyOtpService(studentEmail, otp);
+
     if (!result.valid || !result.student) {
-      await logAudit({ action: 'OTP_VERIFY_FAIL', actorId: 'system', actorRole: 'system', targetType: 'student', metadata: { email } });
+      await logAudit({
+        action: 'OTP_VERIFY_FAIL',
+        actorId: 'system',
+        actorRole: 'system',
+        targetType: 'student',
+        metadata: { email: studentEmail },
+      });
       res.status(400).json({ success: false, message: result.message });
       return;
     }
 
     const { student } = result;
     const token = jwt.sign(
-      { userId: student._id, role: 'student', year: student.year, email: student.instituteEmail, name: student.name },
+      {
+        userId: student._id,
+        role: 'student',
+        year: student.year,
+        email: student.instituteEmail,
+        name: student.fullName,
+      },
       env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    await logAudit({ action: 'OTP_VERIFY_SUCCESS', actorId: student.id, actorRole: 'student', targetType: 'student', targetId: student.id, metadata: { email } });
-    res.status(200).json({ success: true, token, student });
+    await logAudit({
+      action: 'OTP_VERIFY_SUCCESS',
+      actorId: student.id,
+      actorRole: 'student',
+      targetType: 'student',
+      targetId: student.id,
+      metadata: { email: studentEmail },
+    });
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        userId: student._id,
+        role: 'student',
+        name: student.fullName,
+        year: student.year,
+        email: student.instituteEmail,
+      },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
@@ -82,9 +172,15 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
 
 export const resendOtp = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email } = req.body;
-    const student = await Student.findOne({ instituteEmail: email });
-    
+    const { email, studentId } = req.body;
+    let student = null;
+
+    if (studentId) {
+      student = await Student.findById(studentId);
+    } else if (email) {
+      student = await Student.findOne({ instituteEmail: email.toLowerCase() });
+    }
+
     if (!student) {
       res.status(404).json({ success: false, message: 'Student not found' });
       return;
@@ -99,7 +195,15 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
     }
 
     await sendAndStoreOtp(student.id);
-    await logAudit({ action: 'OTP_RESEND', actorId: student.id, actorRole: 'system', targetType: 'student', targetId: student.id, metadata: { email } });
+    await logAudit({
+      action: 'OTP_RESEND',
+      actorId: student.id,
+      actorRole: 'system',
+      targetType: 'student',
+      targetId: student.id,
+      metadata: { email: student.instituteEmail },
+    });
+
     res.status(200).json({ success: true, message: 'OTP resent successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
@@ -108,25 +212,75 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
 
 export const studentLogin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, hallTicketNumber } = req.body;
-    const student = await Student.findOne({ instituteEmail: email, hallTicketNumber });
-    
+    const { email, instituteEmail, password } = req.body;
+    const loginEmail = (instituteEmail || email)?.toLowerCase();
+
+    if (!loginEmail || !password) {
+      res.status(400).json({ success: false, message: 'Email and password are required' });
+      return;
+    }
+
+    const student = await Student.findOne({ instituteEmail: loginEmail });
+
     if (!student) {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
     }
+
     if (!student.isVerified) {
-      res.status(401).json({ success: false, message: 'Account not verified. Please verify OTP.' });
+      res.status(403).json({
+        success: false,
+        message: 'Account not verified. Please complete OTP verification.',
+        data: { needsVerification: true, studentId: student._id, email: student.instituteEmail },
+      });
+      return;
+    }
+
+    if (!student.password) {
+      res.status(400).json({
+        success: false,
+        message: 'No password set on this account. Please use Forgot Password to create one.',
+      });
+      return;
+    }
+
+    const isMatch = await student.comparePassword(password);
+    if (!isMatch) {
+      res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
     }
 
     const token = jwt.sign(
-      { userId: student._id, role: 'student', year: student.year, email: student.instituteEmail, name: student.name },
+      {
+        userId: student._id,
+        role: 'student',
+        year: student.year,
+        email: student.instituteEmail,
+        name: student.fullName,
+      },
       env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.status(200).json({ success: true, token, student });
+    await logAudit({
+      action: 'STUDENT_LOGIN',
+      actorId: student.id,
+      actorRole: 'student',
+      targetType: 'student',
+      targetId: student.id,
+    });
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        userId: student._id,
+        name: student.fullName,
+        email: student.instituteEmail,
+        year: student.year,
+        role: 'student',
+      },
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
@@ -135,14 +289,19 @@ export const studentLogin = async (req: Request, res: Response): Promise<void> =
 export const adminLogin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    
+    if (!email || !password) {
+      res.status(400).json({ success: false, message: 'Email and password are required' });
+      return;
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
     if (!user) {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
     }
 
-    const isMatch = await (user as any).comparePassword(password);
+    const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
@@ -154,7 +313,209 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
       { expiresIn: '1d' }
     );
 
-    res.status(200).json({ success: true, token, user: { name: user.name, email: user.email, role: user.role } });
+    await logAudit({
+      action: user.role === 'admin' ? 'ADMIN_LOGIN' : 'TEACHER_LOGIN',
+      actorId: user.id,
+      actorRole: user.role,
+      targetType: 'user',
+      targetId: user.id,
+    });
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: { userId: user._id, name: user.name, email: user.email, role: user.role },
+      data: { userId: user._id, name: user.name, role: user.role },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const forgotPasswordStudent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, instituteEmail } = req.body;
+    const targetEmail = (instituteEmail || email)?.toLowerCase();
+
+    if (!targetEmail) {
+      res.status(400).json({ success: false, message: 'Email is required' });
+      return;
+    }
+
+    const student = await Student.findOne({ instituteEmail: targetEmail });
+    if (student) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = await bcrypt.hash(resetToken, 10);
+
+      student.resetPasswordToken = hashedToken;
+      student.resetPasswordExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+      await student.save();
+
+      const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}&type=student`;
+      await sendResetPasswordEmail(student.instituteEmail, resetUrl);
+
+      await logAudit({
+        action: 'PASSWORD_RESET_REQUESTED',
+        actorId: student.id,
+        actorRole: 'student',
+        targetType: 'student',
+        targetId: student.id,
+      });
+    }
+
+    // Always return success to prevent user enumeration
+    res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.',
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const resetPasswordStudent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ success: false, message: 'Token and new password are required' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+      return;
+    }
+
+    const candidates = await Student.find({
+      resetPasswordExpiresAt: { $gt: new Date() },
+      resetPasswordToken: { $ne: null },
+    });
+
+    let matchedStudent = null;
+    for (const student of candidates) {
+      if (student.resetPasswordToken) {
+        const isMatch = await bcrypt.compare(token, student.resetPasswordToken);
+        if (isMatch) {
+          matchedStudent = student;
+          break;
+        }
+      }
+    }
+
+    if (!matchedStudent) {
+      res.status(400).json({ success: false, message: 'Invalid or expired password reset token' });
+      return;
+    }
+
+    matchedStudent.password = newPassword; // pre-save hook will hash it
+    matchedStudent.resetPasswordToken = null;
+    matchedStudent.resetPasswordExpiresAt = null;
+    await matchedStudent.save();
+
+    await logAudit({
+      action: 'PASSWORD_RESET_COMPLETED',
+      actorId: matchedStudent.id,
+      actorRole: 'student',
+      targetType: 'student',
+      targetId: matchedStudent.id,
+    });
+
+    res.status(200).json({ success: true, message: 'Password reset successfully. You can now login.' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const forgotPasswordAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const targetEmail = email?.toLowerCase();
+
+    if (!targetEmail) {
+      res.status(400).json({ success: false, message: 'Email is required' });
+      return;
+    }
+
+    const user = await User.findOne({ email: targetEmail });
+    if (user) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const hashedToken = await bcrypt.hash(resetToken, 10);
+
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+      await user.save();
+
+      const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}&type=admin`;
+      await sendResetPasswordEmail(user.email, resetUrl);
+
+      await logAudit({
+        action: 'PASSWORD_RESET_REQUESTED',
+        actorId: user.id,
+        actorRole: user.role,
+        targetType: 'user',
+        targetId: user.id,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.',
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const resetPasswordAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ success: false, message: 'Token and new password are required' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+      return;
+    }
+
+    const candidates = await User.find({
+      resetPasswordExpiresAt: { $gt: new Date() },
+      resetPasswordToken: { $ne: null },
+    });
+
+    let matchedUser = null;
+    for (const user of candidates) {
+      if (user.resetPasswordToken) {
+        const isMatch = await bcrypt.compare(token, user.resetPasswordToken);
+        if (isMatch) {
+          matchedUser = user;
+          break;
+        }
+      }
+    }
+
+    if (!matchedUser) {
+      res.status(400).json({ success: false, message: 'Invalid or expired password reset token' });
+      return;
+    }
+
+    matchedUser.password = newPassword; // pre-save hook will hash it
+    matchedUser.resetPasswordToken = null;
+    matchedUser.resetPasswordExpiresAt = null;
+    await matchedUser.save();
+
+    await logAudit({
+      action: 'PASSWORD_RESET_COMPLETED',
+      actorId: matchedUser.id,
+      actorRole: matchedUser.role,
+      targetType: 'user',
+      targetId: matchedUser.id,
+    });
+
+    res.status(200).json({ success: true, message: 'Password reset successfully. You can now login.' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }

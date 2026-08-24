@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import exceljs from 'exceljs';
 import Student from '../models/Student';
-import Elective from '../models/Elective';
 
 export const exportStudents = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -13,19 +12,36 @@ export const exportStudents = async (req: Request, res: Response): Promise<void>
 
     worksheet.columns = [
       { header: 'Hall Ticket Number', key: 'hallTicketNumber', width: 20 },
-      { header: 'Name', key: 'name', width: 25 },
+      { header: 'First Name', key: 'firstName', width: 20 },
+      { header: 'Middle Name', key: 'middleName', width: 20 },
+      { header: 'Last Name', key: 'lastName', width: 20 },
       { header: 'Email', key: 'instituteEmail', width: 30 },
       { header: 'Mobile', key: 'mobileNumber', width: 15 },
-      { header: 'Class', key: 'class', width: 15 },
+      { header: 'Branch', key: 'branch', width: 15 },
+      { header: 'Semester', key: 'semester', width: 12 },
       { header: 'Roll Number', key: 'rollNumber', width: 15 },
       { header: 'Year', key: 'year', width: 10 },
       { header: 'Verified', key: 'isVerified', width: 10 },
       { header: 'Allocated Elective', key: 'allocatedElectiveName', width: 30 },
-      { header: 'Allocated Term', key: 'allocatedTerm', width: 15 },
+      { header: 'Allocated Semester', key: 'allocatedTerm', width: 18 },
     ];
 
     students.forEach((student: any) => {
-      worksheet.addRow(student);
+      worksheet.addRow({
+        hallTicketNumber: student.hallTicketNumber,
+        firstName: student.firstName,
+        middleName: student.middleName || '',
+        lastName: student.lastName,
+        instituteEmail: student.instituteEmail,
+        mobileNumber: student.mobileNumber,
+        branch: student.branch,
+        semester: student.semester,
+        rollNumber: student.rollNumber,
+        year: student.year,
+        isVerified: student.isVerified ? 'Yes' : 'No',
+        allocatedElectiveName: student.allocatedElectiveName || 'None',
+        allocatedTerm: student.allocatedTerm || 'None',
+      });
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -42,8 +58,8 @@ export const exportAllocations = async (req: Request, res: Response): Promise<vo
   try {
     const { year } = req.params;
     const { term } = req.query;
-    
-    const filter: any = { year, isVerified: true, allocatedElectiveId: { $ne: null } };
+
+    const filter: any = { year: Number(year), isVerified: true, allocatedElectiveId: { $ne: null } };
     if (term) filter.allocatedTerm = term;
 
     const students = await Student.find(filter);
@@ -53,21 +69,29 @@ export const exportAllocations = async (req: Request, res: Response): Promise<vo
 
     worksheet.columns = [
       { header: 'Hall Ticket Number', key: 'hallTicketNumber', width: 20 },
-      { header: 'Name', key: 'name', width: 25 },
+      { header: 'First Name', key: 'firstName', width: 20 },
+      { header: 'Middle Name', key: 'middleName', width: 20 },
+      { header: 'Last Name', key: 'lastName', width: 20 },
       { header: 'Email', key: 'instituteEmail', width: 30 },
+      { header: 'Branch', key: 'branch', width: 15 },
+      { header: 'Semester', key: 'semester', width: 12 },
       { header: 'Allocated Elective', key: 'allocatedElectiveName', width: 30 },
-      { header: 'Allocated Term', key: 'allocatedTerm', width: 15 },
+      { header: 'Allocated Semester', key: 'allocatedTerm', width: 18 },
       { header: 'Allocation Time', key: 'allocationTimestamp', width: 25 },
     ];
 
     students.forEach((student: any) => {
       worksheet.addRow({
         hallTicketNumber: student.hallTicketNumber,
-        name: student.name,
+        firstName: student.firstName,
+        middleName: student.middleName || '',
+        lastName: student.lastName,
         instituteEmail: student.instituteEmail,
+        branch: student.branch,
+        semester: student.semester,
         allocatedElectiveName: student.allocatedElectiveName,
         allocatedTerm: student.allocatedTerm,
-        allocationTimestamp: student.allocationTimestamp ? student.allocationTimestamp.toISOString() : ''
+        allocationTimestamp: student.allocationTimestamp ? student.allocationTimestamp.toISOString() : '',
       });
     });
 

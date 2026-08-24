@@ -16,9 +16,13 @@ export default function SelectElectivePage() {
   const [allocationStatus, setAllocationStatus] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [modalData, setModalData] = useState<{isOpen: boolean, message: string}>({ isOpen: false, message: '' })
+  const [confirmElective, setConfirmElective] = useState<Elective | null>(null)
+  const [modalData, setModalData] = useState<{ isOpen: boolean; message: string }>({
+    isOpen: false,
+    message: '',
+  })
 
-  // Hooks ensure real-time seat counts
+  // Hook ensures real-time seat updates
   const { seatCounts } = useSeatCounts(user?.year)
 
   useEffect(() => {
@@ -31,17 +35,18 @@ export default function SelectElectivePage() {
       const [electivesRes, statusRes, configsRes] = await Promise.all([
         api.get(`/api/electives?year=${user?.year}`),
         api.get('/api/allocation/my-status'),
-        api.get('/api/admin/term-configs')
+        api.get('/api/allocation/my-term-config'),
       ])
-      
+
       setElectives(electivesRes.data.data || [])
       const allocation = statusRes.data.data || statusRes.data.allocation
       if (allocation && allocation.allocatedElectiveName) {
         setAllocationStatus(allocation)
+      } else {
+        setAllocationStatus(null)
       }
-      
-      const currentYearConfig = (configsRes.data.data || []).find((c: TermConfig) => c.year === Number(user?.year) && new Date() <= new Date(c.registrationClosesAt))
-      setTermConfig(currentYearConfig || (configsRes.data.data && configsRes.data.data[0]) || null)
+
+      setTermConfig(configsRes.data.data || null)
     } catch (err: any) {
       toast.error('Failed to load data')
     } finally {
@@ -49,15 +54,25 @@ export default function SelectElectivePage() {
     }
   }
 
-  const handleSelect = async (electiveId: string) => {
+  const handleSelect = (elective: Elective) => {
+    setConfirmElective(elective)
+  }
+
+  const confirmAllocation = async () => {
+    if (!confirmElective) return
     try {
       setSubmitting(true)
-      await api.post('/api/allocation/allocate', { electiveId })
-      toast.success('Successfully allocated!')
+      await api.post('/api/allocation/allocate', { electiveId: confirmElective._id })
+      toast.success('Successfully allocated elective!')
+      setConfirmElective(null)
       await fetchData()
     } catch (err: any) {
+      setConfirmElective(null)
       if (err.response?.status === 409) {
-        setModalData({ isOpen: true, message: 'This elective is now full, please select another.' })
+        setModalData({
+          isOpen: true,
+          message: 'This elective is full. No seats are currently available.',
+        })
       } else {
         toast.error(err.response?.data?.message || 'Failed to allocate elective')
       }
@@ -66,15 +81,16 @@ export default function SelectElectivePage() {
     }
   }
 
-  const getStatusColor = (capacity: number, filled: number) => {
+  const getStatusColor = (capacity: number, filled: number, isSelected: boolean) => {
+    if (isSelected) return 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500 ring-opacity-50'
     const available = capacity - filled
     const ratio = available / capacity
-    if (available <= 0) return 'bg-gray-100 border-gray-300'
-    if (ratio > 0.5) return 'bg-green-50 border-green-200'
-    if (ratio > 0.25) return 'bg-yellow-50 border-yellow-200'
-    return 'bg-red-50 border-red-200'
+    if (available <= 0) return 'bg-gray-50 border-gray-200 opacity-80'
+    if (ratio > 0.5) return 'bg-green-50/50 border-green-200'
+    if (ratio > 0.25) return 'bg-yellow-50/50 border-yellow-200'
+    return 'bg-red-50/50 border-red-200'
   }
-  
+
   const getProgressColor = (capacity: number, filled: number) => {
     const available = capacity - filled
     const ratio = available / capacity
@@ -89,7 +105,7 @@ export default function SelectElectivePage() {
   const now = new Date()
   let isRegistrationOpen = false
   let statusMessage = 'Registration is currently closed'
-  
+
   if (termConfig) {
     const openDate = new Date(termConfig.registrationOpensAt)
     const closeDate = new Date(termConfig.registrationClosesAt)
@@ -106,62 +122,128 @@ export default function SelectElectivePage() {
   return (
     <div className="space-y-6">
       {allocationStatus && (
-        <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-6 rounded-r-md">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <span className="text-xl">✅</span>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-lg font-medium text-indigo-800">You are allocated to {allocationStatus.allocatedElectiveName || allocationStatus.electiveName}</h3>
-              <p className="mt-1 text-sm text-indigo-700">Term: {allocationStatus.allocatedTerm || '-'}</p>
+        <div className="bg-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-xl shadow-sm">
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">🎉</span>
+            <div>
+              <h3 className="text-lg font-bold text-indigo-900">
+                You are currently allocated to: {allocationStatus.allocatedElectiveName}
+              </h3>
+              <p className="text-sm text-indigo-700 mt-0.5">
+                Semester: <span className="font-semibold">{allocationStatus.allocatedTerm || '-'}</span> | 
+                Allocated On: <span className="font-semibold">{allocationStatus.allocationTimestamp ? new Date(allocationStatus.allocationTimestamp).toLocaleString() : 'N/A'}</span>
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-white px-4 py-5 border-b border-gray-200 sm:px-6 rounded-lg shadow-sm flex justify-between items-center">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Select Your Open Elective</h3>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${isRegistrationOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+      <div className="bg-white px-6 py-5 border border-gray-200 rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Select Your Open Elective</h2>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Year {user?.year} {termConfig ? `• ${termConfig.term}` : ''}
+          </p>
+        </div>
+        <span
+          className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-semibold self-start sm:self-auto ${
+            isRegistrationOpen ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'
+          }`}
+        >
           {statusMessage}
         </span>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {electives.map(elective => {
-          const seatUpdate = seatCounts.find((s) => s.electiveId === elective._id)
+        {electives.map((elective) => {
+          const seatUpdate = seatCounts.find(
+            (s) => s.electiveId === elective._id || (s as any)._id === elective._id
+          )
           const filled = seatUpdate ? seatUpdate.seatsFilled : (elective.seatsFilled || 0)
           const capacity = elective.capacity
-          const available = capacity - filled
+          const available = Math.max(0, capacity - filled)
           const isFull = available <= 0
           const fillPercentage = Math.min(100, (filled / capacity) * 100)
+          const isSelected = allocationStatus?.allocatedElectiveId === elective._id
 
           return (
-            <div key={elective._id} className={`rounded-lg border shadow-sm p-6 flex flex-col ${getStatusColor(capacity, filled)}`}>
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h4 className="text-xl font-bold text-gray-900">{elective.name}</h4>
-                  <p className="text-sm text-gray-500">{elective.code}</p>
+            <div
+              key={elective._id}
+              className={`rounded-xl border shadow-sm p-6 flex flex-col justify-between transition-all ${getStatusColor(
+                capacity,
+                filled,
+                isSelected
+              )}`}
+            >
+              <div>
+                <div className="flex justify-between items-start mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2.5 py-0.5 rounded-md">
+                    {elective.code}
+                  </span>
+                  {isSelected ? (
+                    <span className="px-2.5 py-1 text-xs font-bold rounded-full bg-green-600 text-white flex items-center gap-1">
+                      ✓ Allocated
+                    </span>
+                  ) : (
+                    <span
+                      className={`px-2.5 py-1 text-xs font-semibold rounded-full ${
+                        isFull
+                          ? 'bg-red-100 text-red-800 border border-red-200'
+                          : available <= 5
+                          ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                          : 'bg-green-100 text-green-800 border border-green-200'
+                      }`}
+                    >
+                      {isFull ? 'FULL' : `${available} Available`}
+                    </span>
+                  )}
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${isFull ? 'bg-gray-200 text-gray-800' : 'bg-white border text-gray-700'}`}>
-                  {isFull ? 'FULL' : `${available} Left`}
-                </span>
+
+                <h3 className="text-lg font-bold text-gray-900 mt-2">{elective.name}</h3>
+
+                {elective.offeredByDepartment && (
+                  <p className="text-xs font-medium text-gray-600 mt-1 flex items-center gap-1">
+                    <span className="text-gray-400">Department:</span>
+                    <span className="text-gray-800 font-semibold">{elective.offeredByDepartment}</span>
+                  </p>
+                )}
+
+                <div className="mt-4 pt-3 border-t border-gray-100/80">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1.5">
+                    <span>Available: <strong className="text-gray-900">{available}</strong> / {capacity}</span>
+                    <span>Filled: <strong className="text-gray-900">{filled}</strong></span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(
+                        capacity,
+                        filled
+                      )}`}
+                      style={{ width: `${fillPercentage}%` }}
+                    />
+                  </div>
+                </div>
               </div>
-              
-              <div className="mt-auto pt-4">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>Seats Filled</span>
-                  <span>{filled} / {capacity}</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                  <div className={`h-2 rounded-full ${getProgressColor(capacity, filled)}`} style={{ width: `${fillPercentage}%` }}></div>
-                </div>
-                
-                <Button 
-                  className="w-full" 
-                  disabled={!isRegistrationOpen || isFull || !!allocationStatus || submitting}
-                  onClick={() => handleSelect(elective._id)}
+
+              <div className="mt-6 pt-2">
+                <Button
+                  className="w-full font-medium"
+                  disabled={
+                    !isRegistrationOpen ||
+                    isFull ||
+                    !!allocationStatus ||
+                    submitting
+                  }
+                  onClick={() => handleSelect(elective)}
+                  variant={isSelected ? 'secondary' : isFull ? 'ghost' : 'primary'}
                 >
-                  {isFull ? 'Class Full' : allocationStatus ? 'Already Allocated' : 'Select Elective'}
+                  {isSelected
+                    ? 'Currently Selected'
+                    : isFull
+                    ? 'Class Full (0 Seats)'
+                    : allocationStatus
+                    ? 'Already Allocated'
+                    : 'Select Elective'}
                 </Button>
               </div>
             </div>
@@ -170,21 +252,54 @@ export default function SelectElectivePage() {
       </div>
 
       {electives.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          No electives available for your year.
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200 text-gray-500">
+          <p className="text-lg font-medium text-gray-700">No electives currently found for your year.</p>
+          <p className="text-sm text-gray-400 mt-1">Please check back once the course list is published.</p>
         </div>
       )}
 
-      {modalData.isOpen && (
-        <Modal 
-          isOpen={modalData.isOpen} 
-          onClose={() => setModalData({ isOpen: false, message: '' })} 
-          title="Allocation Failed"
+      {confirmElective && (
+        <Modal
+          isOpen={!!confirmElective}
+          onClose={() => setConfirmElective(null)}
+          title="Confirm Elective Selection"
         >
-          <div className="mt-2">
-            <p className="text-sm text-gray-500">{modalData.message}</p>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Are you sure you want to select the following elective? This action cannot be undone.
+            </p>
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 space-y-1">
+              <p className="text-lg font-bold text-indigo-900">{confirmElective.name}</p>
+              <p className="text-sm text-indigo-700">Code: {confirmElective.code}</p>
+              {confirmElective.offeredByDepartment && (
+                <p className="text-sm text-indigo-700">Department: {confirmElective.offeredByDepartment}</p>
+              )}
+              <p className="text-sm text-indigo-700">
+                Available Seats: {confirmElective.capacity - (confirmElective.seatsFilled || 0)} / {confirmElective.capacity}
+              </p>
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button variant="outline" onClick={() => setConfirmElective(null)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button onClick={confirmAllocation} disabled={submitting}>
+                {submitting ? 'Allocating...' : 'Yes, Confirm Selection'}
+              </Button>
+            </div>
           </div>
-          <div className="mt-4">
+        </Modal>
+      )}
+
+      {modalData.isOpen && (
+        <Modal
+          isOpen={modalData.isOpen}
+          onClose={() => setModalData({ isOpen: false, message: '' })}
+          title="Elective Selection"
+        >
+          <div className="mt-2 text-sm text-gray-600">
+            <p>{modalData.message}</p>
+          </div>
+          <div className="mt-5 flex justify-end">
             <Button onClick={() => setModalData({ isOpen: false, message: '' })}>Close</Button>
           </div>
         </Modal>

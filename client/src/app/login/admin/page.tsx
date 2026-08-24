@@ -6,6 +6,7 @@ import { useAuthContext } from '@/context/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -54,6 +55,12 @@ export default function AdminLoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Logging in...' : 'Sign In'}
             </Button>
+            
+            <div className="mt-4 text-center">
+              <Link href="/forgot-password/admin" className="text-sm text-indigo-600 hover:text-indigo-500">
+                Forgot Password?
+              </Link>
+            </div>
           </form>
         </div>
       </div>

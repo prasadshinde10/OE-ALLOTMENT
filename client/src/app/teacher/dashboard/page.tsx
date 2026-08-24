@@ -12,7 +12,7 @@ export default function TeacherDashboard() {
   const [total, setTotal] = useState(0)
   const [filters, setFilters] = useState({
     year: '',
-    class: '',
+    branch: '',
     term: '',
     search: '',
     page: 1,
@@ -21,7 +21,7 @@ export default function TeacherDashboard() {
 
   useEffect(() => {
     fetchStudents()
-  }, [filters.page, filters.limit, filters.year, filters.class, filters.term])
+  }, [filters.page, filters.limit, filters.year, filters.branch, filters.term])
 
   const fetchStudents = async () => {
     try {
@@ -64,8 +64,8 @@ export default function TeacherDashboard() {
 
   const columns = [
     { header: 'HT Number', accessor: 'hallTicketNumber' },
-    { header: 'Name', accessor: 'name' },
-    { header: 'Class', accessor: 'class' },
+    { header: 'Name', accessor: (row: any) => `${row.firstName} ${row.middleName || ''} ${row.lastName}`.replace(/\s+/g, ' ').trim() },
+    { header: 'Branch', accessor: 'branch' },
     { header: 'Year', accessor: 'year' },
     { header: 'Elective', accessor: (row: any) => row.allocatedElectiveName || 'Unallocated' },
     { header: 'Allocated At', accessor: (row: any) => row.allocationTimestamp ? new Date(row.allocationTimestamp).toLocaleString() : '-' },
@@ -90,10 +90,10 @@ export default function TeacherDashboard() {
             </select>
           </div>
           <div>
-            <Input label="Class" name="class" value={filters.class} onChange={handleFilterChange} placeholder="e.g. CS-A" />
+            <Input label="Branch" name="branch" value={filters.branch} onChange={handleFilterChange} placeholder="e.g. CS" />
           </div>
           <div>
-            <Input label="Term" name="term" value={filters.term} onChange={handleFilterChange} placeholder="e.g. 2024-Fall" />
+            <Input label="Semester" name="term" value={filters.term} onChange={handleFilterChange} placeholder="e.g. Sem-1" />
           </div>
           <div>
             <Input label="Search Name/HT" name="search" value={filters.search} onChange={handleFilterChange} />

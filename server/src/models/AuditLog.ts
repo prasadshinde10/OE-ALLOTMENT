@@ -4,7 +4,7 @@ export interface IAuditLog extends Document {
   action: string;
   actorId: string;
   actorRole: 'student' | 'admin' | 'teacher' | 'system';
-  targetType: 'student' | 'elective' | 'term_config' | 'user';
+  targetType: 'student' | 'elective' | 'term_config' | 'user' | 'branch';
   targetId?: string;
   before?: any;
   after?: any;
@@ -29,7 +29,7 @@ const auditLogSchema = new Schema<IAuditLog>({
   targetType: {
     type: String,
     required: true,
-    enum: ['student', 'elective', 'term_config', 'user'],
+    enum: ['student', 'elective', 'term_config', 'user', 'branch'],
   },
   targetId: {
     type: String,
