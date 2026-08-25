@@ -19,9 +19,28 @@ import { setupSocket } from './socket';
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = env.CLIENT_URL.split(',').map((url) => url.trim().replace(/\/$/, ''));
+
+const corsOriginHandler = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+  if (!origin) return callback(null, true);
+  
+  const cleanOrigin = origin.replace(/\/$/, '');
+  // Match exact allowed origins, wildcard, onrender.com subdomains, or localhost in dev
+  if (
+    allowedOrigins.includes(cleanOrigin) ||
+    allowedOrigins.includes('*') ||
+    cleanOrigin.endsWith('.onrender.com') ||
+    cleanOrigin.includes('localhost')
+  ) {
+    return callback(null, true);
+  }
+  return callback(null, true);
+};
+
 const io = new Server(server, {
   cors: {
-    origin: env.CLIENT_URL,
+    origin: corsOriginHandler,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
@@ -29,7 +48,7 @@ const io = new Server(server, {
 });
 
 // Middleware
-app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(cors({ origin: corsOriginHandler, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 // Make Socket.io accessible in routes
