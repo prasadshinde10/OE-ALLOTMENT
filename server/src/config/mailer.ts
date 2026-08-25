@@ -1,39 +1,20 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { env } from './env';
 
-const isPlaceholderPassword =
-  !env.GMAIL_APP_PASSWORD ||
-  env.GMAIL_APP_PASSWORD === 'your_app_password_here' ||
-  env.GMAIL_APP_PASSWORD === 'your_app_password';
+const resendApiKey = env.RESEND_API_KEY;
+const isResendConfigured = !!resendApiKey && resendApiKey.length > 5;
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: env.GMAIL_USER,
-    pass: env.GMAIL_APP_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 5000,
-  socketTimeout: 10000,
-});
+const resend = isResendConfigured ? new Resend(resendApiKey) : null;
+
+const SENDER = 'OE Allotment <onboarding@resend.dev>';
 
 export const verifyMailer = async (): Promise<void> => {
-  if (isPlaceholderPassword) {
-    console.log('⚠️ [DEV INFO] Gmail App Password not set or using placeholder. Generated OTPs will be displayed directly in server console.');
+  if (!isResendConfigured) {
+    console.log('⚠️ [DEV INFO] RESEND_API_KEY not set. Generated OTPs will be displayed directly in server console.');
     return;
   }
 
-  try {
-    await transporter.verify();
-    console.log('✅ Mailer is ready to send OTP emails');
-  } catch (error: any) {
-    console.warn('⚠️ SMTP verification warning (will log OTPs to console in dev):', error.message || error);
-  }
+  console.log('✅ Resend email service is configured and ready');
 };
 
 export const sendOtpEmail = async (to: string, otp: string): Promise<void> => {
@@ -41,13 +22,13 @@ export const sendOtpEmail = async (to: string, otp: string): Promise<void> => {
   console.log(`🔑 [OTP DISPATCH] Recipient: ${to} | OTP Code: ${otp}`);
   console.log(`======================================================\n`);
 
-  if (isPlaceholderPassword) {
+  if (!isResendConfigured || !resend) {
     return;
   }
 
   try {
-    const mailOptions = {
-      from: `"OE Allotment Platform" <${env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: SENDER,
       to,
       subject: 'Your OTP for OE Allotment',
       html: `
@@ -59,11 +40,9 @@ export const sendOtpEmail = async (to: string, otp: string): Promise<void> => {
           <p>If you did not request this, please ignore this email.</p>
         </div>
       `,
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
   } catch (error: any) {
-    console.error('❌ Failed to send email via SMTP:', error.message || error);
+    console.error('❌ Failed to send email via Resend:', error.message || error);
     console.log(`ℹ️ Use the OTP printed above in the console to proceed with verification.`);
   }
 };
@@ -71,13 +50,13 @@ export const sendOtpEmail = async (to: string, otp: string): Promise<void> => {
 export const sendResetPasswordEmail = async (to: string, resetUrl: string): Promise<void> => {
   console.log(`🔐 [PASSWORD RESET] Recipient: ${to} | Reset URL: ${resetUrl}`);
 
-  if (isPlaceholderPassword) {
+  if (!isResendConfigured || !resend) {
     return;
   }
 
   try {
-    const mailOptions = {
-      from: `"OE Allotment Platform" <${env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: SENDER,
       to,
       subject: 'Password Reset Request',
       html: `
@@ -89,10 +68,8 @@ export const sendResetPasswordEmail = async (to: string, resetUrl: string): Prom
           <p>If you did not request this, please ignore this email.</p>
         </div>
       `,
-    };
-
-    await transporter.sendMail(mailOptions);
+    });
   } catch (error: any) {
-    console.error('❌ Failed to send reset email via SMTP:', error.message || error);
+    console.error('❌ Failed to send reset email via Resend:', error.message || error);
   }
 };

@@ -8,6 +8,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().default('oe_allotment_development_secret_key_2026'),
   GMAIL_USER: z.string().default('admin@mit.asia'),
   GMAIL_APP_PASSWORD: z.string().default('your_app_password_here'),
+  RESEND_API_KEY: z.string().default(''),
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   ALLOWED_EMAIL_DOMAIN: z.string().default('mit.asia'),
   PORT: z.coerce.number().default(5000),
