@@ -9,10 +9,13 @@ import {
   resetPasswordStudent,
   forgotPasswordAdmin,
   resetPasswordAdmin,
+  getMyProfile,
+  completeProfile,
 } from '../controllers/authController';
 import { getBranches } from '../controllers/adminController';
 import { microsoftLogin, microsoftCallback } from '../controllers/microsoftAuthController';
 import { authRateLimiter, otpRateLimiter } from '../middleware/rateLimiter';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -38,5 +41,9 @@ router.post('/reset-password/admin', authRateLimiter, resetPasswordAdmin);
 
 // Public branch listing for student registration form
 router.get('/branches', getBranches);
+
+// Student Onboarding & Profile Completion
+router.get('/me', authenticateToken, getMyProfile);
+router.post('/complete-profile', authenticateToken, authRateLimiter, completeProfile);
 
 export default router;

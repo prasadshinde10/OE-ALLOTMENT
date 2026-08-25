@@ -520,3 +520,141 @@ export const resetPasswordAdmin = async (req: Request, res: Response): Promise<v
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
 };
+
+/**
+ * GET /api/auth/me — Get current student profile
+ */
+export const getMyProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const student = await Student.findById(req.user?.userId);
+    if (!student) {
+      res.status(404).json({ success: false, message: 'Student not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: student._id,
+        firstName: student.firstName,
+        middleName: student.middleName,
+        lastName: student.lastName,
+        fullName: student.fullName,
+        instituteEmail: student.instituteEmail,
+        hallTicketNumber: student.hallTicketNumber || '',
+        mobileNumber: student.mobileNumber || '',
+        branch: student.branch || '',
+        semester: student.semester || 'Sem-5',
+        rollNumber: student.rollNumber || '',
+        year: student.year || 3,
+        isVerified: student.isVerified,
+        isProfileComplete: student.isProfileComplete,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+/**
+ * POST /api/auth/complete-profile — Complete student onboarding after Microsoft SSO
+ */
+export const completeProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const student = await Student.findById(req.user?.userId);
+    if (!student) {
+      res.status(404).json({ success: false, message: 'Student account not found' });
+      return;
+    }
+
+    const { hallTicketNumber, mobileNumber, branch, semester, rollNumber, year, password } = req.body;
+
+    if (!hallTicketNumber || !mobileNumber || !branch || !semester || !rollNumber || !year) {
+      res.status(400).json({ success: false, message: 'All mandatory fields must be provided' });
+      return;
+    }
+
+    if (!/^\d{12}$/.test(hallTicketNumber)) {
+      res.status(400).json({ success: false, message: 'Hall Ticket / PRN must be exactly 12 digits' });
+      return;
+    }
+
+    if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
+      res.status(400).json({ success: false, message: 'Invalid 10-digit mobile number' });
+      return;
+    }
+
+    // Check for duplicate hall ticket number
+    const existingHT = await Student.findOne({
+      hallTicketNumber,
+      _id: { $ne: student._id },
+    });
+    if (existingHT) {
+      res.status(400).json({ success: false, message: 'This Hall Ticket / PRN is already registered by another student' });
+      return;
+    }
+
+    // Check for duplicate mobile number
+    const existingMobile = await Student.findOne({
+      mobileNumber,
+      _id: { $ne: student._id },
+    });
+    if (existingMobile) {
+      res.status(400).json({ success: false, message: 'This mobile number is already registered by another student' });
+      return;
+    }
+
+    student.hallTicketNumber = hallTicketNumber;
+    student.mobileNumber = mobileNumber;
+    student.branch = branch;
+    student.semester = semester;
+    student.rollNumber = rollNumber;
+    student.year = Number(year);
+    student.isProfileComplete = true;
+    student.isVerified = true;
+
+    if (password && password.length >= 6) {
+      student.password = password; // pre-save hook will hash it
+    }
+
+    await student.save();
+
+    await logAudit({
+      action: 'STUDENT_PROFILE_COMPLETED',
+      actorId: student.id,
+      actorRole: 'student',
+      targetType: 'student',
+      targetId: student.id,
+      metadata: { hallTicketNumber, branch, year },
+    });
+
+    const token = jwt.sign(
+      {
+        userId: student._id,
+        role: 'student',
+        year: student.year,
+        email: student.instituteEmail,
+        name: student.fullName,
+        isProfileComplete: true,
+      },
+      env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Registration finalized successfully',
+      token,
+      student: {
+        userId: student._id,
+        name: student.fullName,
+        email: student.instituteEmail,
+        year: student.year,
+        role: 'student',
+        isProfileComplete: true,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};

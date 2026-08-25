@@ -16,6 +16,7 @@ export interface IStudent extends Document {
   year: number;
   password?: string;
   isVerified: boolean;
+  isProfileComplete: boolean;
   otpHash?: string;
   otpExpiresAt?: Date;
   otpAttempts: number;
@@ -97,6 +98,10 @@ const studentSchema = new Schema<IStudent>(
       type: Boolean,
       default: false,
     },
+    isProfileComplete: {
+      type: Boolean,
+      default: false,
+    },
     otpHash: {
       type: String,
     },
@@ -140,10 +145,11 @@ const studentSchema = new Schema<IStudent>(
 );
 
 studentSchema.virtual('fullName').get(function(this: IStudent) {
-  const parts = [this.firstName];
-  if (this.middleName) parts.push(this.middleName);
-  parts.push(this.lastName);
-  return parts.join(' ');
+  const parts: string[] = [];
+  if (this.firstName) parts.push(this.firstName.trim());
+  if (this.middleName) parts.push(this.middleName.trim());
+  if (this.lastName) parts.push(this.lastName.trim());
+  return parts.filter(Boolean).join(' ');
 });
 
 studentSchema.pre('save', async function (next) {

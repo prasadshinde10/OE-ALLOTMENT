@@ -11,6 +11,7 @@ export interface Student {
   rollNumber: string;
   year: 1 | 2 | 3;
   isVerified: boolean;
+  isProfileComplete?: boolean;
   password?: string;
   allocatedElectiveId?: string;
   allocatedElectiveName?: string;

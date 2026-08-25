@@ -8,6 +8,7 @@ export interface DecodedUser {
   name: string;
   year?: number;
   email: string;
+  isProfileComplete?: boolean;
 }
 
 export function useAuth() {

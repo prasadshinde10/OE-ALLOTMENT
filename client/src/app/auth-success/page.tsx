@@ -13,6 +13,7 @@ function AuthSuccessContent() {
 
   useEffect(() => {
     const token = searchParams.get('token')
+    const isNewUser = searchParams.get('isNewUser')
 
     if (!token) {
       setError('No authentication token received. Please try logging in again.')
@@ -20,9 +21,15 @@ function AuthSuccessContent() {
       return
     }
 
-    // Store token and redirect to student dashboard
+    // Store JWT token into localStorage and auth state
     login(token)
-    router.replace('/student/status')
+
+    // Check if new user or incomplete profile -> redirect to onboarding form
+    if (isNewUser === 'true') {
+      router.replace('/register/onboarding')
+    } else {
+      router.replace('/student/status')
+    }
   }, [searchParams, login, router])
 
   if (error) {
@@ -41,7 +48,7 @@ function AuthSuccessContent() {
       <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200 max-w-md text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
         <p className="text-gray-700 font-medium">Signing you in with Microsoft...</p>
-        <p className="text-sm text-gray-500 mt-1">Please wait while we verify your account.</p>
+        <p className="text-sm text-gray-500 mt-1">Verifying your account details...</p>
       </div>
     </div>
   )

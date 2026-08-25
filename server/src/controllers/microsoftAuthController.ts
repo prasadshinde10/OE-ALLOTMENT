@@ -33,8 +33,8 @@ if (isSSOConfigured) {
             return done(new Error('Failed to decode Microsoft ID token'), null);
           }
 
-          const email = (decoded.upn || decoded.email || decoded.preferred_username || '').toLowerCase();
-          const name = decoded.name || decoded.given_name || email.split('@')[0];
+          const email = (decoded.preferred_username || decoded.upn || decoded.email || '').toLowerCase().trim();
+          const fullName = (decoded.name || decoded.given_name || email.split('@')[0]).trim();
 
           if (!email) {
             return done(new Error('No email found in Microsoft account'), null);
@@ -45,7 +45,7 @@ if (isSSOConfigured) {
             return done(new Error('Only @mit.asia accounts are allowed to sign in'), null);
           }
 
-          return done(null, { email, name });
+          return done(null, { email, fullName });
         } catch (err) {
           return done(err, null);
         }
@@ -104,62 +104,97 @@ export const microsoftCallback = (req: Request, res: Response) => {
         return res.redirect(redirectUrl);
       }
 
-      const { email, name } = azureUser;
+      const { email, fullName } = azureUser;
 
-      // Find or create student by institute email
+      // Check if the student already exists in MongoDB
       let student = await Student.findOne({ instituteEmail: email.toLowerCase() });
-      let isNew = false;
 
-      if (!student) {
-        // Auto-register new student from Microsoft account profile
-        const nameParts = (name || '').trim().split(/\s+/);
-        const firstName = nameParts[0] || 'Student';
-        const lastName = nameParts.slice(1).join(' ') || '';
+      if (student) {
+        // Auto-verify if not verified
+        if (!student.isVerified) {
+          student.isVerified = true;
+          await student.save();
+        }
 
-        student = new Student({
-          firstName,
-          lastName,
-          instituteEmail: email.toLowerCase(),
-          branch: 'General',
-          semester: 'Sem-5',
-          year: 3,
-          isVerified: true, // Microsoft identity is already verified
+        // Determine if existing user has completed their onboarding profile
+        const isNewUser = student.isProfileComplete === false;
+
+        const token = jwt.sign(
+          {
+            userId: student._id,
+            role: 'student',
+            year: student.year,
+            email: student.instituteEmail,
+            name: student.fullName || fullName,
+            isProfileComplete: student.isProfileComplete,
+          },
+          env.JWT_SECRET,
+          { expiresIn: '1d' }
+        );
+
+        await logAudit({
+          action: 'STUDENT_SSO_LOGIN',
+          actorId: student.id,
+          actorRole: 'student',
+          targetType: 'student',
+          targetId: student.id,
+          metadata: { provider: 'microsoft', isNewUser },
         });
 
-        await student.save();
-        isNew = true;
-        console.log(`✨ [MICROSOFT SSO] Auto-registered new student: ${email} (${name})`);
-      } else if (!student.isVerified) {
-        // Auto-verify existing student on successful Microsoft login
-        student.isVerified = true;
-        await student.save();
+        const redirectUrl = `${clientBaseUrl}/auth-success?token=${token}&isNewUser=${isNewUser}`;
+        console.log(`🔀 [MICROSOFT SSO SUCCESS] Existing student -> ${redirectUrl}`);
+        return res.redirect(redirectUrl);
       }
 
-      // Sign JWT token (same payload as normal student login)
+      // NEW USER (First-time registration) -> Create pre-registration record
+      const nameParts = (fullName || '').trim().split(/\s+/);
+      let firstName = nameParts[0] || 'Student';
+      let middleName = '';
+      let lastName = '';
+
+      if (nameParts.length === 2) {
+        lastName = nameParts[1];
+      } else if (nameParts.length >= 3) {
+        middleName = nameParts.slice(1, -1).join(' ');
+        lastName = nameParts[nameParts.length - 1];
+      }
+
+      student = new Student({
+        firstName,
+        middleName,
+        lastName,
+        instituteEmail: email.toLowerCase(),
+        isVerified: true,
+        isProfileComplete: false,
+      });
+
+      await student.save();
+      console.log(`✨ [MICROSOFT SSO] Pre-registered new student: ${email} (${fullName})`);
+
       const token = jwt.sign(
         {
           userId: student._id,
           role: 'student',
           year: student.year,
           email: student.instituteEmail,
-          name: student.fullName,
+          name: student.fullName || fullName,
+          isProfileComplete: false,
         },
         env.JWT_SECRET,
         { expiresIn: '1d' }
       );
 
       await logAudit({
-        action: isNew ? 'STUDENT_REGISTER' : 'STUDENT_SSO_LOGIN',
+        action: 'STUDENT_PRE_REGISTER',
         actorId: student.id,
         actorRole: 'student',
         targetType: 'student',
         targetId: student.id,
-        metadata: { provider: 'microsoft', autoRegistered: isNew },
+        metadata: { provider: 'microsoft', isNewUser: true },
       });
 
-      // Redirect to frontend auth-success page with token
-      const redirectUrl = `${clientBaseUrl}/auth-success?token=${token}`;
-      console.log(`🔀 [MICROSOFT SSO SUCCESS] Redirecting to: ${redirectUrl}`);
+      const redirectUrl = `${clientBaseUrl}/auth-success?token=${token}&isNewUser=true`;
+      console.log(`🔀 [MICROSOFT SSO SUCCESS] New student redirected to onboarding -> ${redirectUrl}`);
       return res.redirect(redirectUrl);
     } catch (error: any) {
       console.error('❌ Microsoft SSO callback error:', error);
