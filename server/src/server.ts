@@ -15,6 +15,7 @@ import allocationRoutes from './routes/allocationRoutes';
 import studentRoutes from './routes/studentRoutes';
 import adminRoutes from './routes/adminRoutes';
 import exportRoutes from './routes/exportRoutes';
+import User from './models/User';
 import { setupSocket } from './socket';
 
 const app = express();
@@ -86,6 +87,24 @@ async function start() {
   try {
     await connectDB();
     console.log('✅ Connected to MongoDB');
+
+    // Ensure default super admin exists
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@mit.asia';
+      const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
+      if (!existingAdmin) {
+        const defaultAdmin = new User({
+          name: 'Super Admin',
+          email: adminEmail.toLowerCase(),
+          password: 'admin123',
+          role: 'admin',
+        });
+        await defaultAdmin.save();
+        console.log(`👑 Default admin created: ${adminEmail} (password: admin123)`);
+      }
+    } catch (adminErr) {
+      console.warn('⚠️ Could not verify default admin:', adminErr);
+    }
 
     await verifyMailer();
 
