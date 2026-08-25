@@ -11,6 +11,7 @@ import {
   resetPasswordAdmin,
 } from '../controllers/authController';
 import { getBranches } from '../controllers/adminController';
+import { microsoftLogin, microsoftCallback } from '../controllers/microsoftAuthController';
 import { authRateLimiter, otpRateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
@@ -24,6 +25,10 @@ router.post('/resend-otp', otpRateLimiter, resendOtp);
 // Logins
 router.post('/student/login', authRateLimiter, studentLogin);
 router.post('/admin/login', authRateLimiter, adminLogin);
+
+// Microsoft SSO
+router.get('/microsoft', microsoftLogin);
+router.get('/microsoft/callback', microsoftCallback);
 
 // Forgot & Reset Password
 router.post('/forgot-password/student', authRateLimiter, forgotPasswordStudent);

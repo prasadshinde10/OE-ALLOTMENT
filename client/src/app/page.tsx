@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { useAuthContext } from '@/context/AuthContext'
@@ -16,6 +16,19 @@ export default function Home() {
     instituteEmail: '',
     password: ''
   })
+
+  // Show SSO error if redirected back with ?error=...
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const error = params.get('error')
+      if (error) {
+        toast.error(decodeURIComponent(error))
+        // Clean URL
+        window.history.replaceState({}, '', '/')
+      }
+    }
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -41,6 +54,11 @@ export default function Home() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleMicrosoftLogin = () => {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    window.location.href = `${backendUrl}/api/auth/microsoft`
   }
 
   return (
@@ -87,6 +105,31 @@ export default function Home() {
               </Link>
             </div>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-2 text-gray-500">or continue with</span>
+            </div>
+          </div>
+
+          {/* Microsoft SSO Button */}
+          <button
+            type="button"
+            onClick={handleMicrosoftLogin}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 21 21" fill="none">
+              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+            </svg>
+            Sign in with Microsoft (@mit.asia)
+          </button>
         </div>
 
         <div className="mt-6 text-center">

@@ -53,6 +53,23 @@ const io = new Server(server, {
 app.use(cors({ origin: corsOriginHandler, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
+// Session & Passport (required for Microsoft SSO OAuth flow)
+import session from 'express-session';
+import passport from 'passport';
+// Import microsoftAuthController to trigger Passport strategy registration
+import './controllers/microsoftAuthController';
+
+app.use(
+  session({
+    secret: env.JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: env.NODE_ENV === 'production' },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Make Socket.io accessible in routes
 app.set('io', io);
 

@@ -14,6 +14,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   CLIENT_URL: z.string().default('http://localhost:3000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  AZURE_CLIENT_ID: z.string().default(''),
+  AZURE_CLIENT_SECRET: z.string().default(''),
+  AZURE_TENANT_ID: z.string().default(''),
+  REDIRECT_URI: z.string().default(''),
 });
 
 const _env = envSchema.safeParse(process.env);
