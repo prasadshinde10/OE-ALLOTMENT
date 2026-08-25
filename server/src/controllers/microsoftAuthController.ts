@@ -62,6 +62,14 @@ if (isSSOConfigured) {
   console.log('⚠️ Microsoft SSO not configured (AZURE_CLIENT_ID/SECRET/TENANT_ID/REDIRECT_URI missing)');
 }
 
+const getClientBaseUrl = (): string => {
+  const rawUrl = process.env.CLIENT_URL || env.CLIENT_URL || 'http://localhost:3000';
+  // If comma-separated, take the first valid client URL
+  const primaryUrl = rawUrl.split(',')[0].trim();
+  // Strip all trailing slashes
+  return primaryUrl.replace(/\/+$/, '');
+};
+
 /**
  * GET /api/auth/microsoft — Initiates Microsoft login redirect
  */
@@ -79,15 +87,21 @@ export const microsoftLogin = (req: Request, res: Response) => {
  * GET /api/auth/microsoft/callback — Handles callback from Azure AD
  */
 export const microsoftCallback = (req: Request, res: Response) => {
+  const clientBaseUrl = getClientBaseUrl();
+
   if (!isSSOConfigured) {
-    return res.redirect(`${env.CLIENT_URL}/?error=sso_not_configured`);
+    const redirectUrl = `${clientBaseUrl}/?error=sso_not_configured`;
+    console.log(`🔀 [MICROSOFT SSO REDIRECT] SSO not configured -> ${redirectUrl}`);
+    return res.redirect(redirectUrl);
   }
 
   passport.authenticate('azure-ad', { session: false }, async (err: any, azureUser: any) => {
     try {
       if (err || !azureUser) {
         const errorMsg = encodeURIComponent(err?.message || 'Microsoft login failed');
-        return res.redirect(`${env.CLIENT_URL}/?error=${errorMsg}`);
+        const redirectUrl = `${clientBaseUrl}/?error=${errorMsg}`;
+        console.log(`🔀 [MICROSOFT SSO REDIRECT] Auth failed -> ${redirectUrl}`);
+        return res.redirect(redirectUrl);
       }
 
       const { email, name } = azureUser;
@@ -100,7 +114,9 @@ export const microsoftCallback = (req: Request, res: Response) => {
         const errorMsg = encodeURIComponent(
           'No account found for this email. Please register first, then use Microsoft SSO to log in.'
         );
-        return res.redirect(`${env.CLIENT_URL}/?error=${errorMsg}`);
+        const redirectUrl = `${clientBaseUrl}/?error=${errorMsg}`;
+        console.log(`🔀 [MICROSOFT SSO REDIRECT] Student not found -> ${redirectUrl}`);
+        return res.redirect(redirectUrl);
       }
 
       // Auto-verify on successful Microsoft login
@@ -132,11 +148,16 @@ export const microsoftCallback = (req: Request, res: Response) => {
       });
 
       // Redirect to frontend auth-success page with token
-      return res.redirect(`${env.CLIENT_URL}/auth-success?token=${token}`);
+      const redirectUrl = `${clientBaseUrl}/auth-success?token=${token}`;
+      console.log(`🔀 [MICROSOFT SSO SUCCESS] Redirecting to: ${redirectUrl}`);
+      return res.redirect(redirectUrl);
     } catch (error: any) {
       console.error('❌ Microsoft SSO callback error:', error);
       const errorMsg = encodeURIComponent('An error occurred during Microsoft login');
-      return res.redirect(`${env.CLIENT_URL}/?error=${errorMsg}`);
+      const redirectUrl = `${clientBaseUrl}/?error=${errorMsg}`;
+      console.log(`🔀 [MICROSOFT SSO REDIRECT] Error -> ${redirectUrl}`);
+      return res.redirect(redirectUrl);
     }
   })(req, res);
 };
+
