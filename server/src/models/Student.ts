@@ -35,8 +35,8 @@ const studentSchema = new Schema<IStudent>(
   {
     hallTicketNumber: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       match: [/^\d{12}$/, 'Hall ticket number must be exactly 12 digits'],
     },
     firstName: {
@@ -51,7 +51,7 @@ const studentSchema = new Schema<IStudent>(
     },
     lastName: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     instituteEmail: {
@@ -68,26 +68,26 @@ const studentSchema = new Schema<IStudent>(
     },
     mobileNumber: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       match: [/^[6-9]\d{9}$/, 'Invalid Indian mobile number'],
     },
     branch: {
       type: String,
-      required: true,
+      default: 'General',
     },
     semester: {
       type: String,
-      required: true,
+      default: 'Sem-5',
       enum: ['Sem-1','Sem-2','Sem-3','Sem-4','Sem-5','Sem-6','Sem-7','Sem-8'],
     },
     rollNumber: {
       type: String,
-      required: true,
+      default: '',
     },
     year: {
       type: Number,
-      required: true,
+      default: 3,
       enum: [1, 2, 3],
     },
     password: {

@@ -106,21 +106,31 @@ export const microsoftCallback = (req: Request, res: Response) => {
 
       const { email, name } = azureUser;
 
-      // Find existing student by institute email
-      let student = await Student.findOne({ instituteEmail: email });
+      // Find or create student by institute email
+      let student = await Student.findOne({ instituteEmail: email.toLowerCase() });
+      let isNew = false;
 
       if (!student) {
-        // Student not registered yet — redirect with helpful error
-        const errorMsg = encodeURIComponent(
-          'No account found for this email. Please register first, then use Microsoft SSO to log in.'
-        );
-        const redirectUrl = `${clientBaseUrl}/?error=${errorMsg}`;
-        console.log(`🔀 [MICROSOFT SSO REDIRECT] Student not found -> ${redirectUrl}`);
-        return res.redirect(redirectUrl);
-      }
+        // Auto-register new student from Microsoft account profile
+        const nameParts = (name || '').trim().split(/\s+/);
+        const firstName = nameParts[0] || 'Student';
+        const lastName = nameParts.slice(1).join(' ') || '';
 
-      // Auto-verify on successful Microsoft login
-      if (!student.isVerified) {
+        student = new Student({
+          firstName,
+          lastName,
+          instituteEmail: email.toLowerCase(),
+          branch: 'General',
+          semester: 'Sem-5',
+          year: 3,
+          isVerified: true, // Microsoft identity is already verified
+        });
+
+        await student.save();
+        isNew = true;
+        console.log(`✨ [MICROSOFT SSO] Auto-registered new student: ${email} (${name})`);
+      } else if (!student.isVerified) {
+        // Auto-verify existing student on successful Microsoft login
         student.isVerified = true;
         await student.save();
       }
@@ -139,12 +149,12 @@ export const microsoftCallback = (req: Request, res: Response) => {
       );
 
       await logAudit({
-        action: 'STUDENT_SSO_LOGIN',
+        action: isNew ? 'STUDENT_REGISTER' : 'STUDENT_SSO_LOGIN',
         actorId: student.id,
         actorRole: 'student',
         targetType: 'student',
         targetId: student.id,
-        metadata: { provider: 'microsoft' },
+        metadata: { provider: 'microsoft', autoRegistered: isNew },
       });
 
       // Redirect to frontend auth-success page with token
