@@ -12,8 +12,13 @@ export const connectDB = async (): Promise<void> => {
 
   while (retries < MAX_RETRIES) {
     try {
-      await mongoose.connect(env.MONGO_URI);
-      console.log('✅ MongoDB connected successfully');
+      await mongoose.connect(env.MONGO_URI, {
+        maxPoolSize: 100, // Maintain up to 100 parallel socket connections
+        minPoolSize: 20,  // Keep at least 20 warm connections in pool
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
+      console.log('✅ MongoDB connected successfully (Connection Pool: 20-100)');
       return; // Exit loop on successful connection
     } catch (error) {
       retries += 1;

@@ -5,11 +5,11 @@ import TermConfig from '../models/TermConfig';
 import AuditLog from '../models/AuditLog';
 
 export const allocateSeat = async (studentId: string, electiveId: string) => {
-  const student = await Student.findById(studentId);
+  const student = await Student.findById(studentId).lean();
   if (!student) throw new Error('Student not found');
   if (!student.isVerified) throw new Error('Student is not verified');
   
-  const termConfig = await TermConfig.findOne({ year: student.year, isActive: true });
+  const termConfig = await TermConfig.findOne({ year: student.year, isActive: true }).lean();
   if (!termConfig) throw new Error('No active term found for your year');
   
   const now = new Date();
@@ -30,7 +30,7 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
       $expr: { $lt: ['$seatsFilled', '$capacity'] } 
     },
     { $inc: { seatsFilled: 1 } },
-    { new: true }
+    { new: true, lean: true }
   );
   
   if (!elective) {
@@ -39,14 +39,24 @@ export const allocateSeat = async (studentId: string, electiveId: string) => {
     throw err;
   }
   
-  student.allocatedElectiveId = elective._id as mongoose.Types.ObjectId;
-  student.allocatedElectiveName = elective.name;
-  student.allocatedTerm = termConfig.term;
-  student.allocationTimestamp = new Date();
+  const updatedStudent = await Student.findByIdAndUpdate(
+    studentId,
+    {
+      $set: {
+        allocatedElectiveId: elective._id as mongoose.Types.ObjectId,
+        allocatedElectiveName: elective.name,
+        allocatedTerm: termConfig.term,
+        allocationTimestamp: new Date(),
+      },
+    },
+    { new: true, lean: true }
+  );
+
+  if (!updatedStudent) {
+    throw new Error('Failed to update student allocation record');
+  }
   
-  await student.save();
-  
-  return { student, elective };
+  return { student: updatedStudent, elective };
 };
 
 export const transferSeat = async (studentId: string, newElectiveId: string, adminId: string) => {

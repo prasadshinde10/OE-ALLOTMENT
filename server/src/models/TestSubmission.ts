@@ -31,5 +31,9 @@ const testSubmissionSchema = new Schema<ITestSubmission>(
   { timestamps: false }
 );
 
+// Explicit compound / single indexes for sub-5ms lookups and upserts
+testSubmissionSchema.index({ studentId: 1 }, { unique: true });
+testSubmissionSchema.index({ studentId: 1, createdAt: -1 });
+
 export const TestSubmission = mongoose.model<ITestSubmission>('TestSubmission', testSubmissionSchema);
 export default TestSubmission;

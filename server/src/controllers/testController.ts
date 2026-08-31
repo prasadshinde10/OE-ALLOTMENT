@@ -6,7 +6,7 @@ import TestSubmission from '../models/TestSubmission';
  * POST /api/test/stress-db
  * High-throughput stress test endpoint for concurrent student allocations (e.g. 1,700 students).
  * - Read: Fetches active course capacities using .find().lean() for minimal memory overhead.
- * - Write: Performs atomic upsert on TestSubmission.
+ * - Write: Performs atomic findOneAndUpdate / updateOne with { lean: true } on TestSubmission.
  */
 export const stressDbTest = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -22,8 +22,8 @@ export const stressDbTest = async (req: Request, res: Response): Promise<void> =
       .select('name code capacity seatsFilled')
       .lean();
 
-    // 2. MongoDB Write: Atomic upsert to test concurrent write performance
-    await TestSubmission.updateOne(
+    // 2. MongoDB Write: Atomic upsert using findOneAndUpdate with lean: true
+    await TestSubmission.findOneAndUpdate(
       { studentId },
       {
         $set: {
@@ -34,7 +34,7 @@ export const stressDbTest = async (req: Request, res: Response): Promise<void> =
           createdAt: new Date(),
         },
       },
-      { upsert: true }
+      { upsert: true, new: true, lean: true }
     );
 
     res.status(200).json({
