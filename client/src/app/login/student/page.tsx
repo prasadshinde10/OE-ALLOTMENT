@@ -31,10 +31,9 @@ export default function StudentLoginPage() {
       router.push('/student/status')
     } catch (err: any) {
       if (err.response?.data?.needsVerification) {
-        toast.error('Please verify your email first')
-        router.push(`/verify-otp?email=${encodeURIComponent(formData.instituteEmail)}`)
+        toast.error('Account not verified. Please sign in using Microsoft SSO on the home page.')
       } else if (err.response?.data?.message?.toLowerCase().includes('password')) {
-        toast.error(err.response?.data?.message || 'Invalid password. Try reset password if not set.')
+        toast.error(err.response?.data?.message || 'Invalid password. Try reset password or sign in with Microsoft.')
       } else {
         toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
       }
@@ -47,7 +46,7 @@ export default function StudentLoginPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Student Login</h2>
-        <p className="mt-2 text-center text-sm text-gray-600">For already registered students</p>
+        <p className="mt-2 text-center text-sm text-gray-600">Password login for existing students</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -78,8 +77,8 @@ export default function StudentLoginPage() {
               <Link href="/forgot-password/student" className="text-sm text-indigo-600 hover:text-indigo-500">
                 Forgot Password?
               </Link>
-              <Link href="/register" className="text-sm text-indigo-600 hover:text-indigo-500">
-                Don't have an account? Register here
+              <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+                ← Back to Microsoft SSO Login
               </Link>
             </div>
           </form>
