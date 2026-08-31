@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { SkeletonStat, Skeleton } from '@/components/ui/Skeleton'
 import { exportToCSV } from '@/lib/csvExport'
 import toast from 'react-hot-toast'
 
@@ -107,7 +107,24 @@ export default function AdminDashboard() {
     }
   }
 
-  if (loading) return <div className="flex justify-center p-12"><LoadingSpinner /></div>
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <Skeleton className="h-8 w-48" />
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-44 rounded-lg" />
+            <Skeleton className="h-10 w-44 rounded-lg" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <SkeletonStat key={idx} />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

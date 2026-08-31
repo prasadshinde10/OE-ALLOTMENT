@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import { Button } from '@/components/ui/Button'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { SkeletonCard, Skeleton } from '@/components/ui/Skeleton'
 import toast from 'react-hot-toast'
 
 export default function AdminDuplicatesPage() {
@@ -35,7 +35,17 @@ export default function AdminDuplicatesPage() {
     }
   }
 
-  if (loading) return <div className="flex justify-center p-12"><LoadingSpinner /></div>
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <Skeleton className="h-8 w-72" />
+        <div className="space-y-4">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

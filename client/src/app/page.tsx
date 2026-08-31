@@ -46,10 +46,9 @@ export default function Home() {
       router.push('/student/status')
     } catch (err: any) {
       if (err.response?.data?.needsVerification) {
-        toast.error('Please verify your email first')
-        router.push(`/verify-otp?email=${encodeURIComponent(formData.instituteEmail)}`)
+        toast.error('Account not verified. Please sign in using your official Microsoft SSO account.')
       } else if (err.response?.data?.message?.toLowerCase().includes('password')) {
-        toast.error(err.response?.data?.message || 'Invalid password. Try reset password if not set.')
+        toast.error(err.response?.data?.message || 'Invalid password. Try reset password or sign in with Microsoft.')
       } else {
         toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
       }
@@ -140,12 +139,9 @@ export default function Home() {
                 {loading ? 'Signing in...' : 'Sign In with Password'}
               </Button>
 
-              <div className="flex justify-between items-center text-xs pt-1">
+              <div className="flex justify-center items-center text-xs pt-1">
                 <Link href="/forgot-password/student" className="text-indigo-600 hover:text-indigo-500 font-medium">
                   Forgot Password?
-                </Link>
-                <Link href="/register" className="text-gray-500 hover:text-gray-700">
-                  Manual Registration
                 </Link>
               </div>
             </form>

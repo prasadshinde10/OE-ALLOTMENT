@@ -6,7 +6,7 @@ import api from '@/lib/api'
 import { useAuthContext } from '@/context/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { Skeleton } from '@/components/ui/Skeleton'
 import toast from 'react-hot-toast'
 
 export default function StudentOnboardingPage() {
@@ -17,12 +17,12 @@ export default function StudentOnboardingPage() {
   const [branches, setBranches] = useState<any[]>([])
   const [showPassword, setShowPassword] = useState(false)
 
-  const [studentInfo, setStudentInfo] = useState({
-    fullName: '',
-    instituteEmail: '',
-  })
+  const [verifiedEmail, setVerifiedEmail] = useState('')
 
   const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
     hallTicketNumber: '',
     mobileNumber: '',
     year: '3',
@@ -32,17 +32,14 @@ export default function StudentOnboardingPage() {
     password: '',
   })
 
-  // Load student profile & pre-fill verified name and email
+  // Load student profile & pre-fill email
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await api.get('/api/auth/me')
         const profile = res.data.data
         if (profile) {
-          setStudentInfo({
-            fullName: profile.fullName || user?.name || '',
-            instituteEmail: profile.instituteEmail || user?.email || '',
-          })
+          setVerifiedEmail(profile.instituteEmail || user?.email || '')
 
           // If already completed profile, redirect straight to dashboard
           if (profile.isProfileComplete && profile.hallTicketNumber) {
@@ -52,6 +49,9 @@ export default function StudentOnboardingPage() {
 
           setFormData(prev => ({
             ...prev,
+            firstName: profile.firstName || '',
+            middleName: profile.middleName || '',
+            lastName: profile.lastName || '',
             hallTicketNumber: profile.hallTicketNumber || '',
             mobileNumber: profile.mobileNumber || '',
             branch: profile.branch && profile.branch !== 'General' ? profile.branch : '',
@@ -61,12 +61,8 @@ export default function StudentOnboardingPage() {
           }))
         }
       } catch (err) {
-        // Fallback to auth context
         if (user) {
-          setStudentInfo({
-            fullName: user.name || '',
-            instituteEmail: user.email || '',
-          })
+          setVerifiedEmail(user.email || '')
         }
       } finally {
         setFetching(false)
@@ -94,6 +90,14 @@ export default function StudentOnboardingPage() {
   }
 
   const validate = () => {
+    if (!formData.firstName.trim()) {
+      toast.error('First Name is required')
+      return false
+    }
+    if (!formData.lastName.trim()) {
+      toast.error('Last Name is required')
+      return false
+    }
     if (!/^\d{12}$/.test(formData.hallTicketNumber.trim())) {
       toast.error('Hall Ticket / PRN must be exactly 12 digits')
       return false
@@ -121,6 +125,9 @@ export default function StudentOnboardingPage() {
       setLoading(true)
       const res = await api.post('/api/auth/complete-profile', {
         ...formData,
+        firstName: formData.firstName.trim(),
+        middleName: formData.middleName.trim(),
+        lastName: formData.lastName.trim(),
         hallTicketNumber: formData.hallTicketNumber.trim(),
         mobileNumber: formData.mobileNumber.trim(),
         rollNumber: formData.rollNumber.trim(),
@@ -141,8 +148,16 @@ export default function StudentOnboardingPage() {
 
   if (fetching) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner />
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 animate-fadeIn">
+        <div className="sm:mx-auto sm:w-full sm:max-w-xl bg-white p-8 rounded-2xl shadow-md space-y-6">
+          <Skeleton className="h-8 w-64 mx-auto" />
+          <Skeleton className="h-4 w-80 mx-auto" />
+          <div className="space-y-4 pt-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </div>
       </div>
     )
   }
@@ -154,50 +169,68 @@ export default function StudentOnboardingPage() {
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-full mb-3">
             <span>✓ Verified with Microsoft Entra ID</span>
           </div>
-          <h2 className="text-3xl font-extrabold text-gray-900">Complete Student Details</h2>
+          <h2 className="text-3xl font-extrabold text-gray-900">Complete Student Registration</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Please fill in your academic information to finalize registration
+            Please enter your official student name and academic details
           </p>
         </div>
 
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {/* Read-Only Verified Details */}
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
-              <div className="flex items-center justify-between">
+            {/* Verified Email Banner */}
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Verified Identity
+                  Verified Microsoft Email
                 </span>
-                <span className="text-xs text-slate-400">🔒 Read-only</span>
+                <span className="text-xs text-emerald-600 font-medium">🔒 Verified</span>
               </div>
+              <input
+                type="text"
+                value={verifiedEmail}
+                readOnly
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium cursor-not-allowed select-none shadow-sm"
+              />
+            </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={studentInfo.fullName || 'Verified Student'}
-                    readOnly
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium cursor-not-allowed select-none shadow-sm"
-                  />
-                </div>
+            {/* Three Distinct Name Fields */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700">
+                Student Full Name
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Input
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g. Prasad"
+                />
 
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Institute Email</label>
-                  <input
-                    type="text"
-                    value={studentInfo.instituteEmail}
-                    readOnly
-                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium cursor-not-allowed select-none shadow-sm"
-                  />
-                </div>
+                <Input
+                  label="Middle Name"
+                  name="middleName"
+                  value={formData.middleName}
+                  onChange={handleChange}
+                  placeholder="e.g. Sahebrao (optional)"
+                />
+
+                <Input
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g. Shinde"
+                />
               </div>
             </div>
 
             {/* Mandatory Student Inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="Hall Ticket / PRN Number (12 digits)"
+                label="Hall Ticket / PRN (12 digits)"
                 name="hallTicketNumber"
                 value={formData.hallTicketNumber}
                 onChange={handleChange}
@@ -213,7 +246,7 @@ export default function StudentOnboardingPage() {
                 onChange={handleChange}
                 required
                 maxLength={10}
-                placeholder="10-digit mobile number"
+                placeholder="10-digit number"
               />
             </div>
 
@@ -294,7 +327,7 @@ export default function StudentOnboardingPage() {
             {/* Optional local password */}
             <div className="relative">
               <Input
-                label="Set Password (Optional for fallback login)"
+                label="Set Password (Optional for direct login)"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={formData.password}
@@ -312,7 +345,7 @@ export default function StudentOnboardingPage() {
 
             <div className="pt-2">
               <Button type="submit" className="w-full py-3" disabled={loading}>
-                {loading ? 'Saving Details...' : 'Complete Registration & Continue'}
+                {loading ? 'Saving Registration...' : 'Complete Registration & Continue'}
               </Button>
             </div>
           </form>

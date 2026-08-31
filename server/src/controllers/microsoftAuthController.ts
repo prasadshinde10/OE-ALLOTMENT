@@ -146,30 +146,18 @@ export const microsoftCallback = (req: Request, res: Response) => {
         return res.redirect(redirectUrl);
       }
 
-      // NEW USER (First-time registration) -> Create pre-registration record
-      const nameParts = (fullName || '').trim().split(/\s+/);
-      let firstName = nameParts[0] || 'Student';
-      let middleName = '';
-      let lastName = '';
-
-      if (nameParts.length === 2) {
-        lastName = nameParts[1];
-      } else if (nameParts.length >= 3) {
-        middleName = nameParts.slice(1, -1).join(' ');
-        lastName = nameParts[nameParts.length - 1];
-      }
-
+      // NEW USER (First-time registration) -> Create pre-registration record with blank name fields for manual entry
       student = new Student({
-        firstName,
-        middleName,
-        lastName,
+        firstName: '',
+        middleName: '',
+        lastName: '',
         instituteEmail: email.toLowerCase(),
         isVerified: true,
         isProfileComplete: false,
       });
 
       await student.save();
-      console.log(`✨ [MICROSOFT SSO] Pre-registered new student: ${email} (${fullName})`);
+      console.log(`✨ [MICROSOFT SSO] Pre-registered new student: ${email} (Awaiting manual name & details entry)`);
 
       const token = jwt.sign(
         {
@@ -177,7 +165,7 @@ export const microsoftCallback = (req: Request, res: Response) => {
           role: 'student',
           year: student.year,
           email: student.instituteEmail,
-          name: student.fullName || fullName,
+          name: student.fullName || '',
           isProfileComplete: false,
         },
         env.JWT_SECRET,

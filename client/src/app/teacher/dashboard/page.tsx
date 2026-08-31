@@ -4,7 +4,6 @@ import api from '@/lib/api'
 import { DataTable } from '@/components/ui/DataTable'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function TeacherDashboard() {
   const [students, setStudents] = useState([])
@@ -102,20 +101,17 @@ export default function TeacherDashboard() {
         </form>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center p-12"><LoadingSpinner /></div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={students}
-          pagination={{
-            page: filters.page,
-            limit: filters.limit,
-            total,
-            onPageChange: (page) => setFilters(f => ({ ...f, page }))
-          }}
-        />
-      )}
+      <DataTable
+        columns={columns}
+        data={students}
+        isLoading={loading}
+        pagination={{
+          page: filters.page,
+          limit: filters.limit,
+          total,
+          onPageChange: (page) => setFilters(f => ({ ...f, page }))
+        }}
+      />
     </div>
   )
 }

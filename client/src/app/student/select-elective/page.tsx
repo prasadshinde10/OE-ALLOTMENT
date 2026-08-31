@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Elective, TermConfig } from '@/types'
 import toast from 'react-hot-toast'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { SkeletonCard, Skeleton } from '@/components/ui/Skeleton'
 
 export default function SelectElectivePage() {
   const { user } = useAuthContext()
@@ -99,7 +99,24 @@ export default function SelectElectivePage() {
     return 'bg-red-500'
   }
 
-  if (loading) return <div className="flex justify-center p-12"><LoadingSpinner /></div>
+  if (loading) {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <div className="bg-white px-6 py-5 border border-gray-200 rounded-xl shadow-sm flex justify-between items-center">
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-56" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <Skeleton className="h-7 w-40 rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <SkeletonCard key={idx} />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   // Check Registration Status
   const now = new Date()

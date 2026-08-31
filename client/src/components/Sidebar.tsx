@@ -15,7 +15,6 @@ export default function Sidebar() {
     { href: '/admin/students', label: 'Students', icon: '🎓' },
     { href: '/admin/branches', label: 'Branches', icon: '🏫' },
     { href: '/admin/duplicates', label: 'Duplicates', icon: '👥' },
-    { href: '/admin/audit-log', label: 'Audit Log', icon: '📋' },
     { href: '/admin/term-config', label: 'Term Config', icon: '⚙️' },
   ]
 

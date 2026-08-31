@@ -4,7 +4,7 @@ import api from '@/lib/api'
 import { useAuthContext } from '@/context/AuthContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { SkeletonProfile } from '@/components/ui/Skeleton'
 
 export default function StudentStatusPage() {
   const { user } = useAuthContext()
@@ -28,7 +28,7 @@ export default function StudentStatusPage() {
     fetchStatus()
   }, [])
 
-  if (loading) return <div className="flex justify-center p-12"><LoadingSpinner /></div>
+  if (loading) return <SkeletonProfile />
 
   return (
     <div className="max-w-3xl mx-auto mt-8">

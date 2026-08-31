@@ -42,7 +42,7 @@ const studentSchema = new Schema<IStudent>(
     },
     firstName: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     middleName: {

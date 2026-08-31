@@ -567,7 +567,28 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    const { hallTicketNumber, mobileNumber, branch, semester, rollNumber, year, password } = req.body;
+    const {
+      firstName,
+      middleName,
+      lastName,
+      hallTicketNumber,
+      mobileNumber,
+      branch,
+      semester,
+      rollNumber,
+      year,
+      password,
+    } = req.body;
+
+    if (!firstName || !firstName.trim()) {
+      res.status(400).json({ success: false, message: 'First Name is required' });
+      return;
+    }
+
+    if (!lastName || !lastName.trim()) {
+      res.status(400).json({ success: false, message: 'Last Name is required' });
+      return;
+    }
 
     if (!hallTicketNumber || !mobileNumber || !branch || !semester || !rollNumber || !year) {
       res.status(400).json({ success: false, message: 'All mandatory fields must be provided' });
@@ -604,6 +625,9 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
       return;
     }
 
+    student.firstName = firstName.trim();
+    student.middleName = (middleName || '').trim();
+    student.lastName = lastName.trim();
     student.hallTicketNumber = hallTicketNumber;
     student.mobileNumber = mobileNumber;
     student.branch = branch;
