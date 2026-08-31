@@ -16,6 +16,7 @@ import studentRoutes from './routes/studentRoutes';
 import adminRoutes from './routes/adminRoutes';
 import exportRoutes from './routes/exportRoutes';
 import testRoutes from './routes/testRoutes';
+import choiceRoutes from './routes/choiceRoutes';
 import User from './models/User';
 import { setupSocket } from './socket';
 
@@ -82,6 +83,7 @@ app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/choices', choiceRoutes);
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
