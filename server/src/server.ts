@@ -15,6 +15,7 @@ import allocationRoutes from './routes/allocationRoutes';
 import studentRoutes from './routes/studentRoutes';
 import adminRoutes from './routes/adminRoutes';
 import exportRoutes from './routes/exportRoutes';
+import testRoutes from './routes/testRoutes';
 import User from './models/User';
 import { setupSocket } from './socket';
 
@@ -80,6 +81,7 @@ app.use('/api/allocation', allocationRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/test', testRoutes);
 
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -130,6 +132,7 @@ async function start() {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 Socket.io ready`);
       console.log(`🌐 Client URL: ${env.CLIENT_URL}`);
+      console.log(`⚡ High-Throughput Stress Testing Route ready: POST /api/test/stress-db`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
