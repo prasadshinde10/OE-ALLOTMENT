@@ -12,6 +12,7 @@ export default function Sidebar() {
   const links = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
     { href: '/admin/electives', label: 'Electives', icon: '📚' },
+    { href: '/admin/departments', label: 'Departments', icon: '🏢' },
     { href: '/admin/students', label: 'Students', icon: '🎓' },
     { href: '/admin/branches', label: 'Branches', icon: '🏫' },
     { href: '/admin/duplicates', label: 'Duplicates', icon: '👥' },

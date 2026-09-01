@@ -1,5 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IDivision {
+  divisionName: string;
+  facultyName: string;
+  hallRoom?: string;
+  facultyContact?: string;
+  capacity: number;
+}
+
 export interface IElective extends Document {
   name: string;
   code: string;
@@ -9,9 +17,22 @@ export interface IElective extends Document {
   capacity: number;
   seatsFilled: number;
   isActive: boolean;
+  divisions: IDivision[];
+  syllabusUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
+
+const divisionSchema = new Schema<IDivision>(
+  {
+    divisionName: { type: String, required: true, trim: true },
+    facultyName: { type: String, required: true, trim: true },
+    hallRoom: { type: String, trim: true, default: '' },
+    facultyContact: { type: String, trim: true, default: '' },
+    capacity: { type: Number, required: true, min: 1 },
+  },
+  { _id: true }
+);
 
 const electiveSchema = new Schema<IElective>(
   {
@@ -50,6 +71,15 @@ const electiveSchema = new Schema<IElective>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    divisions: {
+      type: [divisionSchema],
+      default: [],
+    },
+    syllabusUrl: {
+      type: String,
+      trim: true,
+      default: '',
     },
   },
   { timestamps: true }

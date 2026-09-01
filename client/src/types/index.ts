@@ -17,8 +17,20 @@ export interface Student {
   allocatedElectiveName?: string;
   allocatedTerm?: string;
   allocationTimestamp?: string;
+  allocatedDivision?: string;
+  allocatedFaculty?: string;
+  allocatedHall?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Division {
+  _id?: string;
+  divisionName: string;
+  facultyName: string;
+  hallRoom?: string;
+  facultyContact?: string;
+  capacity: number;
 }
 
 export interface Elective {
@@ -32,6 +44,8 @@ export interface Elective {
   seatsFilled: number;
   isActive: boolean;
   remaining?: number;
+  divisions?: Division[];
+  syllabusUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 }

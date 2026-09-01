@@ -27,6 +27,9 @@ export interface IStudent extends Document {
   allocatedElectiveName?: string;
   allocatedTerm?: string;
   allocationTimestamp?: Date;
+  allocatedDivision?: string;
+  allocatedFaculty?: string;
+  allocatedHall?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -138,6 +141,18 @@ const studentSchema = new Schema<IStudent>(
     },
     allocationTimestamp: {
       type: Date,
+      default: null,
+    },
+    allocatedDivision: {
+      type: String,
+      default: null,
+    },
+    allocatedFaculty: {
+      type: String,
+      default: null,
+    },
+    allocatedHall: {
+      type: String,
       default: null,
     },
   },

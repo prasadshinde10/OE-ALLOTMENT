@@ -11,7 +11,15 @@ import {
   createBranch,
   getBranches,
   deleteBranch,
+  getDepartmentOverview,
+  exportDepartmentCSV,
+  exportAllDepartmentsZip,
 } from '../controllers/adminController';
+import {
+  autoAssignDivisions,
+  getDivisionOverview,
+  reassignDivision,
+} from '../controllers/divisionController';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
@@ -32,5 +40,15 @@ router.put('/term-configs/:id', updateTermConfig);
 router.post('/branches', createBranch);
 router.get('/branches', getBranches);
 router.delete('/branches/:id', deleteBranch);
+
+// Division management
+router.post('/divisions/auto-assign/:electiveId', autoAssignDivisions);
+router.get('/divisions/overview/:electiveId', getDivisionOverview);
+router.post('/divisions/reassign', reassignDivision);
+
+// Department overview & export
+router.get('/department-overview', getDepartmentOverview);
+router.get('/department-overview/export', exportDepartmentCSV);
+router.get('/department-overview/export-all', exportAllDepartmentsZip);
 
 export default router;
