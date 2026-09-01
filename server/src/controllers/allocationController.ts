@@ -65,6 +65,9 @@ export const getMyStatus = async (req: Request, res: Response): Promise<void> =>
         allocatedElectiveName: student.allocatedElectiveName,
         allocatedTerm: student.allocatedTerm,
         allocationTimestamp: student.allocationTimestamp,
+        allocatedDivision: student.allocatedDivision,
+        allocatedFaculty: student.allocatedFaculty,
+        allocatedHall: student.allocatedHall,
       },
     });
   } catch (error: any) {

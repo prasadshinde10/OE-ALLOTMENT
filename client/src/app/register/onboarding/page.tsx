@@ -86,7 +86,31 @@ export default function StudentOnboardingPage() {
   }, [formData.year])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    if (name === 'year') {
+      // Auto-set valid semester when year changes
+      const validSemesters = getSemesterOptions(value)
+      const currentSemValid = validSemesters.some(s => s.value === formData.semester)
+      setFormData({
+        ...formData,
+        year: value,
+        semester: currentSemValid ? formData.semester : validSemesters[0]?.value || 'Sem-3',
+      })
+    } else {
+      setFormData({ ...formData, [name]: value })
+    }
+  }
+
+  const getSemesterOptions = (year: string) => {
+    if (year === '2') return [
+      { value: 'Sem-3', label: '3rd Semester' },
+      { value: 'Sem-4', label: '4th Semester' },
+    ]
+    // year === '3' (default)
+    return [
+      { value: 'Sem-5', label: '5th Semester' },
+      { value: 'Sem-6', label: '6th Semester' },
+    ]
   }
 
   const validate = () => {
@@ -260,9 +284,8 @@ export default function StudentOnboardingPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
-                  <option value="1">1st Year</option>
-                  <option value="2">2nd Year</option>
-                  <option value="3">3rd Year</option>
+                  <option value="2">2nd Year (SY)</option>
+                  <option value="3">3rd Year (TY)</option>
                 </select>
               </div>
 
@@ -275,9 +298,9 @@ export default function StudentOnboardingPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <option key={`sem-${i + 1}`} value={`Sem-${i + 1}`}>
-                      Sem-{i + 1}
+                  {getSemesterOptions(formData.year).map((sem) => (
+                    <option key={sem.value} value={sem.value}>
+                      {sem.label}
                     </option>
                   ))}
                 </select>

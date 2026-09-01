@@ -150,6 +150,13 @@ export default function SelectElectivePage() {
                 Semester: <span className="font-semibold">{allocationStatus.allocatedTerm || '-'}</span> | 
                 Allocated On: <span className="font-semibold">{allocationStatus.allocationTimestamp ? new Date(allocationStatus.allocationTimestamp).toLocaleString() : 'N/A'}</span>
               </p>
+              {allocationStatus.allocatedDivision && (
+                <p className="text-sm text-indigo-700 mt-1">
+                  Division: <span className="font-semibold">{allocationStatus.allocatedDivision}</span>
+                  {allocationStatus.allocatedFaculty && (<> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span></>)}
+                  {allocationStatus.allocatedHall && (<> | Hall: <span className="font-semibold">{allocationStatus.allocatedHall}</span></>)}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -223,6 +230,17 @@ export default function SelectElectivePage() {
                     <span className="text-gray-400">Department:</span>
                     <span className="text-gray-800 font-semibold">{elective.offeredByDepartment}</span>
                   </p>
+                )}
+
+                {elective.syllabusUrl && (
+                  <a
+                    href={elective.syllabusUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                  >
+                    📄 View Syllabus
+                  </a>
                 )}
 
                 <div className="mt-4 pt-3 border-t border-gray-100/80">

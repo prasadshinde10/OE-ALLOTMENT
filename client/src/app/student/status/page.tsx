@@ -65,9 +65,29 @@ export default function StudentStatusPage() {
               <dt className="text-sm font-medium text-gray-500">Allocation Status</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {status && status.allocatedElectiveName ? (
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                  <div className="bg-green-50 border border-green-200 rounded-md p-4 space-y-2">
                     <h4 className="text-lg font-bold text-green-800">{status.allocatedElectiveName}</h4>
                     <p className="text-green-700">Semester: {status.allocatedTerm || '-'}</p>
+                    {status.allocatedDivision && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-green-200/60">
+                        <div>
+                          <span className="text-xs text-green-600">Division</span>
+                          <p className="text-sm font-semibold text-green-800">{status.allocatedDivision}</p>
+                        </div>
+                        {status.allocatedFaculty && (
+                          <div>
+                            <span className="text-xs text-green-600">Faculty</span>
+                            <p className="text-sm font-semibold text-green-800">{status.allocatedFaculty}</p>
+                          </div>
+                        )}
+                        {status.allocatedHall && (
+                          <div>
+                            <span className="text-xs text-green-600">Hall / Room</span>
+                            <p className="text-sm font-semibold text-green-800">{status.allocatedHall}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <p className="text-xs text-green-600 mt-2">
                       Allocated at: {status.allocationTimestamp ? new Date(status.allocationTimestamp).toLocaleString() : '-'}
                     </p>

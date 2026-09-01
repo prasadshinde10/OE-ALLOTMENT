@@ -17,6 +17,15 @@ const emptyDivision = (): Division => ({
   capacity: 30,
 })
 
+const APPROVED_DEPARTMENTS = [
+  'Computer Science and Engineering',
+  'Computer Science and Design',
+  'Artificial Intelligence and Data Science',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Electronics and Telecommunication',
+]
+
 export default function AdminElectivesPage() {
   const [electives, setElectives] = useState<Elective[]>([])
   const [branches, setBranches] = useState<any[]>([])
@@ -92,6 +101,27 @@ export default function AdminElectivesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Division capacity validation
+    if (divisions.length > 0) {
+      const capacitySum = divisions.reduce((sum, d) => sum + (d.capacity || 0), 0)
+      if (capacitySum !== formData.capacity) {
+        toast.error(
+          `The total capacity (${formData.capacity}) must equal the sum of all division capacities (currently ${capacitySum}).`
+        )
+        return
+      }
+    }
+
+    // Division phone number validation
+    for (let i = 0; i < divisions.length; i++) {
+      const phone = divisions[i].facultyContact?.trim()
+      if (phone && !/^\d{10}$/.test(phone)) {
+        toast.error(`Division ${i + 1}: Faculty phone number must be exactly 10 digits.`)
+        return
+      }
+    }
+
     try {
       const payload = { ...formData, divisions }
       if (editingId) {
@@ -242,19 +272,17 @@ export default function AdminElectivesPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Offered By Department</label>
-            <input
-              type="text"
-              list="department-suggestions"
+            <select
               value={formData.offeredByDepartment}
               onChange={e => setFormData({ ...formData, offeredByDepartment: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              placeholder="e.g. CSE, IT, Mechanical"
-            />
-            <datalist id="department-suggestions">
-              {departmentOptions.map(dept => (
-                <option key={dept} value={dept} />
+              required
+            >
+              <option value="">— Select Department —</option>
+              {APPROVED_DEPARTMENTS.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
               ))}
-            </datalist>
+            </select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -316,7 +344,9 @@ export default function AdminElectivesPage() {
             )}
 
             <div className="space-y-3">
-              {divisions.map((div, idx) => (
+              {divisions.map((div, idx) => {
+                const phoneInvalid = div.facultyContact?.trim() && !/^\d{10}$/.test(div.facultyContact.trim())
+                return (
                 <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-gray-600">Division {idx + 1}</span>
@@ -352,13 +382,19 @@ export default function AdminElectivesPage() {
                       onChange={e => updateDivision(idx, 'hallRoom', e.target.value)}
                       className="border border-gray-300 rounded px-2 py-1.5 text-sm"
                     />
-                    <input
-                      type="text"
-                      placeholder="Faculty Contact (optional)"
-                      value={div.facultyContact || ''}
-                      onChange={e => updateDivision(idx, 'facultyContact', e.target.value)}
-                      className="border border-gray-300 rounded px-2 py-1.5 text-sm"
-                    />
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Phone (10 digits, optional)"
+                        value={div.facultyContact || ''}
+                        onChange={e => updateDivision(idx, 'facultyContact', e.target.value)}
+                        maxLength={10}
+                        className={`border rounded px-2 py-1.5 text-sm w-full ${phoneInvalid ? 'border-red-400 bg-red-50' : 'border-gray-300'}`}
+                      />
+                      {phoneInvalid && (
+                        <p className="text-[10px] text-red-500 mt-0.5">Must be exactly 10 digits</p>
+                      )}
+                    </div>
                     <input
                       type="number"
                       placeholder="Capacity"
@@ -370,8 +406,21 @@ export default function AdminElectivesPage() {
                     />
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
+
+            {/* Inline capacity mismatch warning */}
+            {divisions.length > 0 && (() => {
+              const sum = divisions.reduce((s, d) => s + (d.capacity || 0), 0)
+              const match = sum === formData.capacity
+              return (
+                <p className={`text-xs mt-2 font-medium ${match ? 'text-green-600' : 'text-red-600'}`}>
+                  {match
+                    ? `✓ Division capacities total ${sum} = Total capacity ${formData.capacity}`
+                    : `⚠ Division capacities total ${sum} ≠ Total capacity ${formData.capacity}. They must be equal.`}
+                </p>
+              )
+            })()}
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
