@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Elective from '../models/Elective';
 import { logAudit } from '../services/auditService';
 
@@ -44,36 +45,78 @@ export const createElective = async (req: Request, res: Response): Promise<void>
 
 export const updateElective = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, code, offeredByDepartment, year, term, capacity, isActive } = req.body;
-    const oldElective = await Elective.findById(req.params.id);
-    if (!oldElective) {
+    const elective = await Elective.findById(req.params.id);
+    if (!elective) {
       res.status(404).json({ success: false, message: 'Elective not found' });
       return;
     }
 
-    const updates: any = {};
-    if (name !== undefined) updates.name = name;
-    if (code !== undefined) updates.code = code;
-    if (offeredByDepartment !== undefined) updates.offeredByDepartment = offeredByDepartment;
-    if (year !== undefined) updates.year = year;
-    if (term !== undefined) updates.term = term;
-    if (capacity !== undefined) updates.capacity = capacity;
-    if (isActive !== undefined) updates.isActive = isActive;
+    const oldElective = elective.toObject();
 
-    const updated = await Elective.findByIdAndUpdate(req.params.id, updates, { new: true });
-    
-    await logAudit({ 
-      action: 'ELECTIVE_UPDATE', 
-      actorId: (req as any).user.userId, 
+    const {
+      name, code, offeredByDepartment, year, term,
+      capacity, isActive, divisions, syllabusUrl,
+    } = req.body;
+
+    // Server-side capacity vs division-sum validation
+    if (divisions && Array.isArray(divisions) && divisions.length > 0 && capacity !== undefined) {
+      const totalDivCapacity = divisions.reduce(
+        (acc: number, div: any) => acc + Number(div.capacity || 0), 0
+      );
+      if (Number(capacity) !== totalDivCapacity) {
+        res.status(400).json({
+          success: false,
+          message: `Sum of division capacities (${totalDivCapacity}) must equal total elective capacity (${capacity}).`,
+        });
+        return;
+      }
+    }
+
+    // Update scalar fields
+    if (name !== undefined) elective.name = name;
+    if (code !== undefined) elective.code = code;
+    if (offeredByDepartment !== undefined) elective.offeredByDepartment = offeredByDepartment;
+    if (year !== undefined) elective.year = year;
+    if (term !== undefined) elective.term = term;
+    if (capacity !== undefined) elective.capacity = capacity;
+    if (isActive !== undefined) elective.isActive = isActive;
+    if (syllabusUrl !== undefined) elective.syllabusUrl = syllabusUrl;
+
+    // Cleanly overwrite the divisions array
+    if (divisions !== undefined && Array.isArray(divisions)) {
+      elective.divisions = divisions.map((div: any) => ({
+        _id: div._id || new mongoose.Types.ObjectId(),
+        divisionName: div.divisionName,
+        facultyName: div.facultyName,
+        hallRoom: div.hallRoom || '',
+        facultyContact: (div.facultyContact || '').trim(),
+        capacity: Number(div.capacity),
+      })) as any;
+
+      // Explicitly tell Mongoose that the nested array changed
+      elective.markModified('divisions');
+    }
+
+    await elective.save();
+
+    await logAudit({
+      action: 'ELECTIVE_UPDATE',
+      actorId: (req as any).user.userId,
       actorRole: 'admin',
       targetType: 'elective',
-      targetId: req.params.id, 
+      targetId: req.params.id,
       before: oldElective,
-      after: updated 
+      after: elective.toObject(),
     });
-    
-    res.status(200).json({ success: true, data: updated });
+
+    res.status(200).json({ success: true, data: elective });
   } catch (error: any) {
+    // Surface Mongoose validation errors clearly
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((e: any) => e.message).join('; ');
+      res.status(400).json({ success: false, message: messages });
+      return;
+    }
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
 };

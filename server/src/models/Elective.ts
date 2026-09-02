@@ -28,7 +28,17 @@ const divisionSchema = new Schema<IDivision>(
     divisionName: { type: String, required: true, trim: true },
     facultyName: { type: String, required: true, trim: true },
     hallRoom: { type: String, trim: true, default: '' },
-    facultyContact: { type: String, trim: true, default: '' },
+    facultyContact: {
+      type: String,
+      trim: true,
+      default: '',
+      validate: {
+        validator: function (v: string) {
+          return v === '' || /^\d{10}$/.test(v);
+        },
+        message: 'Phone number must be exactly 10 digits',
+      },
+    },
     capacity: { type: Number, required: true, min: 1 },
   },
   { _id: true }

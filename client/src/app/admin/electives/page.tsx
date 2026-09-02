@@ -123,7 +123,17 @@ export default function AdminElectivesPage() {
     }
 
     try {
-      const payload = { ...formData, divisions }
+      // Sanitize divisions before sending
+      const sanitizedDivisions = divisions.map(div => ({
+        _id: div._id || undefined,
+        divisionName: div.divisionName.trim(),
+        facultyName: div.facultyName.trim(),
+        hallRoom: (div.hallRoom || '').trim(),
+        facultyContact: (div.facultyContact || '').trim(),
+        capacity: parseInt(String(div.capacity), 10) || 0,
+      }))
+
+      const payload = { ...formData, divisions: sanitizedDivisions }
       if (editingId) {
         await api.put(`/api/electives/${editingId}`, payload)
         toast.success('Elective updated successfully')
@@ -134,7 +144,8 @@ export default function AdminElectivesPage() {
       setIsModalOpen(false)
       fetchElectives()
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Error saving elective')
+      const msg = err.response?.data?.message || 'Error saving elective'
+      toast.error(msg)
     }
   }
 
