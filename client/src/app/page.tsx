@@ -95,7 +95,7 @@ export default function Home() {
               <span>Continue with Microsoft (@mit.asia)</span>
             </button>
             <p className="text-xs text-center text-gray-400">
-              ⚡ Instant 1-click Sign In & Registration for all MIT students
+              Instant 1-click Sign In & Registration for all MIT students
             </p>
           </div>
 
@@ -154,7 +154,7 @@ export default function Home() {
             href="/login/admin"
             className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 transition-colors font-medium"
           >
-            🔒 Administrator / Faculty Access
+            Administrator / Faculty Access
           </Link>
         </div>
       </div>

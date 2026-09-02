@@ -171,14 +171,14 @@ export default function DepartmentOverviewPage() {
             onClick={handleExportCSV}
             disabled={exporting}
           >
-            {exporting ? '⏳ Exporting...' : '📥 Export CSV'}
+            {exporting ? 'Exporting...' : 'Export CSV'}
           </Button>
           <Button
             variant="outline"
             onClick={handleExportZip}
             disabled={exportingZip}
           >
-            {exportingZip ? '⏳ Exporting...' : '📦 Export All (ZIP)'}
+            {exportingZip ? 'Exporting...' : 'Export All (ZIP)'}
           </Button>
         </div>
       </div>

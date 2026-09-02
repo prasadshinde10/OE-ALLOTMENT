@@ -2,42 +2,105 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuthContext } from '@/context/AuthContext'
+import { useEffect } from 'react'
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname()
   const { user } = useAuthContext()
 
-  if (user?.role !== 'admin') return null;
+  // Close on Esc key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) onClose()
+    }
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc)
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen, onClose])
+
+  if (user?.role !== 'admin') return null
 
   const links = [
-    { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-    { href: '/admin/electives', label: 'Electives', icon: '📚' },
-    { href: '/admin/departments', label: 'Departments', icon: '🏢' },
-    { href: '/admin/students', label: 'Students', icon: '🎓' },
-    { href: '/admin/branches', label: 'Branches', icon: '🏫' },
-    { href: '/admin/duplicates', label: 'Duplicates', icon: '👥' },
-    { href: '/admin/term-config', label: 'Term Config', icon: '⚙️' },
+    { href: '/admin/dashboard', label: 'Dashboard' },
+    { href: '/admin/electives', label: 'Electives' },
+    { href: '/admin/departments', label: 'Departments' },
+    { href: '/admin/students', label: 'Students' },
+    { href: '/admin/branches', label: 'Branches' },
+    { href: '/admin/duplicates', label: 'Duplicates' },
+    { href: '/admin/term-config', label: 'Term Config' },
   ]
 
+  const handleLinkClick = () => {
+    if (onClose) onClose()
+  }
+
+  const navContent = (
+    <nav className="flex flex-col gap-1 px-4 py-6">
+      {links.map((link) => {
+        const isActive = pathname === link.href
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={handleLinkClick}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm ${
+              isActive
+                ? 'bg-indigo-600 text-white font-medium'
+                : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+            }`}
+          >
+            {link.label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+
   return (
-    <aside className="w-64 bg-gray-900 text-white flex-shrink-0 hidden md:flex flex-col h-[calc(100vh-68px)]">
-      <div className="py-6 flex flex-col flex-grow">
-        <nav className="flex flex-col gap-1 px-4">
-          {links.map((link) => {
-            const isActive = pathname === link.href
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-600 text-white font-medium' : 'text-gray-300 hover:bg-gray-800 hover:text-white'}`}
-              >
-                <span className="text-lg">{link.icon}</span>
-                {link.label}
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
-    </aside>
+    <>
+      {/* Desktop sidebar */}
+      <aside className="w-60 bg-gray-900 text-white flex-shrink-0 hidden md:flex flex-col h-[calc(100vh-57px)] sticky top-[57px]">
+        {navContent}
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 ease-in-out md:hidden ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-800">
+          <span className="text-lg font-bold text-white">OE Allotment</span>
+          <button
+            onClick={onClose}
+            className="p-1 text-gray-400 hover:text-white rounded"
+            aria-label="Close menu"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        {navContent}
+      </aside>
+    </>
   )
 }

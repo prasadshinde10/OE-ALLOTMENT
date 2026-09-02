@@ -9,6 +9,15 @@ import toast from 'react-hot-toast'
 import { Student, Elective } from '@/types'
 import { exportToCSV } from '@/lib/csvExport'
 
+const APPROVED_DEPARTMENTS = [
+  'Computer Science and Engineering',
+  'Computer Science and Design',
+  'Artificial Intelligence and Data Science',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Electronics and Telecommunication',
+]
+
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState<Student[]>([])
   const [total, setTotal] = useState(0)
@@ -141,7 +150,7 @@ export default function AdminStudentsPage() {
 
       toast.success(`Exported ${allStudents.length} student records`)
     } catch (err) {
-      toast.error('Failed to export CSV')
+      toast.error('Failed to export students')
     } finally {
       setExporting(false)
     }
@@ -176,25 +185,25 @@ export default function AdminStudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Manage Students</h1>
         <Button variant="outline" onClick={handleExportCSV} disabled={exporting}>
-          {exporting ? '⏳ Exporting...' : '📥 Export to CSV'}
+          {exporting ? 'Exporting...' : 'Export Students'}
         </Button>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <form onSubmit={handleSearch} className="flex gap-4 mb-4">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 mb-4">
           <Input
             placeholder="Search name/HT"
             value={filters.search}
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className="max-w-xs"
+            className="w-full sm:max-w-xs"
           />
           <select
             value={filters.year}
             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-            className="border-gray-300 rounded-md shadow-sm border px-3"
+            className="border-gray-300 rounded-md shadow-sm border px-3 py-2 text-sm"
           >
             <option value="">All Years</option>
             <option value="1">1st Year</option>
@@ -217,7 +226,7 @@ export default function AdminStudentsPage() {
 
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Student">
         <form onSubmit={handleSaveEdit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Input
               label="First Name"
               value={formData.firstName || ''}
@@ -241,11 +250,22 @@ export default function AdminStudentsPage() {
             value={formData.instituteEmail || ''}
             onChange={(e) => setFormData({ ...formData, instituteEmail: e.target.value })}
           />
-          <Input
-            label="Branch"
-            value={formData.branch || ''}
-            onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <select
+              value={formData.branch || ''}
+              onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              required
+            >
+              <option value="">— Select Department —</option>
+              {APPROVED_DEPARTMENTS.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          </div>
           <Input
             label="Mobile"
             value={formData.mobileNumber || ''}

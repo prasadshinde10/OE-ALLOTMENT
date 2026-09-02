@@ -7,6 +7,15 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 
+const APPROVED_DEPARTMENTS = [
+  'Computer Science and Engineering',
+  'Computer Science and Design',
+  'Artificial Intelligence and Data Science',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Electronics and Telecommunication',
+]
+
 export default function AdminBranchesPage() {
   const [branches, setBranches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -95,13 +104,22 @@ export default function AdminBranchesPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Branch">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input 
-            label="Branch Name" 
-            value={formData.name} 
-            onChange={e => setFormData({...formData, name: e.target.value})} 
-            required 
-            placeholder="e.g. Computer Science"
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Department / Branch Name</label>
+            <select
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              required
+            >
+              <option value="">— Select Department —</option>
+              {APPROVED_DEPARTMENTS.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Year</label>
             <select 

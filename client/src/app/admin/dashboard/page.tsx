@@ -136,14 +136,14 @@ export default function AdminDashboard() {
             onClick={handleExportStudents}
             disabled={exportingStudents}
           >
-            {exportingStudents ? '⏳ Exporting...' : '📥 Export Students CSV'}
+            {exportingStudents ? 'Exporting...' : 'Export Students'}
           </Button>
           <Button
             variant="outline"
             onClick={handleExportElectives}
             disabled={exportingElectives}
           >
-            {exportingElectives ? '⏳ Exporting...' : '📥 Export Electives CSV'}
+            {exportingElectives ? 'Exporting...' : 'Export Electives'}
           </Button>
         </div>
       </div>

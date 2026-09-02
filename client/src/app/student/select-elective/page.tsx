@@ -139,25 +139,22 @@ export default function SelectElectivePage() {
   return (
     <div className="space-y-6">
       {allocationStatus && (
-        <div className="bg-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-xl shadow-sm">
-          <div className="flex items-center">
-            <span className="text-2xl mr-3">🎉</span>
-            <div>
-              <h3 className="text-lg font-bold text-indigo-900">
-                You are currently allocated to: {allocationStatus.allocatedElectiveName}
-              </h3>
-              <p className="text-sm text-indigo-700 mt-0.5">
-                Semester: <span className="font-semibold">{allocationStatus.allocatedTerm || '-'}</span> | 
-                Allocated On: <span className="font-semibold">{allocationStatus.allocationTimestamp ? new Date(allocationStatus.allocationTimestamp).toLocaleString() : 'N/A'}</span>
+        <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 sm:p-5 rounded-r-xl shadow-sm">
+          <div className="space-y-1">
+            <h3 className="text-base sm:text-lg font-bold text-indigo-900">
+              Allocated: {allocationStatus.allocatedElectiveName}
+            </h3>
+            <p className="text-xs sm:text-sm text-indigo-700">
+              Semester: <span className="font-semibold">{allocationStatus.allocatedTerm || '-'}</span>
+              <span className="hidden sm:inline"> | Allocated On: <span className="font-semibold">{allocationStatus.allocationTimestamp ? new Date(allocationStatus.allocationTimestamp).toLocaleString() : 'N/A'}</span></span>
+            </p>
+            {allocationStatus.allocatedDivision && (
+              <p className="text-xs sm:text-sm text-indigo-700">
+                Division: <span className="font-semibold">{allocationStatus.allocatedDivision}</span>
+                {allocationStatus.allocatedFaculty && (<> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span></>)}
+                {allocationStatus.allocatedHall && (<> | Hall: <span className="font-semibold">{allocationStatus.allocatedHall}</span></>)}
               </p>
-              {allocationStatus.allocatedDivision && (
-                <p className="text-sm text-indigo-700 mt-1">
-                  Division: <span className="font-semibold">{allocationStatus.allocatedDivision}</span>
-                  {allocationStatus.allocatedFaculty && (<> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span></>)}
-                  {allocationStatus.allocatedHall && (<> | Hall: <span className="font-semibold">{allocationStatus.allocatedHall}</span></>)}
-                </p>
-              )}
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -239,7 +236,10 @@ export default function SelectElectivePage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
                   >
-                    📄 View Syllabus
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    View Syllabus
                   </a>
                 )}
 

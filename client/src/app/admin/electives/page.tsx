@@ -239,7 +239,7 @@ export default function AdminElectivesPage() {
               onClick={() => handleAutoAssign(row._id)}
               disabled={assigning === row._id}
             >
-              {assigning === row._id ? '⏳' : '🔀'} Assign
+              {assigning === row._id ? 'Assigning...' : 'Assign'}
             </Button>
           )}
           <Button size="sm" variant="danger" onClick={() => handleDelete(row._id)}>Del</Button>
@@ -255,8 +255,8 @@ export default function AdminElectivesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Manage Electives</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportCSV}>📥 Export CSV</Button>
-          <Button onClick={() => handleOpenModal()}>+ Add Elective</Button>
+          <Button variant="outline" onClick={handleExportCSV}>Export CSV</Button>
+          <Button onClick={() => handleOpenModal()}>Add Elective</Button>
         </div>
       </div>
 
@@ -342,7 +342,7 @@ export default function AdminElectivesPage() {
           {/* ── Divisions Section ── */}
           <div className="border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-800">📋 Divisions</h3>
+              <h3 className="text-sm font-semibold text-gray-800">Divisions</h3>
               <Button type="button" size="sm" variant="outline" onClick={addDivision}>
                 + Add Division
               </Button>
@@ -366,10 +366,10 @@ export default function AdminElectivesPage() {
                       onClick={() => removeDivision(idx)}
                       className="text-red-400 hover:text-red-600 text-xs font-medium"
                     >
-                      ✕ Remove
+                      Remove
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"
                       placeholder="Division Name (e.g. Division A)"
@@ -427,8 +427,8 @@ export default function AdminElectivesPage() {
               return (
                 <p className={`text-xs mt-2 font-medium ${match ? 'text-green-600' : 'text-red-600'}`}>
                   {match
-                    ? `✓ Division capacities total ${sum} = Total capacity ${formData.capacity}`
-                    : `⚠ Division capacities total ${sum} ≠ Total capacity ${formData.capacity}. They must be equal.`}
+                    ? `Division capacities total ${sum} = Total capacity ${formData.capacity}`
+                    : `Division capacities total ${sum} does not equal Total capacity ${formData.capacity}. They must be equal.`}
                 </p>
               )
             })()}

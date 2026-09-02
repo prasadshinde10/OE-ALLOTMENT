@@ -120,8 +120,8 @@ export function QueueProgress({
       : `~${estimatedWaitMs}ms`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-100 transform transition-all text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md p-4 sm:p-6 border border-gray-100 transform transition-all text-center mx-2">
         {status === 'completed' ? (
           /* Completed State */
           <div className="space-y-4 py-4">
@@ -198,7 +198,7 @@ export function QueueProgress({
               </div>
               <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden p-0.5 border border-gray-200">
                 <div
-                  className="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-600 h-full rounded-full transition-all duration-500 ease-out shadow-sm"
+                  className="bg-indigo-600 h-full rounded-full transition-all duration-500 ease-out shadow-sm"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -215,7 +215,7 @@ export function QueueProgress({
             </div>
 
             <p className="text-[11px] text-gray-400">
-              Ticket: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{ticketId}</code>
+              Ticket: <code className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 break-all">{ticketId}</code>
             </p>
           </div>
         )}
