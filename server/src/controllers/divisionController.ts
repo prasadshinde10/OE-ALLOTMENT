@@ -93,6 +93,7 @@ export const autoAssignDivisions = async (req: Request, res: Response): Promise<
       studentId: string;
       divisionName: string;
       facultyName: string;
+      facultyContact?: string;
       hallRoom: string;
     }> = [];
 
@@ -116,6 +117,7 @@ export const autoAssignDivisions = async (req: Request, res: Response): Promise<
           studentId: student._id.toString(),
           divisionName: lastDiv.divisionName,
           facultyName: lastDiv.facultyName,
+          facultyContact: lastDiv.facultyContact || '',
           hallRoom: lastDiv.hallRoom || '',
         });
       } else {
@@ -124,6 +126,7 @@ export const autoAssignDivisions = async (req: Request, res: Response): Promise<
           studentId: student._id.toString(),
           divisionName: div.divisionName,
           facultyName: div.facultyName,
+          facultyContact: div.facultyContact || '',
           hallRoom: div.hallRoom || '',
         });
         filledInCurrentDivision++;
@@ -138,6 +141,8 @@ export const autoAssignDivisions = async (req: Request, res: Response): Promise<
           $set: {
             allocatedDivision: a.divisionName,
             allocatedFaculty: a.facultyName,
+            allocatedFacultyPhone: a.facultyContact,
+            allocatedFacultyContact: a.facultyContact,
             allocatedHall: a.hallRoom,
           },
         },
@@ -277,6 +282,8 @@ export const reassignDivision = async (req: Request, res: Response): Promise<voi
         $set: {
           allocatedDivision: division.divisionName,
           allocatedFaculty: division.facultyName,
+          allocatedFacultyPhone: division.facultyContact || '',
+          allocatedFacultyContact: division.facultyContact || '',
           allocatedHall: division.hallRoom || '',
         },
       },

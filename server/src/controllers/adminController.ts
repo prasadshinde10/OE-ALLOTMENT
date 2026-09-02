@@ -235,7 +235,7 @@ export const deleteBranch = async (req: Request, res: Response): Promise<void> =
 function buildDepartmentCSV(students: any[]): string {
   const headers = [
     'PRN', 'First Name', 'Middle Name', 'Last Name', 'Department', 'Year',
-    'Elective Name', 'Division', 'Faculty Name', 'Hall Allotment',
+    'Elective Name', 'Division', 'Faculty Name', 'Faculty Phone', 'Hall Allotment',
   ];
   const escape = (v: any) => {
     const s = String(v ?? '');
@@ -253,6 +253,7 @@ function buildDepartmentCSV(students: any[]): string {
     escape(s.allocatedElectiveName),
     escape(s.allocatedDivision),
     escape(s.allocatedFaculty),
+    escape(s.allocatedFacultyPhone || s.allocatedFacultyContact || 'N/A'),
     escape(s.allocatedHall),
   ].join(','));
   return [headers.join(','), ...rows].join('\n');
@@ -278,7 +279,7 @@ export const getDepartmentOverview = async (req: Request, res: Response): Promis
 
     const [students, total] = await Promise.all([
       Student.find(filter)
-        .select('firstName middleName lastName hallTicketNumber rollNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedHall')
+        .select('firstName middleName lastName hallTicketNumber rollNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedFacultyPhone allocatedHall')
         .sort({ branch: 1, allocatedElectiveName: 1, allocatedDivision: 1 })
         .skip(skip)
         .limit(limitNum)
@@ -321,7 +322,7 @@ export const exportDepartmentCSV = async (req: Request, res: Response): Promise<
     if (elective) filter.allocatedElectiveName = elective;
 
     const students = await Student.find(filter)
-      .select('firstName middleName lastName hallTicketNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedHall')
+      .select('firstName middleName lastName hallTicketNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedFacultyPhone allocatedHall')
       .sort({ branch: 1, allocatedDivision: 1 })
       .lean();
 
@@ -348,7 +349,7 @@ export const exportAllDepartmentsZip = async (req: Request, res: Response): Prom
     if (req.query.year) filter.year = Number(req.query.year);
 
     const students = await Student.find(filter)
-      .select('firstName middleName lastName hallTicketNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedHall')
+      .select('firstName middleName lastName hallTicketNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedFacultyPhone allocatedHall')
       .sort({ branch: 1, allocatedDivision: 1 })
       .lean();
 

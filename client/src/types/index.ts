@@ -19,6 +19,8 @@ export interface Student {
   allocationTimestamp?: string;
   allocatedDivision?: string;
   allocatedFaculty?: string;
+  allocatedFacultyPhone?: string;
+  allocatedFacultyContact?: string;
   allocatedHall?: string;
   createdAt: string;
   updatedAt: string;

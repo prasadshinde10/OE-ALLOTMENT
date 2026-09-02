@@ -27,13 +27,24 @@ export default function AdminStudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [formData, setFormData] = useState<any>({})
   const [electives, setElectives] = useState<Elective[]>([])
+  const [branches, setBranches] = useState<any[]>([])
   const [newElectiveId, setNewElectiveId] = useState('')
   const [reassigning, setReassigning] = useState(false)
   const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     fetchStudents()
+    fetchBranches()
   }, [filters.page, filters.limit, filters.year])
+
+  const fetchBranches = async () => {
+    try {
+      const res = await api.get('/api/admin/branches')
+      setBranches(res.data.data || [])
+    } catch (err) {
+      // ignore
+    }
+  }
 
   const fetchStudents = async () => {
     try {
@@ -52,6 +63,7 @@ export default function AdminStudentsPage() {
   }
 
   const handleEditClick = (student: Student) => {
+    fetchBranches()
     setSelectedStudent(student)
     setFormData(student)
     setIsEditModalOpen(true)
@@ -259,11 +271,19 @@ export default function AdminStudentsPage() {
               required
             >
               <option value="">— Select Department —</option>
-              {APPROVED_DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
+              {Array.from(
+                new Set([
+                  ...branches.map((b: any) => b.name).filter(Boolean),
+                  ...(branches.length === 0 ? APPROVED_DEPARTMENTS : []),
+                  ...(formData.branch ? [formData.branch] : []),
+                ])
+              )
+                .sort()
+                .map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
             </select>
           </div>
           <Input

@@ -85,6 +85,11 @@ app.use('/api/export', exportRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/choices', choiceRoutes);
 
+// Public aliases for branches & departments
+import { getBranches } from './controllers/adminController';
+app.get('/api/branches', getBranches);
+app.get('/api/departments', getBranches);
+
 // Health check
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

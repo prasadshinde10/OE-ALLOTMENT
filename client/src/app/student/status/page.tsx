@@ -76,8 +76,10 @@ export default function StudentStatusPage() {
                         </div>
                         {status.allocatedFaculty && (
                           <div>
-                            <span className="text-xs text-green-600">Faculty</span>
-                            <p className="text-sm font-semibold text-green-800">{status.allocatedFaculty}</p>
+                            <span className="text-xs text-green-600">Faculty & Contact</span>
+                            <p className="text-sm font-semibold text-green-800">
+                              Faculty: {status.allocatedFaculty} | Phone: {status.allocatedFacultyPhone || status.allocatedFacultyContact || 'N/A'}
+                            </p>
                           </div>
                         )}
                         {status.allocatedHall && (

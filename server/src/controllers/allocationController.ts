@@ -46,6 +46,19 @@ export const getMyStatus = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    let facultyPhone = student.allocatedFacultyPhone || student.allocatedFacultyContact || '';
+    if (!facultyPhone && student.allocatedElectiveId && student.allocatedDivision) {
+      try {
+        const elective = await Elective.findById(student.allocatedElectiveId).lean();
+        const div = elective?.divisions?.find((d) => d.divisionName === student.allocatedDivision);
+        if (div?.facultyContact) {
+          facultyPhone = div.facultyContact;
+        }
+      } catch (e) {
+        // ignore elective lookup error
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -67,6 +80,8 @@ export const getMyStatus = async (req: Request, res: Response): Promise<void> =>
         allocationTimestamp: student.allocationTimestamp,
         allocatedDivision: student.allocatedDivision,
         allocatedFaculty: student.allocatedFaculty,
+        allocatedFacultyPhone: facultyPhone || '',
+        allocatedFacultyContact: facultyPhone || '',
         allocatedHall: student.allocatedHall,
       },
     });

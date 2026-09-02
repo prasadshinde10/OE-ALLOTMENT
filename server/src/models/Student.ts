@@ -29,6 +29,8 @@ export interface IStudent extends Document {
   allocationTimestamp?: Date;
   allocatedDivision?: string;
   allocatedFaculty?: string;
+  allocatedFacultyPhone?: string;
+  allocatedFacultyContact?: string;
   allocatedHall?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -148,6 +150,14 @@ const studentSchema = new Schema<IStudent>(
       default: null,
     },
     allocatedFaculty: {
+      type: String,
+      default: null,
+    },
+    allocatedFacultyPhone: {
+      type: String,
+      default: null,
+    },
+    allocatedFacultyContact: {
       type: String,
       default: null,
     },

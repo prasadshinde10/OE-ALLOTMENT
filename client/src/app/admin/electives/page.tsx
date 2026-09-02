@@ -71,6 +71,7 @@ export default function AdminElectivesPage() {
   }
 
   const handleOpenModal = (elective?: Elective) => {
+    fetchBranches()
     if (elective) {
       setEditingId(elective._id)
       setFormData({
@@ -191,6 +192,12 @@ export default function AdminElectivesPage() {
           { header: 'Seats Filled', key: 'seatsFilled' },
           { header: 'Available', key: 'capacity', transform: (_v, row) => String(row.capacity - (row.seatsFilled || 0)) },
           { header: 'Divisions', key: 'divisions', transform: (v) => (v?.length || 0).toString() },
+          {
+            header: 'Faculty & Phone',
+            key: 'divisions',
+            transform: (v) =>
+              v?.map((d: any) => `${d.divisionName}: ${d.facultyName} (${d.facultyContact || 'N/A'})`).join('; ') || 'N/A',
+          },
           { header: 'Active', key: 'isActive', transform: (v) => (v ? 'Yes' : 'No') },
         ],
       })
@@ -215,6 +222,25 @@ export default function AdminElectivesPage() {
     { header: 'Sem', accessor: 'term' },
     { header: 'Cap', accessor: 'capacity' },
     { header: 'Filled', accessor: 'seatsFilled' },
+    {
+      header: 'Faculty Phone',
+      accessor: (row: Elective) => {
+        if (!row.divisions || row.divisions.length === 0) {
+          return <span className="text-gray-400 text-xs">No divisions</span>
+        }
+        return (
+          <div className="text-xs space-y-1">
+            {row.divisions.map((div, i) => (
+              <div key={i} className="whitespace-nowrap">
+                <span className="font-semibold text-gray-700">{div.divisionName}:</span>{' '}
+                <span className="text-gray-600">{div.facultyName}</span>{' '}
+                <span className="text-gray-500 font-mono">({div.facultyContact || 'N/A'})</span>
+              </div>
+            ))}
+          </div>
+        )
+      },
+    },
     {
       header: 'Divs',
       accessor: (row: Elective) => (
@@ -248,7 +274,15 @@ export default function AdminElectivesPage() {
     },
   ]
 
-  const departmentOptions = Array.from(new Set(branches.map((b: any) => b.name)))
+  // Dynamic department options with master list fallback
+  const fetchedBranchNames = branches.map((b: any) => b.name).filter(Boolean)
+  const availableDepartments = Array.from(
+    new Set([
+      ...fetchedBranchNames,
+      ...(fetchedBranchNames.length === 0 ? APPROVED_DEPARTMENTS : []),
+      ...(formData.offeredByDepartment ? [formData.offeredByDepartment] : []),
+    ])
+  ).sort()
 
   return (
     <div className="space-y-6">
@@ -290,7 +324,7 @@ export default function AdminElectivesPage() {
               required
             >
               <option value="">— Select Department —</option>
-              {APPROVED_DEPARTMENTS.map(dept => (
+              {availableDepartments.map(dept => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>

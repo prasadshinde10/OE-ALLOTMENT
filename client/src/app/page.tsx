@@ -138,12 +138,6 @@ export default function Home() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Signing in...' : 'Sign In with Password'}
               </Button>
-
-              <div className="flex justify-center items-center text-xs pt-1">
-                <Link href="/forgot-password/student" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                  Forgot Password?
-                </Link>
-              </div>
             </form>
           )}
         </div>

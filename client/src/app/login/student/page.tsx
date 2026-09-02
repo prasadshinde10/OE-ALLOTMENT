@@ -74,9 +74,6 @@ export default function StudentLoginPage() {
             </Button>
             
             <div className="flex flex-col items-center gap-2 mt-4">
-              <Link href="/forgot-password/student" className="text-sm text-indigo-600 hover:text-indigo-500">
-                Forgot Password?
-              </Link>
               <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
                 ← Back to Microsoft SSO Login
               </Link>

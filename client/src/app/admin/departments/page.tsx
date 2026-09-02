@@ -18,6 +18,8 @@ interface DeptStudent {
   allocatedElectiveName?: string
   allocatedDivision?: string
   allocatedFaculty?: string
+  allocatedFacultyPhone?: string
+  allocatedFacultyContact?: string
   allocatedHall?: string
 }
 
@@ -152,8 +154,15 @@ export default function DepartmentOverviewPage() {
       ),
     },
     {
-      header: 'Faculty',
-      accessor: (s: DeptStudent) => s.allocatedFaculty || '-',
+      header: 'Faculty & Phone',
+      accessor: (s: DeptStudent) => s.allocatedFaculty ? (
+        <div>
+          <div className="font-medium text-gray-900">{s.allocatedFaculty}</div>
+          <div className="text-xs text-gray-500">{s.allocatedFacultyPhone || s.allocatedFacultyContact || 'N/A'}</div>
+        </div>
+      ) : (
+        <span className="text-gray-400">-</span>
+      ),
     },
     {
       header: 'Hall / Room',

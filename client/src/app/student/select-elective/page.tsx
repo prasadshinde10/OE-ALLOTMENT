@@ -151,7 +151,9 @@ export default function SelectElectivePage() {
             {allocationStatus.allocatedDivision && (
               <p className="text-xs sm:text-sm text-indigo-700">
                 Division: <span className="font-semibold">{allocationStatus.allocatedDivision}</span>
-                {allocationStatus.allocatedFaculty && (<> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span></>)}
+                {allocationStatus.allocatedFaculty && (
+                  <> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span> | Phone: <span className="font-semibold">{allocationStatus.allocatedFacultyPhone || allocationStatus.allocatedFacultyContact || 'N/A'}</span></>
+                )}
                 {allocationStatus.allocatedHall && (<> | Hall: <span className="font-semibold">{allocationStatus.allocatedHall}</span></>)}
               </p>
             )}
