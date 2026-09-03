@@ -32,6 +32,24 @@ export interface IStudent extends Document {
   allocatedFacultyPhone?: string;
   allocatedFacultyContact?: string;
   allocatedHall?: string;
+  // Co-Curricular Club Allocation (FY)
+  allocatedCoCurricularClubId?: mongoose.Types.ObjectId;
+  allocatedCoCurricularClubName?: string;
+  allocatedCoCurricularClubTerm?: string;
+  allocatedCoCurricularTimestamp?: Date;
+  allocatedCoCurricularDivision?: string;
+  allocatedCoCurricularCoordinator?: string;
+  allocatedCoCurricularContact?: string;
+  allocatedCoCurricularHall?: string;
+  // Extra-Curricular Club Allocation (FY)
+  allocatedExtraCurricularClubId?: mongoose.Types.ObjectId;
+  allocatedExtraCurricularClubName?: string;
+  allocatedExtraCurricularClubTerm?: string;
+  allocatedExtraCurricularTimestamp?: Date;
+  allocatedExtraCurricularDivision?: string;
+  allocatedExtraCurricularCoordinator?: string;
+  allocatedExtraCurricularContact?: string;
+  allocatedExtraCurricularHall?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -165,6 +183,74 @@ const studentSchema = new Schema<IStudent>(
       type: String,
       default: null,
     },
+    // Co-Curricular Club Allocation (FY)
+    allocatedCoCurricularClubId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Club',
+      default: null,
+    },
+    allocatedCoCurricularClubName: {
+      type: String,
+      default: null,
+    },
+    allocatedCoCurricularClubTerm: {
+      type: String,
+      default: null,
+    },
+    allocatedCoCurricularTimestamp: {
+      type: Date,
+      default: null,
+    },
+    allocatedCoCurricularDivision: {
+      type: String,
+      default: null,
+    },
+    allocatedCoCurricularCoordinator: {
+      type: String,
+      default: null,
+    },
+    allocatedCoCurricularContact: {
+      type: String,
+      default: null,
+    },
+    allocatedCoCurricularHall: {
+      type: String,
+      default: null,
+    },
+    // Extra-Curricular Club Allocation (FY)
+    allocatedExtraCurricularClubId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Club',
+      default: null,
+    },
+    allocatedExtraCurricularClubName: {
+      type: String,
+      default: null,
+    },
+    allocatedExtraCurricularClubTerm: {
+      type: String,
+      default: null,
+    },
+    allocatedExtraCurricularTimestamp: {
+      type: Date,
+      default: null,
+    },
+    allocatedExtraCurricularDivision: {
+      type: String,
+      default: null,
+    },
+    allocatedExtraCurricularCoordinator: {
+      type: String,
+      default: null,
+    },
+    allocatedExtraCurricularContact: {
+      type: String,
+      default: null,
+    },
+    allocatedExtraCurricularHall: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -197,6 +283,8 @@ studentSchema.methods.comparePassword = async function (candidatePassword: strin
 
 studentSchema.index({ year: 1, allocatedElectiveId: 1 });
 studentSchema.index({ year: 1, allocatedTerm: 1 });
+studentSchema.index({ year: 1, allocatedCoCurricularClubId: 1 });
+studentSchema.index({ year: 1, allocatedExtraCurricularClubId: 1 });
 
 export const Student = mongoose.model<IStudent>('Student', studentSchema);
 export default Student;

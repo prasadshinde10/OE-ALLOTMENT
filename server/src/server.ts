@@ -17,6 +17,9 @@ import adminRoutes from './routes/adminRoutes';
 import exportRoutes from './routes/exportRoutes';
 import testRoutes from './routes/testRoutes';
 import choiceRoutes from './routes/choiceRoutes';
+import clubRoutes from './routes/clubRoutes';
+import clubAllocationRoutes from './routes/clubAllocationRoutes';
+import fyAdminRoutes from './routes/fyAdminRoutes';
 import User from './models/User';
 import { setupSocket } from './socket';
 
@@ -84,6 +87,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/choices', choiceRoutes);
+app.use('/api/clubs', clubRoutes);
+app.use('/api/club-allocation', clubAllocationRoutes);
+app.use('/api/fy-admin', fyAdminRoutes);
 
 // Public aliases for branches & departments
 import { getBranches } from './controllers/adminController';
@@ -131,6 +137,24 @@ async function start() {
       }
     } catch (adminErr) {
       console.warn('⚠️ Could not verify default admin:', adminErr);
+    }
+
+    // Ensure Admin 2 (First-Year Club Admin) exists
+    try {
+      const admin2Email = process.env.ADMIN2_EMAIL || 'admin2@mit.asia';
+      const existingAdmin2 = await User.findOne({ email: admin2Email.toLowerCase() });
+      if (!existingAdmin2) {
+        const defaultAdmin2 = new User({
+          name: 'First Year Club Admin',
+          email: admin2Email.toLowerCase(),
+          password: 'admin123',
+          role: 'first_year_admin',
+        });
+        await defaultAdmin2.save();
+        console.log(`👑 Default Admin 2 created: ${admin2Email} (password: admin123, role: first_year_admin)`);
+      }
+    } catch (admin2Err) {
+      console.warn('⚠️ Could not verify Admin 2:', admin2Err);
     }
 
     await verifyMailer();

@@ -102,6 +102,10 @@ export default function StudentOnboardingPage() {
   }
 
   const getSemesterOptions = (year: string) => {
+    if (year === '1') return [
+      { value: 'Sem-1', label: '1st Semester' },
+      { value: 'Sem-2', label: '2nd Semester' },
+    ]
     if (year === '2') return [
       { value: 'Sem-3', label: '3rd Semester' },
       { value: 'Sem-4', label: '4th Semester' },
@@ -284,6 +288,7 @@ export default function StudentOnboardingPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
+                  <option value="1">1st Year (FY)</option>
                   <option value="2">2nd Year (SY)</option>
                   <option value="3">3rd Year (TY)</option>
                 </select>

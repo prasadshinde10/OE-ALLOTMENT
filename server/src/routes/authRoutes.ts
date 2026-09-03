@@ -13,6 +13,7 @@ import {
   completeProfile,
 } from '../controllers/authController';
 import { getBranches } from '../controllers/adminController';
+import { updateMyProfile } from '../controllers/profileController';
 import { microsoftLogin, microsoftCallback } from '../controllers/microsoftAuthController';
 import { authRateLimiter, otpRateLimiter } from '../middleware/rateLimiter';
 import { authenticateToken } from '../middleware/auth';
@@ -45,5 +46,7 @@ router.get('/branches', getBranches);
 // Student Onboarding & Profile Completion
 router.get('/me', authenticateToken, getMyProfile);
 router.post('/complete-profile', authenticateToken, authRateLimiter, completeProfile);
+router.get('/profile', authenticateToken, getMyProfile);
+router.put('/profile', authenticateToken, authRateLimiter, updateMyProfile);
 
 export default router;

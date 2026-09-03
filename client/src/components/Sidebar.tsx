@@ -28,9 +28,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     }
   }, [isOpen, onClose])
 
-  if (user?.role !== 'admin') return null
+  if (user?.role !== 'admin' && user?.role !== 'first_year_admin') return null
 
-  const links = [
+  const adminLinks = [
     { href: '/admin/dashboard', label: 'Dashboard' },
     { href: '/admin/electives', label: 'Electives' },
     { href: '/admin/departments', label: 'Departments' },
@@ -39,6 +39,16 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     { href: '/admin/duplicates', label: 'Duplicates' },
     { href: '/admin/term-config', label: 'Term Config' },
   ]
+
+  const fyAdminLinks = [
+    { href: '/fy-admin/dashboard', label: 'FY Dashboard' },
+    { href: '/fy-admin/clubs', label: 'Club Management' },
+    { href: '/fy-admin/students', label: 'FY Students' },
+    { href: '/fy-admin/branches', label: 'FY Branches' },
+    { href: '/fy-admin/term-config', label: 'FY Term Config' },
+  ]
+
+  const links = user.role === 'first_year_admin' ? fyAdminLinks : adminLinks
 
   const handleLinkClick = () => {
     if (onClose) onClose()

@@ -3,8 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IAuditLog extends Document {
   action: string;
   actorId: string;
-  actorRole: 'student' | 'admin' | 'teacher' | 'system';
-  targetType: 'student' | 'elective' | 'term_config' | 'user' | 'branch';
+  actorRole: 'student' | 'admin' | 'teacher' | 'system' | 'first_year_admin';
+  targetType: 'student' | 'elective' | 'term_config' | 'user' | 'branch' | 'club';
   targetId?: string;
   before?: any;
   after?: any;
@@ -24,12 +24,12 @@ const auditLogSchema = new Schema<IAuditLog>({
   actorRole: {
     type: String,
     required: true,
-    enum: ['student', 'admin', 'teacher', 'system'],
+    enum: ['student', 'admin', 'teacher', 'system', 'first_year_admin'],
   },
   targetType: {
     type: String,
     required: true,
-    enum: ['student', 'elective', 'term_config', 'user', 'branch'],
+    enum: ['student', 'elective', 'term_config', 'user', 'branch', 'club'],
   },
   targetId: {
     type: String,

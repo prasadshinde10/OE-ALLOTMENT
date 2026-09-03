@@ -24,6 +24,11 @@ export function setupSocket(io: Server) {
       console.log(`Socket ${socket.id} joined year-${year}`);
     });
 
+    socket.on('join-club-year', (year: number) => {
+      socket.join(`club-year-${year}`);
+      console.log(`Socket ${socket.id} joined club-year-${year}`);
+    });
+
     socket.on('disconnect', () => {
       console.log(`Socket disconnected: ${socket.id}`);
     });
@@ -32,4 +37,8 @@ export function setupSocket(io: Server) {
 
 export function broadcastSeatUpdate(io: Server, year: number, electiveData: any) {
   io.to(`year-${year}`).emit('seat-changed', electiveData);
+}
+
+export function broadcastClubSeatUpdate(io: Server, clubData: any) {
+  io.to('club-year-1').emit('club-seat-changed', clubData);
 }

@@ -22,6 +22,24 @@ export interface Student {
   allocatedFacultyPhone?: string;
   allocatedFacultyContact?: string;
   allocatedHall?: string;
+  // Co-Curricular Club Allocation (FY)
+  allocatedCoCurricularClubId?: string;
+  allocatedCoCurricularClubName?: string;
+  allocatedCoCurricularClubTerm?: string;
+  allocatedCoCurricularTimestamp?: string;
+  allocatedCoCurricularDivision?: string;
+  allocatedCoCurricularCoordinator?: string;
+  allocatedCoCurricularContact?: string;
+  allocatedCoCurricularHall?: string;
+  // Extra-Curricular Club Allocation (FY)
+  allocatedExtraCurricularClubId?: string;
+  allocatedExtraCurricularClubName?: string;
+  allocatedExtraCurricularClubTerm?: string;
+  allocatedExtraCurricularTimestamp?: string;
+  allocatedExtraCurricularDivision?: string;
+  allocatedExtraCurricularCoordinator?: string;
+  allocatedExtraCurricularContact?: string;
+  allocatedExtraCurricularHall?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -78,7 +96,55 @@ export interface User {
   _id: string;
   email: string;
   name: string;
-  role: 'admin' | 'teacher';
+  role: 'admin' | 'teacher' | 'first_year_admin';
+}
+
+export interface ClubDivision {
+  _id?: string;
+  divisionName: string;
+  coordinatorName: string;
+  facultyName?: string;
+  hallRoom?: string;
+  coordinatorContact?: string;
+  facultyContact?: string;
+  capacity: number;
+}
+
+export interface Club {
+  _id: string;
+  name: string;
+  code: string;
+  category: 'co-curricular' | 'extra-curricular';
+  offeredByDepartment?: string;
+  year: number;
+  term: string;
+  capacity: number;
+  seatsFilled: number;
+  isActive: boolean;
+  remaining?: number;
+  divisions?: ClubDivision[];
+  syllabusUrl?: string;
+  coordinatorName?: string;
+  coordinatorContact?: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ClubSeatCount {
+  _id?: string;
+  clubId?: string;
+  name?: string;
+  code?: string;
+  category?: 'co-curricular' | 'extra-curricular';
+  offeredByDepartment?: string;
+  capacity: number;
+  seatsFilled: number;
+  remaining: number;
+  coordinatorName?: string;
+  coordinatorContact?: string;
+  syllabusUrl?: string;
+  description?: string;
 }
 
 export interface AuditLogEntry {
@@ -98,7 +164,7 @@ export interface AuthState {
   token: string | null;
   user: {
     userId: string;
-    role: 'student' | 'admin' | 'teacher';
+    role: 'student' | 'admin' | 'teacher' | 'first_year_admin';
     name: string;
     year?: number;
     email: string;
