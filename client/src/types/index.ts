@@ -96,7 +96,7 @@ export interface User {
   _id: string;
   email: string;
   name: string;
-  role: 'admin' | 'teacher' | 'first_year_admin';
+  role: 'admin' | 'teacher' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | string;
 }
 
 export interface ClubDivision {
@@ -164,7 +164,7 @@ export interface AuthState {
   token: string | null;
   user: {
     userId: string;
-    role: 'student' | 'admin' | 'teacher' | 'first_year_admin';
+    role: 'student' | 'admin' | 'teacher' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | string;
     name: string;
     year?: number;
     email: string;

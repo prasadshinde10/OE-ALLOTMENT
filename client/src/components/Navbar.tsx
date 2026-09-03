@@ -21,22 +21,27 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
       router.push('/')
       return
     }
-    if (user.role === 'admin') {
+    const role = (user.role || '').toUpperCase()
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
       router.push('/admin/dashboard')
-    } else if (user.role === 'first_year_admin') {
+    } else if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
       router.push('/fy-admin/dashboard')
-    } else if (user.role === 'teacher') {
+    } else if (role === 'TEACHER') {
       router.push('/teacher/dashboard')
     } else {
-      router.push(user.year === 1 ? '/student/status' : '/student/status')
+      router.push('/student/status')
     }
   }
+
+  const userRole = (user?.role || '').toUpperCase()
+  const isFYAdmin = userRole === 'FY_ADMIN' || userRole === 'FIRST_YEAR_ADMIN'
+  const isSuperAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'
 
   return (
     <nav className="bg-white shadow-sm border-b px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-30">
       <div className="flex items-center gap-3">
-        {/* Mobile hamburger — for admin and first_year_admin */}
-        {(user?.role === 'admin' || user?.role === 'first_year_admin') && onToggleSidebar && (
+        {/* Mobile hamburger — for admin and FY admin */}
+        {(isSuperAdmin || isFYAdmin) && onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
             className="md:hidden p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
@@ -69,7 +74,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-sm font-semibold text-gray-800">{user.name}</span>
             <span className="text-xs text-gray-500 uppercase tracking-wider">
-              {user.role === 'first_year_admin' ? 'FY Admin' : user.role}
+              {isFYAdmin ? 'FY Admin' : user.role}
             </span>
           </div>
           <Button

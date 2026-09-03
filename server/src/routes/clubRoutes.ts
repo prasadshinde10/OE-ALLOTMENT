@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import {
   getClubs,
   getClubById,
@@ -12,8 +12,8 @@ const router = Router();
 
 router.get('/', authenticateToken, getClubs);
 router.get('/:id', authenticateToken, getClubById);
-router.post('/', authenticateToken, authorizeRoles('admin', 'first_year_admin'), createClub);
-router.put('/:id', authenticateToken, authorizeRoles('admin', 'first_year_admin'), updateClub);
-router.delete('/:id', authenticateToken, authorizeRoles('admin', 'first_year_admin'), deleteClub);
+router.post('/', authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'), createClub);
+router.put('/:id', authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'), updateClub);
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'), deleteClub);
 
 export default router;

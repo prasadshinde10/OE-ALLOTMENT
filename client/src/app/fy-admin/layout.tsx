@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/context/AuthContext'
@@ -11,8 +11,21 @@ export default function FYAdminLayout({ children }: { children: React.ReactNode 
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (!loading && (!user || (user.role !== 'first_year_admin' && user.role !== 'admin'))) {
-      router.push('/login/admin')
+    if (!loading) {
+      if (!user) {
+        router.push('/login/admin')
+        return
+      }
+      const role = (user.role || '').toUpperCase()
+      const isAuthorized =
+        role === 'FY_ADMIN' ||
+        role === 'FIRST_YEAR_ADMIN' ||
+        role === 'ADMIN' ||
+        role === 'SUPER_ADMIN'
+
+      if (!isAuthorized) {
+        router.push('/login/admin')
+      }
     }
   }, [user, loading, router])
 

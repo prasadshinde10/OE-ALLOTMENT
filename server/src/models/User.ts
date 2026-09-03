@@ -5,7 +5,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   name: string;
-  role: 'admin' | 'teacher' | 'first_year_admin';
+  role: 'admin' | 'teacher' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN';
   resetPasswordToken?: string | null;
   resetPasswordExpiresAt?: Date | null;
   createdAt: Date;
@@ -32,7 +32,7 @@ const userSchema = new Schema<IUser>(
     role: {
       type: String,
       required: true,
-      enum: ['admin', 'teacher', 'first_year_admin'],
+      enum: ['admin', 'teacher', 'first_year_admin', 'FY_ADMIN', 'SUPER_ADMIN', 'ADMIN'],
     },
     resetPasswordToken: {
       type: String,

@@ -3,7 +3,7 @@ import { AuditLog } from '../models/AuditLog';
 interface AuditParams {
   action: string;
   actorId: string;
-  actorRole: 'student' | 'admin' | 'teacher' | 'system' | 'first_year_admin';
+  actorRole: 'student' | 'admin' | 'teacher' | 'system' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN';
   targetType: 'student' | 'elective' | 'term_config' | 'user' | 'branch' | 'club';
   targetId?: string;
   before?: any;

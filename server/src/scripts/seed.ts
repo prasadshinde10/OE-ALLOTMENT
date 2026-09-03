@@ -28,6 +28,29 @@ const seedAdmin = async () => {
       console.log('Admin user already exists.');
     }
 
+    // Seed Second Admin (FY Club Admin)
+    const admin2Email = process.env.ADMIN2_EMAIL || 'admin2@mit.asia';
+    const existingAdmin2 = await User.findOne({ email: admin2Email.toLowerCase() });
+
+    if (!existingAdmin2) {
+      const admin2 = new User({
+        name: 'First Year Club Admin',
+        email: admin2Email.toLowerCase(),
+        password: 'admin123',
+        role: 'FY_ADMIN'
+      });
+      await admin2.save();
+      console.log('Admin 2 (FY Club Admin) user created:');
+      console.log('Email:', admin2Email);
+      console.log('Password: admin123');
+      console.log('Role: FY_ADMIN');
+    } else {
+      existingAdmin2.role = 'FY_ADMIN';
+      existingAdmin2.password = 'admin123';
+      await existingAdmin2.save();
+      console.log('Admin 2 user verified/updated (role: FY_ADMIN).');
+    }
+
     await mongoose.disconnect();
     console.log('Disconnected from MongoDB');
     process.exit(0);

@@ -314,9 +314,9 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
     );
 
     await logAudit({
-      action: user.role === 'admin' ? 'ADMIN_LOGIN' : 'TEACHER_LOGIN',
+      action: user.role === 'admin' ? 'ADMIN_LOGIN' : user.role === 'FY_ADMIN' ? 'FY_ADMIN_LOGIN' : 'TEACHER_LOGIN',
       actorId: user.id,
-      actorRole: user.role,
+      actorRole: user.role as any,
       targetType: 'user',
       targetId: user.id,
     });
@@ -324,8 +324,18 @@ export const adminLogin = async (req: Request, res: Response): Promise<void> => 
     res.status(200).json({
       success: true,
       token,
-      user: { userId: user._id, name: user.name, email: user.email, role: user.role },
-      data: { userId: user._id, name: user.name, role: user.role },
+      user: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      data: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });

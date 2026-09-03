@@ -11,8 +11,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/login/admin')
+    if (!loading) {
+      if (!user) {
+        router.push('/login/admin')
+        return
+      }
+      const role = (user.role || '').toUpperCase()
+      if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
+        router.push('/fy-admin/dashboard')
+        return
+      }
+      if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+        router.push('/login/admin')
+      }
     }
   }, [user, loading, router])
 

@@ -28,8 +28,14 @@ export default function AdminLoginPage() {
       const res = await api.post('/api/auth/admin/login', formData)
       login(res.data.token, res.data.user)
       toast.success('Login successful')
-      if (res.data.user.role === 'admin') {
+
+      const role = (res.data.user?.role || '').toUpperCase()
+      if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
         router.push('/admin/dashboard')
+      } else if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
+        router.push('/fy-admin/dashboard')
+      } else if (role === 'STUDENT') {
+        router.push('/student/status')
       } else {
         router.push('/teacher/dashboard')
       }

@@ -28,7 +28,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     }
   }, [isOpen, onClose])
 
-  if (user?.role !== 'admin' && user?.role !== 'first_year_admin') return null
+  const role = (user?.role || '').toUpperCase()
+  const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN'
+  const isSuperAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
+
+  if (!isFYAdmin && !isSuperAdmin) return null
 
   const adminLinks = [
     { href: '/admin/dashboard', label: 'Dashboard' },
@@ -48,7 +52,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     { href: '/fy-admin/term-config', label: 'FY Term Config' },
   ]
 
-  const links = user.role === 'first_year_admin' ? fyAdminLinks : adminLinks
+  const links = isFYAdmin ? fyAdminLinks : adminLinks
 
   const handleLinkClick = () => {
     if (onClose) onClose()

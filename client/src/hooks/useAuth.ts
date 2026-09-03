@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 export interface DecodedUser {
   userId: string;
-  role: 'student' | 'admin' | 'teacher' | 'first_year_admin';
+  role: 'student' | 'admin' | 'teacher' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | string;
   name: string;
   year?: number;
   email: string;

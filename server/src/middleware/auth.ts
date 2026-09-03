@@ -36,7 +36,33 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 
 export const authorizeRoles = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user || !req.user.role) {
+      res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
+      return;
+    }
+
+    const userRole = req.user.role;
+    const isAuthorized = roles.some((role) => {
+      if (role === userRole) return true;
+      if (role.toLowerCase() === userRole.toLowerCase()) return true;
+      // FY_ADMIN and first_year_admin aliases
+      if (
+        (role === 'first_year_admin' || role === 'FY_ADMIN') &&
+        (userRole === 'first_year_admin' || userRole === 'FY_ADMIN')
+      ) {
+        return true;
+      }
+      // ADMIN and SUPER_ADMIN aliases
+      if (
+        (role === 'admin' || role === 'ADMIN' || role === 'SUPER_ADMIN') &&
+        (userRole === 'admin' || userRole === 'ADMIN' || userRole === 'SUPER_ADMIN')
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if (!isAuthorized) {
       res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
       return;
     }

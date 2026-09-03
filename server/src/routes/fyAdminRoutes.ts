@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import {
   getFYStats,
   getFYStudents,
@@ -20,8 +20,8 @@ import { authenticateToken, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
 
-// Restrict all FY Admin endpoints to 'admin' and 'first_year_admin'
-router.use(authenticateToken, authorizeRoles('admin', 'first_year_admin'));
+// Restrict all FY Admin endpoints to 'admin', 'first_year_admin', and 'FY_ADMIN'
+router.use(authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'));
 
 router.get('/stats', getFYStats);
 router.get('/students', getFYStudents);

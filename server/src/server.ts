@@ -139,7 +139,7 @@ async function start() {
       console.warn('⚠️ Could not verify default admin:', adminErr);
     }
 
-    // Ensure Admin 2 (First-Year Club Admin) exists
+    // Ensure Admin 2 (First-Year Club Admin) exists with role FY_ADMIN
     try {
       const admin2Email = process.env.ADMIN2_EMAIL || 'admin2@mit.asia';
       const existingAdmin2 = await User.findOne({ email: admin2Email.toLowerCase() });
@@ -148,10 +148,15 @@ async function start() {
           name: 'First Year Club Admin',
           email: admin2Email.toLowerCase(),
           password: 'admin123',
-          role: 'first_year_admin',
+          role: 'FY_ADMIN',
         });
         await defaultAdmin2.save();
-        console.log(`👑 Default Admin 2 created: ${admin2Email} (password: admin123, role: first_year_admin)`);
+        console.log(`👑 Default Admin 2 created: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
+      } else {
+        existingAdmin2.role = 'FY_ADMIN';
+        existingAdmin2.password = 'admin123';
+        await existingAdmin2.save();
+        console.log(`👑 Admin 2 verified & updated: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
       }
     } catch (admin2Err) {
       console.warn('⚠️ Could not verify Admin 2:', admin2Err);
