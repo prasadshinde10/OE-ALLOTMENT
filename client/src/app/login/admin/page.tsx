@@ -30,10 +30,12 @@ export default function AdminLoginPage() {
       toast.success('Login successful')
 
       const role = (res.data.user?.role || '').toUpperCase()
-      if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-        router.push('/admin/dashboard')
-      } else if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
-        router.push('/fy-admin/dashboard')
+      const email = (res.data.user?.email || formData.email || '').toLowerCase().trim()
+
+      if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || email === 'admin2@mit.asia') {
+        router.push('/admin/club-dashboard')
+      } else if (role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'OE_ADMIN' || email === 'admin@mit.asia') {
+        router.push('/admin/elective-dashboard')
       } else if (role === 'STUDENT') {
         router.push('/student/status')
       } else {
@@ -49,7 +51,8 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Staff Login</h2>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Allocation Portal</h2>
+        <p className="mt-2 text-center text-sm text-gray-600">Admin & Faculty Access</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">

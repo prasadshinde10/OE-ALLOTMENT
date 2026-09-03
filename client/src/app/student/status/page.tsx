@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
@@ -91,10 +91,12 @@ export default function StudentStatusPage() {
               <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Class Roll Number</dt>
               <dd className="mt-1 text-sm font-medium text-gray-900">{status?.rollNumber || '-'}</dd>
             </div>
-            <div>
-              <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hall Ticket / PRN</dt>
-              <dd className="mt-1 text-sm font-medium text-gray-900">{status?.hallTicketNumber || '-'}</dd>
-            </div>
+            {!isFYStudent && (
+              <div>
+                <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hall Ticket / PRN</dt>
+                <dd className="mt-1 text-sm font-medium text-gray-900">{status?.hallTicketNumber || '-'}</dd>
+              </div>
+            )}
           </dl>
 
           {/* Allotment Sections */}

@@ -1,10 +1,12 @@
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import Student from '../models/Student';
 import Club from '../models/Club';
 import TermConfig from '../models/TermConfig';
 import Branch from '../models/Branch';
 import AuditLog from '../models/AuditLog';
 import { logAudit } from '../services/auditService';
+import { transferClubSeat } from '../services/clubAllocationService';
+import { broadcastClubSeatUpdate } from '../socket';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const archiver = require('archiver');
 
@@ -330,5 +332,48 @@ export const deleteFYBranch = async (req: Request, res: Response): Promise<void>
     res.status(200).json({ success: true, message: 'FY Branch deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const reassignStudentClub = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { studentId, newClubId } = req.body;
+    if (!studentId || !newClubId) {
+      res.status(400).json({ success: false, message: 'studentId and newClubId are required' });
+      return;
+    }
+
+    const adminId = (req as any).user?.userId || 'admin2';
+    const result = await transferClubSeat(studentId, newClubId, adminId);
+
+    // Real-time broadcast
+    if (result.newClub) {
+      broadcastClubSeatUpdate({
+        clubId: result.newClub._id.toString(),
+        seatsFilled: result.newClub.seatsFilled,
+        capacity: result.newClub.capacity,
+        remaining: Math.max(0, result.newClub.capacity - result.newClub.seatsFilled),
+      });
+    }
+    if (result.oldClubId) {
+      const oldClub = await Club.findById(result.oldClubId);
+      if (oldClub) {
+        broadcastClubSeatUpdate({
+          clubId: oldClub._id.toString(),
+          seatsFilled: oldClub.seatsFilled,
+          capacity: oldClub.capacity,
+          remaining: Math.max(0, oldClub.capacity - oldClub.seatsFilled),
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Student club allocation reassigned successfully',
+      data: result,
+    });
+  } catch (error: any) {
+    console.error('Reallocation error:', error);
+    res.status(400).json({ success: false, message: error.message || 'Reallocation failed' });
   }
 };

@@ -2,7 +2,10 @@ import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
+let ioInstance: Server | null = null;
+
 export function setupSocket(io: Server) {
+  ioInstance = io;
   io.use((socket: Socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Authentication error'));
@@ -35,10 +38,18 @@ export function setupSocket(io: Server) {
   });
 }
 
-export function broadcastSeatUpdate(io: Server, year: number, electiveData: any) {
-  io.to(`year-${year}`).emit('seat-changed', electiveData);
+export function broadcastSeatUpdate(ioOrYear: any, yearOrData?: any, dataMaybe?: any) {
+  if (dataMaybe) {
+    ioOrYear.to(`year-${yearOrData}`).emit('seat-changed', dataMaybe);
+  } else if (ioInstance) {
+    ioInstance.to(`year-${ioOrYear}`).emit('seat-changed', yearOrData);
+  }
 }
 
-export function broadcastClubSeatUpdate(io: Server, clubData: any) {
-  io.to('club-year-1').emit('club-seat-changed', clubData);
+export function broadcastClubSeatUpdate(ioOrData: any, clubDataMaybe?: any) {
+  const io = clubDataMaybe ? ioOrData : ioInstance;
+  const data = clubDataMaybe ? clubDataMaybe : ioOrData;
+  if (io) {
+    io.to('club-year-1').emit('club-seat-changed', data);
+  }
 }

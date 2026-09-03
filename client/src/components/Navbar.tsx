@@ -22,10 +22,10 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
       return
     }
     const role = (user.role || '').toUpperCase()
-    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
-      router.push('/admin/dashboard')
-    } else if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
-      router.push('/fy-admin/dashboard')
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || user.email === 'admin@mit.asia') {
+      router.push('/admin/elective-dashboard')
+    } else if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user.email === 'admin2@mit.asia') {
+      router.push('/admin/club-dashboard')
     } else if (role === 'TEACHER') {
       router.push('/teacher/dashboard')
     } else {
@@ -34,14 +34,21 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
   }
 
   const userRole = (user?.role || '').toUpperCase()
-  const isFYAdmin = userRole === 'FY_ADMIN' || userRole === 'FIRST_YEAR_ADMIN'
-  const isSuperAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'
+  const isFYAdmin = userRole === 'FY_ADMIN' || userRole === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia'
+  const isOEAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'OE_ADMIN' || user?.email === 'admin@mit.asia'
+
+  const getRoleLabel = () => {
+    if (isFYAdmin) return 'Club Admin'
+    if (isOEAdmin) return 'OE Admin'
+    if (userRole === 'TEACHER') return 'Faculty'
+    return 'Student'
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-30">
       <div className="flex items-center gap-3">
-        {/* Mobile hamburger — for admin and FY admin */}
-        {(isSuperAdmin || isFYAdmin) && onToggleSidebar && (
+        {/* Mobile hamburger — for OE admin and Club admin */}
+        {(isOEAdmin || isFYAdmin) && onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
             className="md:hidden p-1.5 -ml-1 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
@@ -62,10 +69,10 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           }}
         >
           <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-indigo-700 transition-colors">
-            OE
+            AP
           </div>
           <span className="text-lg sm:text-xl font-bold text-indigo-700 tracking-tight group-hover:text-indigo-800 transition-colors">
-            OE Allotment
+            Allocation Portal
           </span>
         </div>
       </div>
@@ -73,8 +80,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-sm font-semibold text-gray-800">{user.name}</span>
-            <span className="text-xs text-gray-500 uppercase tracking-wider">
-              {isFYAdmin ? 'FY Admin' : user.role}
+            <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+              {getRoleLabel()}
             </span>
           </div>
           <Button

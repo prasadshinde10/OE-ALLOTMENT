@@ -68,13 +68,13 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 text-white font-bold text-2xl mb-4">
-            OE
+            AP
           </div>
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-            Open Elective Portal
+            Allocation Portal
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Student Allotment & Registration System
+            Student Course & Club Allotment System
           </p>
         </div>
 

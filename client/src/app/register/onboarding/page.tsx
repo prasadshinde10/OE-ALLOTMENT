@@ -126,7 +126,8 @@ export default function StudentOnboardingPage() {
       toast.error('Last Name is required')
       return false
     }
-    if (!/^\d{12}$/.test(formData.hallTicketNumber.trim())) {
+    const isFY = formData.year === '1'
+    if (!isFY && !/^\d{12}$/.test(formData.hallTicketNumber.trim())) {
       toast.error('Hall Ticket / PRN must be exactly 12 digits')
       return false
     }
@@ -256,16 +257,18 @@ export default function StudentOnboardingPage() {
             </div>
 
             {/* Mandatory Student Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Hall Ticket / PRN (12 digits)"
-                name="hallTicketNumber"
-                value={formData.hallTicketNumber}
-                onChange={handleChange}
-                required
-                maxLength={12}
-                placeholder="e.g. 202201010001"
-              />
+            <div className={`grid grid-cols-1 ${formData.year === '1' ? 'sm:grid-cols-1' : 'sm:grid-cols-2'} gap-4`}>
+              {formData.year !== '1' && (
+                <Input
+                  label="Hall Ticket / PRN (12 digits)"
+                  name="hallTicketNumber"
+                  value={formData.hallTicketNumber}
+                  onChange={handleChange}
+                  required
+                  maxLength={12}
+                  placeholder="e.g. 202201010001"
+                />
+              )}
 
               <Input
                 label="Mobile Phone Number"

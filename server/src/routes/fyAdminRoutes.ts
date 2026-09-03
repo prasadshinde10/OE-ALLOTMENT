@@ -10,6 +10,7 @@ import {
   getFYBranches,
   createFYBranch,
   deleteFYBranch,
+  reassignStudentClub,
 } from '../controllers/fyAdminController';
 import {
   autoAssignClubDivisions,
@@ -37,6 +38,10 @@ router.put('/term-configs/:id', updateFYTermConfig);
 router.get('/branches', getFYBranches);
 router.post('/branches', createFYBranch);
 router.delete('/branches/:id', deleteFYBranch);
+
+// Student Club Reallocation Override
+router.post('/reallocate', reassignStudentClub);
+router.post('/reassign', reassignStudentClub);
 
 // Club Division Management
 router.post('/divisions/auto-assign/:clubId', autoAssignClubDivisions);

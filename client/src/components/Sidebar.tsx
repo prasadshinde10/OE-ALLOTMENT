@@ -29,13 +29,13 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   }, [isOpen, onClose])
 
   const role = (user?.role || '').toUpperCase()
-  const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN'
-  const isSuperAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN'
+  const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia'
+  const isOEAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || user?.email === 'admin@mit.asia'
 
-  if (!isFYAdmin && !isSuperAdmin) return null
+  if (!isFYAdmin && !isOEAdmin) return null
 
   const adminLinks = [
-    { href: '/admin/dashboard', label: 'Dashboard' },
+    { href: '/admin/elective-dashboard', label: 'Elective Dashboard' },
     { href: '/admin/electives', label: 'Electives' },
     { href: '/admin/departments', label: 'Departments' },
     { href: '/admin/students', label: 'Students' },
@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   ]
 
   const fyAdminLinks = [
-    { href: '/fy-admin/dashboard', label: 'FY Dashboard' },
+    { href: '/admin/club-dashboard', label: 'Club Dashboard' },
     { href: '/fy-admin/clubs', label: 'Club Management' },
     { href: '/fy-admin/students', label: 'FY Students' },
     { href: '/fy-admin/branches', label: 'FY Branches' },
@@ -102,7 +102,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         }`}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-800">
-          <span className="text-lg font-bold text-white">OE Allotment</span>
+          <span className="text-lg font-bold text-white">Allocation Portal</span>
           <button
             onClick={onClose}
             className="p-1 text-gray-400 hover:text-white rounded"

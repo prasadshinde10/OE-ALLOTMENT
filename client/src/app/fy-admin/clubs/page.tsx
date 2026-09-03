@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
@@ -143,7 +143,16 @@ export default function FYAdminClubsPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    if (!formData.coordinatorName.trim()) {
+      toast.error('Primary Coordinator Name is required')
+      return
+    }
+
+    const cleanContact = formData.coordinatorContact.trim()
+    if (!/^[6-9]\d{9}$/.test(cleanContact)) {
+      toast.error('Primary Coordinator Phone Number must be a valid 10-digit number starting with 6-9')
+      return
+    }
 
     const divSum = divisions.reduce((acc, d) => acc + Number(d.capacity || 0), 0)
     if (divisions.length > 0 && divSum !== Number(formData.capacity)) {
@@ -424,22 +433,25 @@ export default function FYAdminClubsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Associated Department</label>
-              <select
-                value={formData.offeredByDepartment}
-                onChange={(e) => setFormData({ ...formData, offeredByDepartment: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">General / Interdisciplinary</option>
-                {(branches.length > 0 ? branches.map((b) => b.name) : APPROVED_DEPARTMENTS).map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <Input
+              label="Primary Coordinator Name"
+              value={formData.coordinatorName}
+              onChange={(e) => setFormData({ ...formData, coordinatorName: e.target.value })}
+              placeholder="e.g. Dr. A. Sharma"
+              required
+            />
+            <Input
+              label="Primary Coordinator Phone Number"
+              type="tel"
+              maxLength={10}
+              value={formData.coordinatorContact}
+              onChange={(e) => setFormData({ ...formData, coordinatorContact: e.target.value })}
+              placeholder="10-digit mobile (e.g. 9876543210)"
+              required
+            />
+          </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="Total Capacity"
               type="number"
@@ -448,29 +460,13 @@ export default function FYAdminClubsPage() {
               onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
               required
             />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Primary Coordinator Name"
-              value={formData.coordinatorName}
-              onChange={(e) => setFormData({ ...formData, coordinatorName: e.target.value })}
-              placeholder="e.g. Dr. A. Sharma"
-            />
-            <Input
-              label="Coordinator Contact / Mobile"
-              value={formData.coordinatorContact}
-              onChange={(e) => setFormData({ ...formData, coordinatorContact: e.target.value })}
-              placeholder="10-digit number"
+              label="Club Description / Syllabus URL"
+              value={formData.syllabusUrl}
+              onChange={(e) => setFormData({ ...formData, syllabusUrl: e.target.value })}
+              placeholder="https://..."
             />
           </div>
-
-          <Input
-            label="Club Description / Syllabus URL"
-            value={formData.syllabusUrl}
-            onChange={(e) => setFormData({ ...formData, syllabusUrl: e.target.value })}
-            placeholder="https://..."
-          />
 
           {/* Divisions Section */}
           <div className="border-t pt-4 mt-4">

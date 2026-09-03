@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
@@ -161,7 +161,7 @@ export default function StudentProfilePage() {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Read-only Credentials Banner */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+          <div className={`grid grid-cols-1 ${formData.year === 1 ? 'sm:grid-cols-1' : 'sm:grid-cols-2'} gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/80`}>
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -177,20 +177,22 @@ export default function StudentProfilePage() {
               />
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Hall Ticket / PRN
-                </label>
-                <span className="text-[10px] text-slate-400 font-semibold">Permanent</span>
+            {formData.year !== 1 && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Hall Ticket / PRN
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-semibold">Permanent</span>
+                </div>
+                <input
+                  type="text"
+                  value={formData.hallTicketNumber || 'N/A'}
+                  readOnly
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium cursor-not-allowed select-none"
+                />
               </div>
-              <input
-                type="text"
-                value={formData.hallTicketNumber || 'N/A'}
-                readOnly
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 font-medium cursor-not-allowed select-none"
-              />
-            </div>
+            )}
           </div>
 
           {/* Three Name Fields */}

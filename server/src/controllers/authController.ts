@@ -600,28 +600,37 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
       return;
     }
 
-    if (!hallTicketNumber || !mobileNumber || !branch || !semester || !rollNumber || !year) {
+    const isFirstYear = Number(year) === 1;
+
+    if (!mobileNumber || !branch || !semester || !rollNumber || !year) {
       res.status(400).json({ success: false, message: 'All mandatory fields must be provided' });
       return;
     }
 
-    if (!/^\d{12}$/.test(hallTicketNumber)) {
-      res.status(400).json({ success: false, message: 'Hall Ticket / PRN must be exactly 12 digits' });
-      return;
+    if (!isFirstYear) {
+      if (!hallTicketNumber) {
+        res.status(400).json({ success: false, message: 'Hall Ticket / PRN is required for upper-year students' });
+        return;
+      }
+
+      if (!/^\d{12}$/.test(hallTicketNumber)) {
+        res.status(400).json({ success: false, message: 'Hall Ticket / PRN must be exactly 12 digits' });
+        return;
+      }
+
+      // Check for duplicate hall ticket number
+      const existingHT = await Student.findOne({
+        hallTicketNumber,
+        _id: { $ne: student._id },
+      });
+      if (existingHT) {
+        res.status(400).json({ success: false, message: 'This Hall Ticket / PRN is already registered by another student' });
+        return;
+      }
     }
 
     if (!/^[6-9]\d{9}$/.test(mobileNumber)) {
       res.status(400).json({ success: false, message: 'Invalid 10-digit mobile number' });
-      return;
-    }
-
-    // Check for duplicate hall ticket number
-    const existingHT = await Student.findOne({
-      hallTicketNumber,
-      _id: { $ne: student._id },
-    });
-    if (existingHT) {
-      res.status(400).json({ success: false, message: 'This Hall Ticket / PRN is already registered by another student' });
       return;
     }
 
@@ -638,7 +647,9 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
     student.firstName = firstName.trim();
     student.middleName = (middleName || '').trim();
     student.lastName = lastName.trim();
-    student.hallTicketNumber = hallTicketNumber;
+    if (!isFirstYear && hallTicketNumber) {
+      student.hallTicketNumber = hallTicketNumber;
+    }
     student.mobileNumber = mobileNumber;
     student.branch = branch;
     student.semester = semester;

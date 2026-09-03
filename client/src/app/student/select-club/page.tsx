@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
@@ -80,11 +80,20 @@ export default function SelectClubPage() {
   const isWindowClosed =
     termConfig && (!termConfig.isActive || now > new Date(termConfig.registrationClosesAt))
 
-  const handleSelectClub = async (club: Club) => {
+  const [confirmClub, setConfirmClub] = useState<Club | null>(null)
+
+  const handleSelectClub = (club: Club) => {
     if (!isWindowOpen) {
       toast.error('Registration window is not open at this time.')
       return
     }
+    setConfirmClub(club)
+  }
+
+  const handleConfirmAllocation = async () => {
+    if (!confirmClub) return
+    const club = confirmClub
+    setConfirmClub(null)
 
     try {
       setAllocatingId(club._id)
@@ -239,10 +248,6 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {club.offeredByDepartment && (
-                    <p className="text-xs text-gray-500 mt-1">{club.offeredByDepartment}</p>
-                  )}
-
                   {club.description && (
                     <p className="text-xs text-gray-600 mt-2 line-clamp-2">{club.description}</p>
                   )}
@@ -371,10 +376,6 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {club.offeredByDepartment && (
-                    <p className="text-xs text-gray-500 mt-1">{club.offeredByDepartment}</p>
-                  )}
-
                   {club.description && (
                     <p className="text-xs text-gray-600 mt-2 line-clamp-2">{club.description}</p>
                   )}
@@ -448,6 +449,73 @@ export default function SelectClubPage() {
           })}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmClub && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-fadeIn">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mx-auto">
+                {confirmClub.category === 'co-curricular' ? '🎓' : '🎨'}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">
+                Confirm Club Selection
+              </h3>
+              <p className="text-xs text-gray-500">
+                Please verify your selection before confirming allotment.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 text-xs space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Club Name:</span>
+                <span className="font-bold text-gray-900">{confirmClub.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Code:</span>
+                <span className="font-mono font-semibold text-indigo-600">{confirmClub.code}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Category:</span>
+                <span className="font-semibold text-gray-800 capitalize">
+                  {confirmClub.category.replace('-', ' ')} Club
+                </span>
+              </div>
+              {confirmClub.coordinatorName && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Coordinator:</span>
+                  <span className="text-gray-700 font-medium">{confirmClub.coordinatorName}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-800 space-y-1">
+              <p className="font-semibold">⚠️ Important Allocation Rule:</p>
+              <p>
+                First-Year students can select <strong>only one</strong> {confirmClub.category.replace('-', ' ')} club for this semester. Allotment is processed instantly on a First-Come, First-Served basis and cannot be changed by the student once locked.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => setConfirmClub(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                onClick={handleConfirmAllocation}
+              >
+                Yes, Confirm Selection
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

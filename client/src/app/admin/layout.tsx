@@ -16,13 +16,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push('/login/admin')
         return
       }
+
       const role = (user.role || '').toUpperCase()
-      if (role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN') {
-        router.push('/fy-admin/dashboard')
+      const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user.email === 'admin2@mit.asia'
+      const isOEAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || user.email === 'admin@mit.asia'
+
+      if (!isFYAdmin && !isOEAdmin) {
+        router.push('/login/admin')
         return
       }
-      if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
-        router.push('/login/admin')
+
+      // Domain isolation rules:
+      const path = window.location.pathname
+      if (isFYAdmin && path.startsWith('/admin/elective-dashboard')) {
+        router.push('/admin/club-dashboard')
+      } else if (isOEAdmin && path.startsWith('/admin/club-dashboard')) {
+        router.push('/admin/elective-dashboard')
+      } else if (isOEAdmin && (path === '/admin' || path === '/admin/dashboard')) {
+        router.push('/admin/elective-dashboard')
       }
     }
   }, [user, loading, router])

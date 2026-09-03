@@ -17,14 +17,11 @@ export default function FYAdminLayout({ children }: { children: React.ReactNode 
         return
       }
       const role = (user.role || '').toUpperCase()
-      const isAuthorized =
-        role === 'FY_ADMIN' ||
-        role === 'FIRST_YEAR_ADMIN' ||
-        role === 'ADMIN' ||
-        role === 'SUPER_ADMIN'
+      const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user.email === 'admin2@mit.asia'
 
-      if (!isAuthorized) {
-        router.push('/login/admin')
+      if (!isFYAdmin) {
+        // If OE Admin accidentally navigates here, send them to their dashboard
+        router.push('/admin/elective-dashboard')
       }
     }
   }, [user, loading, router])

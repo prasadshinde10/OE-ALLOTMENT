@@ -1,4 +1,4 @@
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Club from '../models/Club';
 import { logAudit } from '../services/auditService';
@@ -48,6 +48,24 @@ export const createClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorContact,
       description,
     } = req.body;
+
+    // Mandatory Coordinator validations
+    if (!coordinatorName || !coordinatorName.trim()) {
+      res.status(400).json({
+        success: false,
+        message: 'Primary Coordinator Name is required.',
+      });
+      return;
+    }
+
+    const cleanContact = coordinatorContact ? coordinatorContact.trim() : '';
+    if (!cleanContact || !/^[6-9]\d{9}$/.test(cleanContact)) {
+      res.status(400).json({
+        success: false,
+        message: 'Primary Coordinator Phone Number must be a valid 10-digit mobile number starting with 6-9.',
+      });
+      return;
+    }
 
     // Server-side capacity vs division-sum validation
     if (divisions && Array.isArray(divisions) && divisions.length > 0 && capacity !== undefined) {
@@ -158,8 +176,27 @@ export const updateClub = async (req: Request, res: Response): Promise<void> => 
     if (capacity !== undefined) club.capacity = Number(capacity);
     if (isActive !== undefined) club.isActive = isActive;
     if (syllabusUrl !== undefined) club.syllabusUrl = syllabusUrl;
-    if (coordinatorName !== undefined) club.coordinatorName = coordinatorName;
-    if (coordinatorContact !== undefined) club.coordinatorContact = coordinatorContact;
+    if (coordinatorName !== undefined) {
+      if (!coordinatorName.trim()) {
+        res.status(400).json({
+          success: false,
+          message: 'Primary Coordinator Name cannot be empty.',
+        });
+        return;
+      }
+      club.coordinatorName = coordinatorName.trim();
+    }
+    if (coordinatorContact !== undefined) {
+      const cleanContact = coordinatorContact.trim();
+      if (!/^[6-9]\d{9}$/.test(cleanContact)) {
+        res.status(400).json({
+          success: false,
+          message: 'Primary Coordinator Phone Number must be a valid 10-digit mobile number starting with 6-9.',
+        });
+        return;
+      }
+      club.coordinatorContact = cleanContact;
+    }
     if (description !== undefined) club.description = description;
 
     if (divisions !== undefined && Array.isArray(divisions)) {
