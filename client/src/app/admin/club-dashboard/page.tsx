@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -8,14 +8,27 @@ import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import { Student } from '@/types'
 
+const COMMON_FY_BRANCH_PRESETS = [
+  'FY-CSE',
+  'FY-CSD',
+  'FY-AI&DS',
+  'FY-MECH',
+  'FY-CIVIL',
+  'FY-ENTC',
+]
+
 export default function ClubAdminDashboardPage() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   // Dynamic Branch Management state
   const [branches, setBranches] = useState<any[]>([])
+  const [loadingBranches, setLoadingBranches] = useState(true)
   const [newBranchName, setNewBranchName] = useState('')
   const [addingBranch, setAddingBranch] = useState(false)
+  const [branchSearch, setBranchSearch] = useState('')
+  const [editingBranch, setEditingBranch] = useState<{ _id: string; name: string } | null>(null)
+  const [updatingBranch, setUpdatingBranch] = useState(false)
 
   // Student Roster & Reallocation state
   const [recentStudents, setRecentStudents] = useState<Student[]>([])
@@ -58,10 +71,13 @@ export default function ClubAdminDashboardPage() {
 
   const fetchBranches = async () => {
     try {
-      const res = await api.get('/api/fy-admin/branches')
+      setLoadingBranches(true)
+      const res = await api.get('/api/fy-branches')
       setBranches(res.data.data || [])
     } catch (err) {
       setBranches([])
+    } finally {
+      setLoadingBranches(false)
     }
   }
 
@@ -86,27 +102,52 @@ export default function ClubAdminDashboardPage() {
     }
   }
 
-  const handleAddBranch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newBranchName.trim()) return
+  const handleAddBranch = async (e?: React.FormEvent, presetName?: string) => {
+    if (e) e.preventDefault()
+    const nameToAdd = (presetName || newBranchName).trim()
+    if (!nameToAdd) return
     try {
       setAddingBranch(true)
-      await api.post('/api/fy-admin/branches', { name: newBranchName.trim() })
-      toast.success('Branch added successfully')
-      setNewBranchName('')
+      await api.post('/api/fy-branches', { name: nameToAdd })
+      toast.success(`Branch "${nameToAdd}" registered successfully`)
+      if (!presetName) setNewBranchName('')
       fetchBranches()
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to add branch')
+      if (err.response?.status === 409) {
+        toast.error(`Branch "${nameToAdd}" already exists for First-Year`)
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to add branch')
+      }
     } finally {
       setAddingBranch(false)
     }
   }
 
-  const handleDeleteBranch = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove ${name}?`)) return
+  const handleUpdateBranch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingBranch || !editingBranch.name.trim()) return
     try {
-      await api.delete(`/api/fy-admin/branches/${id}`)
-      toast.success('Branch removed')
+      setUpdatingBranch(true)
+      await api.put(`/api/fy-branches/${editingBranch._id}`, { name: editingBranch.name.trim() })
+      toast.success('Branch renamed successfully')
+      setEditingBranch(null)
+      fetchBranches()
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        toast.error('Another branch already has this name for First-Year')
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to update branch')
+      }
+    } finally {
+      setUpdatingBranch(false)
+    }
+  }
+
+  const handleDeleteBranch = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to remove First-Year branch "${name}"?`)) return
+    try {
+      await api.delete(`/api/fy-branches/${id}`)
+      toast.success(`Branch "${name}" removed`)
       fetchBranches()
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to remove branch')
@@ -178,6 +219,10 @@ export default function ClubAdminDashboardPage() {
       toast.error('ZIP export failed')
     }
   }
+
+  const filteredBranches = branches.filter((b) =>
+    (b.name || '').toLowerCase().includes(branchSearch.toLowerCase().trim())
+  )
 
   const filteredClubOptions = availableClubs.filter(
     (c) => c.category === reallocateModal.category && c.isActive
@@ -336,57 +381,184 @@ export default function ClubAdminDashboardPage() {
         </Link>
       </div>
 
-      {/* Dynamic Branch Management Section */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+      {/* Dynamic First-Year Branch Management Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-100 pb-4">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span>🌿</span> Dynamic First-Year Branch Management
-            </h2>
-            <p className="text-xs text-gray-500">
-              Manage the authorized branches and sections for First-Year registration ({branches.length} active)
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🌿</span>
+              <h2 className="text-lg font-bold text-gray-900">
+                Dynamic First-Year Branch Management
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                {branches.length} Active {branches.length === 1 ? 'Branch' : 'Branches'}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Add, edit, rename, and delete active First-Year branches/sections (e.g. FY-CSE, FY-CSD, FY-AI&DS, FY-MECH). Automatically syncs with First-Year student registration and profile drop-down menus.
             </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={fetchBranches}
+            disabled={loadingBranches}
+            className="text-xs shrink-0"
+          >
+            {loadingBranches ? 'Refreshing...' : '🔄 Refresh Branches'}
+          </Button>
+        </div>
+
+        {/* Quick Suggestion Presets */}
+        {COMMON_FY_BRANCH_PRESETS.some((preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())) && (
+          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+              <span>⚡ Quick Add Presets:</span>
+              <span className="text-[11px] font-normal text-slate-400">Click to instantly add standard First-Year branches</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {COMMON_FY_BRANCH_PRESETS.filter(
+                (preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())
+              ).map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => handleAddBranch(undefined, preset)}
+                  disabled={addingBranch}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-600 transition-colors shadow-sm"
+                >
+                  <span className="text-indigo-500 font-bold">+</span>
+                  <span>{preset}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add Branch Form & Search Bar */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+          <form onSubmit={(e) => handleAddBranch(e)} className="lg:col-span-8 flex flex-col sm:flex-row gap-2">
+            <Input
+              placeholder="Enter branch or section name (e.g. FY-CSE, FY-CSD, FY-AI&DS)..."
+              value={newBranchName}
+              onChange={(e) => setNewBranchName(e.target.value)}
+              className="flex-1"
+            />
+            <Button
+              type="submit"
+              disabled={addingBranch || !newBranchName.trim()}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
+            >
+              {addingBranch ? 'Adding...' : '+ Add FY Branch'}
+            </Button>
+          </form>
+          <div className="lg:col-span-4">
+            <Input
+              placeholder="Search active branches..."
+              value={branchSearch}
+              onChange={(e) => setBranchSearch(e.target.value)}
+            />
           </div>
         </div>
 
-        <form onSubmit={handleAddBranch} className="flex flex-col sm:flex-row gap-3">
-          <Input
-            placeholder="e.g. Computer Engineering (AI & ML) - Div A"
-            value={newBranchName}
-            onChange={(e) => setNewBranchName(e.target.value)}
-            className="flex-1"
-            required
-          />
-          <Button
-            type="submit"
-            disabled={addingBranch || !newBranchName.trim()}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
-          >
-            {addingBranch ? 'Adding...' : '+ Add FY Branch'}
-          </Button>
-        </form>
-
-        <div className="flex flex-wrap gap-2 pt-2">
-          {branches.length === 0 ? (
-            <p className="text-xs text-gray-400 italic">No branches configured yet.</p>
-          ) : (
-            branches.map((b) => (
-              <span
-                key={b._id || b.name}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-50 border border-gray-200 text-gray-700"
-              >
-                <span>{b.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteBranch(b._id, b.name)}
-                  className="text-gray-400 hover:text-red-500 font-bold text-xs"
-                  title="Remove branch"
-                >
-                  ✕
-                </button>
-              </span>
-            ))
-          )}
+        {/* Dynamic Branch Table / Cards List */}
+        <div className="overflow-x-auto border border-gray-200 rounded-xl">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2.5 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">
+                  Branch / Section Name
+                </th>
+                <th className="px-4 py-2.5 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">
+                  Target Year Scope
+                </th>
+                <th className="px-4 py-2.5 text-left font-semibold text-gray-600 text-xs uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 py-2.5 text-right font-semibold text-gray-600 text-xs uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {loadingBranches ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-6 text-gray-400 text-xs">
+                    Loading First-Year branches...
+                  </td>
+                </tr>
+              ) : filteredBranches.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-8 text-gray-400">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-500">
+                        {branchSearch ? 'No branches match your search query.' : 'No First-Year branches configured yet.'}
+                      </p>
+                      {!branchSearch && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            COMMON_FY_BRANCH_PRESETS.forEach((preset) => handleAddBranch(undefined, preset))
+                          }}
+                        >
+                          ⚡ Initialize Standard FY Branches
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredBranches.map((b) => (
+                  <tr key={b._id || b.name} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2 font-semibold text-gray-900">
+                        <span className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                          🏛️
+                        </span>
+                        <span>{b.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">
+                        1st Year (FY)
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="inline-flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingBranch({ _id: b._id, name: b.name })}
+                          className="text-xs h-7 px-2.5 hover:border-indigo-400 hover:text-indigo-600"
+                        >
+                          ✏️ Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={() => handleDeleteBranch(b._id, b.name)}
+                          className="text-xs h-7 px-2.5"
+                        >
+                          🗑️ Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -596,6 +768,62 @@ export default function ClubAdminDashboardPage() {
                   className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   {reallocating ? 'Re-assigning...' : 'Confirm Re-allocation'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Branch Modal */}
+      {editingBranch && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <span>✏️</span> Edit First-Year Branch
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingBranch(null)}
+                className="text-gray-400 hover:text-gray-600 font-bold text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateBranch} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
+                  Branch / Section Name
+                </label>
+                <Input
+                  value={editingBranch.name}
+                  onChange={(e) => setEditingBranch({ ...editingBranch, name: e.target.value })}
+                  placeholder="e.g. FY-CSE or FY-CSD"
+                  required
+                />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Renaming will automatically reflect across all First-Year student registration and profile drop-downs.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingBranch(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={updatingBranch || !editingBranch.name.trim()}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {updatingBranch ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </form>

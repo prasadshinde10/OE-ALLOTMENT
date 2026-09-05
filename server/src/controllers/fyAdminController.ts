@@ -286,12 +286,23 @@ export const getFYBranches = async (_req: Request, res: Response): Promise<void>
 export const createFYBranch = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name } = req.body;
-    if (!name) {
+    if (!name || !name.trim()) {
       res.status(400).json({ success: false, message: 'Branch name is required' });
       return;
     }
 
-    const branch = new Branch({ name: name.trim(), year: 1 });
+    const trimmedName = name.trim();
+    // Check if already exists for year 1
+    const existing = await Branch.findOne({
+      name: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
+      year: 1,
+    });
+    if (existing) {
+      res.status(409).json({ success: false, message: 'Branch already exists for First-Year' });
+      return;
+    }
+
+    const branch = new Branch({ name: trimmedName, year: 1 });
     await branch.save();
 
     await logAudit({
@@ -304,6 +315,56 @@ export const createFYBranch = async (req: Request, res: Response): Promise<void>
     });
 
     res.status(201).json({ success: true, data: branch });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      res.status(409).json({ success: false, message: 'Branch already exists for First-Year' });
+      return;
+    }
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+export const updateFYBranch = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      res.status(400).json({ success: false, message: 'Branch name is required' });
+      return;
+    }
+
+    const trimmedName = name.trim();
+    const existing = await Branch.findOne({
+      _id: { $ne: id },
+      name: { $regex: new RegExp(`^${trimmedName}$`, 'i') },
+      year: 1,
+    });
+    if (existing) {
+      res.status(409).json({ success: false, message: 'Another branch with this name already exists for First-Year' });
+      return;
+    }
+
+    const branch = await Branch.findOneAndUpdate(
+      { _id: id, year: 1 },
+      { name: trimmedName },
+      { new: true, runValidators: true }
+    );
+
+    if (!branch) {
+      res.status(404).json({ success: false, message: 'FY Branch not found' });
+      return;
+    }
+
+    await logAudit({
+      action: 'FY_BRANCH_UPDATED',
+      actorId: (req as any).user?.userId || 'system',
+      actorRole: 'first_year_admin',
+      targetType: 'branch',
+      targetId: branch.id,
+      after: { name: branch.name, year: 1 },
+    });
+
+    res.status(200).json({ success: true, data: branch });
   } catch (error: any) {
     if (error.code === 11000) {
       res.status(409).json({ success: false, message: 'Branch already exists for First-Year' });

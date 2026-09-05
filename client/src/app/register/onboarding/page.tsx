@@ -76,7 +76,8 @@ export default function StudentOnboardingPage() {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await api.get(`/api/auth/branches?year=${formData.year}`)
+        const endpoint = formData.year === '1' ? '/api/fy-branches' : `/api/auth/branches?year=${formData.year}`
+        const res = await api.get(endpoint)
         setBranches(res.data.data || [])
       } catch (err) {
         setBranches([])
@@ -332,6 +333,13 @@ export default function StudentOnboardingPage() {
                         {b.name}
                       </option>
                     ))
+                  ) : formData.year === '1' ? (
+                    <>
+                      <option value="FY-CSE">FY-CSE</option>
+                      <option value="FY-CSD">FY-CSD</option>
+                      <option value="FY-AI&DS">FY-AI&DS</option>
+                      <option value="FY-MECH">FY-MECH</option>
+                    </>
                   ) : (
                     <>
                       <option value="Computer Science and Engineering">Computer Science and Engineering</option>

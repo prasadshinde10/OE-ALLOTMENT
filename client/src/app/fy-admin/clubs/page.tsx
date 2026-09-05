@@ -143,17 +143,6 @@ export default function FYAdminClubsPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    if (!formData.coordinatorName.trim()) {
-      toast.error('Primary Coordinator Name is required')
-      return
-    }
-
-    const cleanContact = formData.coordinatorContact.trim()
-    if (!/^[6-9]\d{9}$/.test(cleanContact)) {
-      toast.error('Primary Coordinator Phone Number must be a valid 10-digit number starting with 6-9')
-      return
-    }
-
     const divSum = divisions.reduce((acc, d) => acc + Number(d.capacity || 0), 0)
     if (divisions.length > 0 && divSum !== Number(formData.capacity)) {
       toast.error(`Division capacities sum (${divSum}) must equal total capacity (${formData.capacity})`)
@@ -432,24 +421,7 @@ export default function FYAdminClubsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Primary Coordinator Name"
-              value={formData.coordinatorName}
-              onChange={(e) => setFormData({ ...formData, coordinatorName: e.target.value })}
-              placeholder="e.g. Dr. A. Sharma"
-              required
-            />
-            <Input
-              label="Primary Coordinator Phone Number"
-              type="tel"
-              maxLength={10}
-              value={formData.coordinatorContact}
-              onChange={(e) => setFormData({ ...formData, coordinatorContact: e.target.value })}
-              placeholder="10-digit mobile (e.g. 9876543210)"
-              required
-            />
-          </div>
+
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input

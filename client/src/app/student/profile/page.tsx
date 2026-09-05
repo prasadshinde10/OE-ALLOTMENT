@@ -47,6 +47,7 @@ export default function StudentProfilePage() {
       const res = await api.get('/api/auth/me')
       const profile = res.data.data
       if (profile) {
+        const studentYear = profile.year || 1
         setFormData({
           firstName: profile.firstName || '',
           middleName: profile.middleName || '',
@@ -57,8 +58,9 @@ export default function StudentProfilePage() {
           branch: profile.branch || '',
           semester: profile.semester || 'Sem-1',
           rollNumber: profile.rollNumber || '',
-          year: profile.year || 1,
+          year: studentYear,
         })
+        fetchBranches(studentYear)
       }
     } catch (err) {
       toast.error('Failed to load profile details')
@@ -67,9 +69,11 @@ export default function StudentProfilePage() {
     }
   }
 
-  const fetchBranches = async () => {
+  const fetchBranches = async (targetYear?: number) => {
     try {
-      const res = await api.get('/api/branches')
+      const yr = targetYear !== undefined ? Number(targetYear) : Number(formData.year)
+      const endpoint = yr === 1 ? '/api/fy-branches' : `/api/branches?year=${yr}`
+      const res = await api.get(endpoint)
       setBranches(res.data.data || [])
     } catch (err) {
       setBranches([])
@@ -78,7 +82,13 @@ export default function StudentProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (name === 'year') {
+      const yr = Number(value)
+      setFormData((prev) => ({ ...prev, year: yr }))
+      fetchBranches(yr)
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const validate = () => {
@@ -256,12 +266,22 @@ export default function StudentProfilePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
                 required
               >
-                <option value="">Select Department</option>
-                {(branches.length > 0 ? branches.map((b) => b.name) : APPROVED_DEPARTMENTS).map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
+                <option value="">Select Department / Branch</option>
+                {formData.branch && !branches.some((b) => b.name === formData.branch) && (
+                  <option value={formData.branch}>{formData.branch}</option>
+                )}
+                {branches.map((b) => (
+                  <option key={b._id || b.name} value={b.name}>
+                    {b.name}
                   </option>
                 ))}
+                {branches.length === 0 && !formData.branch && (
+                  APPROVED_DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

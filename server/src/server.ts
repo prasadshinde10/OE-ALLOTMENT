@@ -20,6 +20,7 @@ import choiceRoutes from './routes/choiceRoutes';
 import clubRoutes from './routes/clubRoutes';
 import clubAllocationRoutes from './routes/clubAllocationRoutes';
 import fyAdminRoutes from './routes/fyAdminRoutes';
+import fyBranchRoutes from './routes/fyBranchRoutes';
 import User from './models/User';
 import { setupSocket } from './socket';
 
@@ -90,6 +91,7 @@ app.use('/api/choices', choiceRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/club-allocation', clubAllocationRoutes);
 app.use('/api/fy-admin', fyAdminRoutes);
+app.use('/api/fy-branches', fyBranchRoutes);
 
 // Public aliases for branches & departments
 import { getBranches } from './controllers/adminController';
@@ -160,6 +162,26 @@ async function start() {
       }
     } catch (admin2Err) {
       console.warn('⚠️ Could not verify Admin 2:', admin2Err);
+    }
+
+    // Ensure default First-Year Branches exist if none are configured
+    try {
+      const Branch = (await import('./models/Branch')).default;
+      const fyBranchCount = await Branch.countDocuments({ year: 1 });
+      if (fyBranchCount === 0) {
+        const defaultFYBranches = [
+          'FY-CSE',
+          'FY-CSD',
+          'FY-AI&DS',
+          'FY-MECH',
+        ];
+        for (const bName of defaultFYBranches) {
+          await Branch.create({ name: bName, year: 1 });
+        }
+        console.log('🌿 Default First-Year branches initialized (FY-CSE, FY-CSD, FY-AI&DS, FY-MECH)');
+      }
+    } catch (branchErr) {
+      console.warn('⚠️ Could not initialize default FY branches:', branchErr);
     }
 
     await verifyMailer();

@@ -9,6 +9,7 @@ import {
   updateFYTermConfig,
   getFYBranches,
   createFYBranch,
+  updateFYBranch,
   deleteFYBranch,
   reassignStudentClub,
 } from '../controllers/fyAdminController';
@@ -37,6 +38,7 @@ router.put('/term-configs/:id', updateFYTermConfig);
 // Scoped Branches for First-Year
 router.get('/branches', getFYBranches);
 router.post('/branches', createFYBranch);
+router.put('/branches/:id', updateFYBranch);
 router.delete('/branches/:id', deleteFYBranch);
 
 // Student Club Reallocation Override

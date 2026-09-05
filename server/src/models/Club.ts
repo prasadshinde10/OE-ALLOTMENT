@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IClubDivision {
   _id?: mongoose.Types.ObjectId;
@@ -33,7 +33,7 @@ export interface IClub extends Document {
 const clubDivisionSchema = new Schema<IClubDivision>(
   {
     divisionName: { type: String, required: true, trim: true },
-    coordinatorName: { type: String, required: true, trim: true },
+    coordinatorName: { type: String, trim: true, default: '' },
     facultyName: { type: String, trim: true, default: '' },
     hallRoom: { type: String, trim: true, default: '' },
     coordinatorContact: {

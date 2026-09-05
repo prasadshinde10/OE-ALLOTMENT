@@ -196,7 +196,12 @@ export const getBranches = async (req: Request, res: Response): Promise<void> =>
   try {
     const { year } = req.query;
     const filter: any = {};
-    if (year) filter.year = Number(year);
+    if (year) {
+      filter.year = Number(year);
+    } else {
+      // Upper-year OE admin departments/branches exclude FY (year 1) to strictly isolate FY branches
+      filter.year = { $ne: 1 };
+    }
 
     const branches = await Branch.find(filter).sort({ year: 1, name: 1 });
     res.status(200).json({ success: true, data: branches });

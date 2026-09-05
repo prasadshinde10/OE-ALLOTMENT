@@ -4,16 +4,17 @@ import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import { DataTable } from '@/components/ui/DataTable'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { Modal } from '@/components/ui/Modal'
 import toast from 'react-hot-toast'
 
-const APPROVED_DEPARTMENTS = [
-  'Computer Science and Engineering',
-  'Computer Science and Design',
-  'Artificial Intelligence and Data Science',
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Electronics and Telecommunication',
+const COMMON_FY_BRANCH_PRESETS = [
+  'FY-CSE',
+  'FY-CSD',
+  'FY-AI&DS',
+  'FY-MECH',
+  'FY-CIVIL',
+  'FY-ENTC',
 ]
 
 export default function FYAdminBranchesPage() {
@@ -21,6 +22,12 @@ export default function FYAdminBranchesPage() {
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [name, setName] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  // Edit Modal State
+  const [editingBranch, setEditingBranch] = useState<{ _id: string; name: string } | null>(null)
+  const [editName, setEditName] = useState('')
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     fetchBranches()
@@ -29,7 +36,7 @@ export default function FYAdminBranchesPage() {
   const fetchBranches = async () => {
     try {
       setLoading(true)
-      const res = await api.get('/api/fy-admin/branches')
+      const res = await api.get('/api/fy-branches')
       setBranches(res.data.data || [])
     } catch (err) {
       toast.error('Failed to load FY branches')
@@ -40,9 +47,11 @@ export default function FYAdminBranchesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!name.trim()) return
     try {
-      await api.post('/api/fy-admin/branches', { name })
-      toast.success('First-Year branch registered')
+      setSubmitting(true)
+      await api.post('/api/fy-branches', { name: name.trim() })
+      toast.success('First-Year branch registered successfully')
       setIsModalOpen(false)
       setName('')
       fetchBranches()
@@ -52,14 +61,55 @@ export default function FYAdminBranchesPage() {
       } else {
         toast.error(err.response?.data?.message || 'Error creating branch')
       }
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this branch from First-Year?')) return
+  const handleQuickAdd = async (preset: string) => {
     try {
-      await api.delete(`/api/fy-admin/branches/${id}`)
-      toast.success('Branch deleted')
+      await api.post('/api/fy-branches', { name: preset })
+      toast.success(`Branch "${preset}" added`)
+      fetchBranches()
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        toast.error(`Branch "${preset}" already registered`)
+      } else {
+        toast.error('Error creating branch')
+      }
+    }
+  }
+
+  const handleOpenEdit = (branch: any) => {
+    setEditingBranch(branch)
+    setEditName(branch.name)
+  }
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingBranch || !editName.trim()) return
+    try {
+      setUpdating(true)
+      await api.put(`/api/fy-branches/${editingBranch._id}`, { name: editName.trim() })
+      toast.success('Branch renamed successfully')
+      setEditingBranch(null)
+      fetchBranches()
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        toast.error('Another branch with this name already exists')
+      } else {
+        toast.error(err.response?.data?.message || 'Error updating branch')
+      }
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleDelete = async (id: string, branchName: string) => {
+    if (!confirm(`Are you sure you want to remove "${branchName}" from First-Year?`)) return
+    try {
+      await api.delete(`/api/fy-branches/${id}`)
+      toast.success(`Branch "${branchName}" deleted`)
       fetchBranches()
     } catch (err) {
       toast.error('Error deleting branch')
@@ -67,63 +117,144 @@ export default function FYAdminBranchesPage() {
   }
 
   const columns = [
-    { header: 'Department / Branch Name', accessor: 'name' },
+    {
+      header: 'Department / Branch Name',
+      accessor: (row: any) => (
+        <div className="flex items-center gap-2 font-semibold text-gray-900">
+          <span className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">
+            🏛️
+          </span>
+          <span>{row.name}</span>
+        </div>
+      ),
+    },
     {
       header: 'Academic Year Scope',
-      accessor: () => <span className="text-xs font-semibold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded">1st Year (FY)</span>,
+      accessor: () => (
+        <span className="text-xs font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
+          1st Year (FY)
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      accessor: () => (
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Active
+        </span>
+      ),
     },
     {
       header: 'Actions',
       accessor: (row: any) => (
-        <Button size="sm" variant="danger" onClick={() => handleDelete(row._id)}>
-          Delete
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => handleOpenEdit(row)}>
+            ✏️ Edit
+          </Button>
+          <Button size="sm" variant="danger" onClick={() => handleDelete(row._id, row.name)}>
+            🗑️ Delete
+          </Button>
+        </div>
       ),
     },
   ]
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage First-Year Branches</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Configure participating academic departments for First-Year club allotment
+            Configure dynamic academic departments & sections for First-Year club allotment ({branches.length} active)
           </p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>+ Add Department</Button>
+        <Button onClick={() => setIsModalOpen(true)}>+ Add First-Year Branch</Button>
       </div>
+
+      {/* Quick Suggestions Bar */}
+      {COMMON_FY_BRANCH_PRESETS.some((preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())) && (
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+            <span>⚡ Quick Add Presets:</span>
+            <span className="text-[11px] font-normal text-slate-400">Click to instantly add standard First-Year branches</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {COMMON_FY_BRANCH_PRESETS.filter(
+              (preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())
+            ).map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => handleQuickAdd(preset)}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-600 transition-colors shadow-sm"
+              >
+                <span className="text-indigo-500 font-bold">+</span>
+                <span>{preset}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <DataTable columns={columns} data={branches} isLoading={loading} />
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add First-Year Department">
+      {/* Add Branch Modal */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add First-Year Branch">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Department / Branch Name
+              Branch / Section Name
             </label>
-            <select
+            <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              placeholder="e.g. FY-CSE, FY-CSD, FY-AI&DS, or FY-MECH"
               required
-            >
-              <option value="">— Select Department —</option>
-              {APPROVED_DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              This branch will immediately appear on First-Year student registration and profile selection menus.
+            </p>
           </div>
 
           <div className="flex justify-end gap-2 mt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Add Department</Button>
+            <Button type="submit" disabled={submitting || !name.trim()}>
+              {submitting ? 'Registering...' : 'Add Branch'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Edit Branch Modal */}
+      <Modal isOpen={!!editingBranch} onClose={() => setEditingBranch(null)} title="Edit First-Year Branch">
+        <form onSubmit={handleUpdate} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Branch / Section Name
+            </label>
+            <Input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="e.g. FY-CSE or FY-CSD"
+              required
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Renaming will update the branch for all First-Year students registered under it.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={() => setEditingBranch(null)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={updating || !editName.trim()}>
+              {updating ? 'Saving...' : 'Save Changes'}
+            </Button>
           </div>
         </form>
       </Modal>
