@@ -32,8 +32,11 @@ router.get('/export-all', exportFYAllClubsZip);
 
 // Scoped Term Configs for First-Year
 router.get('/term-configs', getFYTermConfigs);
+router.get('/term-config', getFYTermConfigs);
 router.post('/term-configs', createFYTermConfig);
+router.post('/term-config', createFYTermConfig);
 router.put('/term-configs/:id', updateFYTermConfig);
+router.put('/term-config/:id', updateFYTermConfig);
 
 // Scoped Branches for First-Year
 router.get('/branches', getFYBranches);

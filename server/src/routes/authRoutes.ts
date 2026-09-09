@@ -17,6 +17,7 @@ import { updateMyProfile } from '../controllers/profileController';
 import { microsoftLogin, microsoftCallback } from '../controllers/microsoftAuthController';
 import { authRateLimiter, otpRateLimiter } from '../middleware/rateLimiter';
 import { authenticateToken } from '../middleware/auth';
+import { checkRegistrationPhase } from '../middleware/registrationPhase';
 
 const router = Router();
 
@@ -47,6 +48,6 @@ router.get('/branches', getBranches);
 router.get('/me', authenticateToken, getMyProfile);
 router.post('/complete-profile', authenticateToken, authRateLimiter, completeProfile);
 router.get('/profile', authenticateToken, getMyProfile);
-router.put('/profile', authenticateToken, authRateLimiter, updateMyProfile);
+router.put('/profile', authenticateToken, checkRegistrationPhase, authRateLimiter, updateMyProfile);
 
 export default router;

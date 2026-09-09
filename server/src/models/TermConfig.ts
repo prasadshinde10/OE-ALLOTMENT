@@ -6,6 +6,9 @@ export interface ITermConfig extends Document {
   registrationOpensAt: Date;
   registrationClosesAt: Date;
   isActive: boolean;
+  isRegistrationActive?: boolean;
+  registrationStartDate?: Date | null;
+  registrationEndDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +36,18 @@ const termConfigSchema = new Schema<ITermConfig>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isRegistrationActive: {
+      type: Boolean,
+      default: true,
+    },
+    registrationStartDate: {
+      type: Date,
+      default: null,
+    },
+    registrationEndDate: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

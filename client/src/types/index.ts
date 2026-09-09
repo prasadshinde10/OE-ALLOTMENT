@@ -90,6 +90,9 @@ export interface TermConfig {
   registrationOpensAt: string;
   registrationClosesAt: string;
   isActive: boolean;
+  isRegistrationActive?: boolean;
+  registrationStartDate?: string | null;
+  registrationEndDate?: string | null;
 }
 
 export interface User {

@@ -33,8 +33,11 @@ router.post('/duplicates/:id/reject', rejectDuplicate);
 router.get('/audit-log', getAuditLog);
 router.post('/users', createUser);
 router.get('/term-configs', getTermConfigs);
+router.get('/term-config', getTermConfigs);
 router.post('/term-configs', createTermConfig);
+router.post('/term-config', createTermConfig);
 router.put('/term-configs/:id', updateTermConfig);
+router.put('/term-config/:id', updateTermConfig);
 
 // Branch management
 router.post('/branches', createBranch);

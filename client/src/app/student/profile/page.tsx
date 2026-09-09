@@ -22,6 +22,7 @@ export default function StudentProfilePage() {
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [branches, setBranches] = useState<any[]>([])
+  const [isRegistrationPhaseActive, setIsRegistrationPhaseActive] = useState(true)
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -61,6 +62,25 @@ export default function StudentProfilePage() {
           year: studentYear,
         })
         fetchBranches(studentYear)
+
+        // Fetch Registration Phase & Lock Status
+        try {
+          const regRes = await api.get(`/api/student/registration-phase?year=${studentYear}`)
+          if (regRes.data?.data) {
+            setIsRegistrationPhaseActive(regRes.data.data.isPhaseActive !== false)
+          }
+        } catch (regErr) {
+          // Fallback to my-term-config check
+          try {
+            const configRes = await api.get('/api/club-allocation/my-term-config')
+            const cfg = configRes.data?.data
+            if (cfg && cfg.isRegistrationActive === false) {
+              setIsRegistrationPhaseActive(false)
+            }
+          } catch (e) {
+            // Keep default active
+          }
+        }
       }
     } catch (err) {
       toast.error('Failed to load profile details')
@@ -81,6 +101,7 @@ export default function StudentProfilePage() {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    if (!isRegistrationPhaseActive) return
     const { name, value } = e.target
     if (name === 'year') {
       const yr = Number(value)
@@ -117,6 +138,10 @@ export default function StudentProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isRegistrationPhaseActive) {
+      toast.error('Profile editing is currently locked by FY Admin.')
+      return
+    }
     if (!validate()) return
 
     try {
@@ -138,7 +163,10 @@ export default function StudentProfilePage() {
 
       toast.success('Profile updated successfully!')
     } catch (err: any) {
-      if (err.response?.status === 409) {
+      if (err.response?.status === 403) {
+        toast.error(err.response.data.message || 'Profile editing is currently locked by FY Admin.')
+        setIsRegistrationPhaseActive(false)
+      } else if (err.response?.status === 409) {
         toast.error(err.response.data.message || 'Duplicate Roll Number or Mobile Number conflict.')
       } else {
         toast.error(err.response?.data?.message || 'Failed to update profile')
@@ -163,11 +191,35 @@ export default function StudentProfilePage() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="px-6 py-5 bg-gray-50 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Student Profile & Settings</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Manage your personal and academic information. Institute email and PRN are permanent credentials.
-          </p>
+          <div className="flex justify-between items-start sm:items-center">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Student Profile & Settings</h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Manage your personal and academic information. Institute email and PRN are permanent credentials.
+              </p>
+            </div>
+            {!isRegistrationPhaseActive && (
+              <span className="text-xs font-bold px-3 py-1 bg-red-100 text-red-800 rounded-full">
+                🔒 Editing Locked
+              </span>
+            )}
+          </div>
         </div>
+
+        {/* Closed Phase Warning Banner */}
+        {!isRegistrationPhaseActive && (
+          <div className="mx-6 mt-6 p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm flex items-start gap-3 shadow-sm">
+            <span className="text-xl flex-shrink-0">⚠️</span>
+            <div>
+              <h4 className="font-bold text-amber-950 text-sm">
+                Profile Registration Phase is Closed
+              </h4>
+              <p className="text-xs text-amber-800 mt-0.5">
+                Profile editing is currently locked by FY Admin. Contact your First-Year Administrator to request changes.
+              </p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Read-only Credentials Banner */}
@@ -177,7 +229,7 @@ export default function StudentProfilePage() {
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Institute Email (Primary ID)
                 </label>
-                <span className="text-[10px] text-emerald-600 font-semibold">🔒 Read-only</span>
+                <span className="text-[10px] text-emerald-600 font-semibold">🔒 Permanent</span>
               </div>
               <input
                 type="text"
@@ -217,6 +269,7 @@ export default function StudentProfilePage() {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
+                disabled={!isRegistrationPhaseActive}
               />
               <Input
                 label="Middle Name"
@@ -224,6 +277,7 @@ export default function StudentProfilePage() {
                 value={formData.middleName}
                 onChange={handleChange}
                 placeholder="(optional)"
+                disabled={!isRegistrationPhaseActive}
               />
               <Input
                 label="Last Name"
@@ -231,6 +285,7 @@ export default function StudentProfilePage() {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
+                disabled={!isRegistrationPhaseActive}
               />
             </div>
           </div>
@@ -244,6 +299,7 @@ export default function StudentProfilePage() {
               onChange={handleChange}
               maxLength={10}
               placeholder="10-digit number"
+              disabled={!isRegistrationPhaseActive}
             />
             <Input
               label="Class Roll Number"
@@ -252,6 +308,7 @@ export default function StudentProfilePage() {
               onChange={handleChange}
               required
               placeholder="e.g. 42"
+              disabled={!isRegistrationPhaseActive}
             />
           </div>
 
@@ -263,7 +320,8 @@ export default function StudentProfilePage() {
                 name="branch"
                 value={formData.branch}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                disabled={!isRegistrationPhaseActive}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value="">Select Department / Branch</option>
@@ -291,7 +349,8 @@ export default function StudentProfilePage() {
                 name="year"
                 value={formData.year}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                disabled={!isRegistrationPhaseActive}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value={1}>1st Year (FY)</option>
@@ -306,7 +365,8 @@ export default function StudentProfilePage() {
                 name="semester"
                 value={formData.semester}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                disabled={!isRegistrationPhaseActive}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value="Sem-1">Sem-1 (1st Sem)</option>
@@ -320,8 +380,20 @@ export default function StudentProfilePage() {
           </div>
 
           <div className="pt-4 border-t flex justify-end">
-            <Button type="submit" disabled={loading} className="px-6 py-2.5">
-              {loading ? 'Saving Profile...' : 'Save Changes'}
+            <Button
+              type="submit"
+              disabled={loading || !isRegistrationPhaseActive}
+              className={`px-6 py-2.5 font-semibold ${
+                !isRegistrationPhaseActive
+                  ? 'bg-gray-200 text-gray-500 border border-gray-300 hover:bg-gray-200 cursor-not-allowed shadow-none'
+                  : ''
+              }`}
+            >
+              {loading
+                ? 'Saving Profile...'
+                : !isRegistrationPhaseActive
+                ? '🔒 Profile Editing Locked'
+                : 'Save Changes'}
             </Button>
           </div>
         </form>
