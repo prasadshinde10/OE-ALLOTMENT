@@ -18,6 +18,7 @@ export default function SelectClubPage() {
   const [studentStatus, setStudentStatus] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [allocatingId, setAllocatingId] = useState<string | null>(null)
+  const [studentBranch, setStudentBranch] = useState<string>('')
 
   useEffect(() => {
     fetchInitialData()
@@ -40,6 +41,7 @@ export default function SelectClubPage() {
       }
       if (statusRes.status === 'fulfilled') {
         setStudentStatus(statusRes.value.data.data || null)
+        setStudentBranch(statusRes.value.data.data?.branch || '')
       }
     } catch (err) {
       toast.error('Failed to load club allocation portal')
@@ -64,8 +66,19 @@ export default function SelectClubPage() {
     }
   })
 
+  // Helper: check if student branch is eligible for a club's target programs
+  const isEligibleForClub = (club: Club): boolean => {
+    if (!club.targetBranches || club.targetBranches.length === 0) return true
+    if (!studentBranch) return true // If branch unknown, show all
+    const normalizedStudent = studentBranch.replace(/^FY-/i, '').toUpperCase()
+    const normalizedTargets = club.targetBranches.map(b => b.toUpperCase())
+    return normalizedTargets.includes(normalizedStudent)
+  }
+
   const coCurricularClubs = mergedClubs.filter((c) => c.category === 'co-curricular')
   const extraCurricularClubs = mergedClubs.filter((c) => c.category === 'extra-curricular')
+  const eligibleCoCurricular = coCurricularClubs.filter(isEligibleForClub)
+  const restrictedCoCurricular = coCurricularClubs.filter(c => !isEligibleForClub(c))
 
   const now = new Date()
   const isWindowOpen =
@@ -216,7 +229,7 @@ export default function SelectClubPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {coCurricularClubs.map((club) => {
+          {eligibleCoCurricular.map((club) => {
             const isAllocatedToThis = studentStatus?.coCurricular?.clubId === club._id
             const isCategoryAllocated = hasCoCurricular
             const remaining = club.remaining ?? club.capacity - club.seatsFilled
@@ -248,8 +261,15 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {club.description && (
-                    <p className="text-xs text-gray-600 mt-2 line-clamp-2">{club.description}</p>
+                  {/* Target Program Badges */}
+                  {club.targetBranches && club.targetBranches.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {club.targetBranches.map((branch) => (
+                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded">
+                          {branch}
+                        </span>
+                      ))}
+                    </div>
                   )}
 
                   {club.coordinatorName && (
@@ -320,6 +340,42 @@ export default function SelectClubPage() {
             )
           })}
         </div>
+
+        {/* Restricted Co-Curricular Clubs (other branches) */}
+        {restrictedCoCurricular.length > 0 && (
+          <div className="mt-6">
+            <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">
+              Other Branch Clubs ({restrictedCoCurricular.length})
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-50">
+              {restrictedCoCurricular.map((club) => (
+                <div
+                  key={club._id}
+                  className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col"
+                >
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <span className="text-xs font-bold tracking-wider text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                      {club.code}
+                    </span>
+                    <span className="text-[10px] font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                      Restricted
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-500">{club.name}</h3>
+                  {club.targetBranches && club.targetBranches.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {club.targetBranches.map((branch) => (
+                        <span key={branch} className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                          {branch}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* SECTION 2: EXTRA-CURRICULAR CLUBS */}
@@ -376,8 +432,15 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {club.description && (
-                    <p className="text-xs text-gray-600 mt-2 line-clamp-2">{club.description}</p>
+                  {/* Target Program Badges */}
+                  {club.targetBranches && club.targetBranches.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {club.targetBranches.map((branch) => (
+                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded">
+                          {branch}
+                        </span>
+                      ))}
+                    </div>
                   )}
 
                   {club.coordinatorName && (

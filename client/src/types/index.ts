@@ -127,6 +127,7 @@ export interface Club {
   coordinatorName?: string;
   coordinatorContact?: string;
   description?: string;
+  targetBranches?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -145,6 +146,7 @@ export interface ClubSeatCount {
   coordinatorContact?: string;
   syllabusUrl?: string;
   description?: string;
+  targetBranches?: string[];
 }
 
 export interface AuditLogEntry {

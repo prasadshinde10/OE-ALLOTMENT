@@ -26,6 +26,7 @@ export interface IClub extends Document {
   coordinatorName?: string;
   coordinatorContact?: string;
   description?: string;
+  targetBranches?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -141,6 +142,10 @@ const clubSchema = new Schema<IClub>(
       type: String,
       trim: true,
       default: '',
+    },
+    targetBranches: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }

@@ -184,6 +184,14 @@ async function start() {
       console.warn('⚠️ Could not initialize default FY branches:', branchErr);
     }
 
+    // Seed default First-Year Clubs (Co-Curricular & Extra-Curricular)
+    try {
+      const { seedFirstYearClubs } = await import('./scripts/seedClubs');
+      await seedFirstYearClubs();
+    } catch (seedErr) {
+      console.warn('⚠️ Could not seed First-Year clubs:', seedErr);
+    }
+
     await verifyMailer();
 
     server.listen(PORT, () => {

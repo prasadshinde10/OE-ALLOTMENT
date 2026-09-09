@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Club from '../models/Club';
+import Student from '../models/Student';
+import { isBranchEligible } from '../utils/branchMatcher';
 import { logAudit } from '../services/auditService';
 
 export const getClubs = async (req: Request, res: Response): Promise<void> => {
@@ -13,6 +15,20 @@ export const getClubs = async (req: Request, res: Response): Promise<void> => {
     if (active !== undefined) filter.isActive = active === 'true';
 
     const clubs = await Club.find(filter).sort({ category: 1, name: 1 });
+
+    // If studentBranch query param is provided, filter co-curricular clubs by branch eligibility
+    const { studentBranch } = req.query;
+    if (studentBranch && typeof studentBranch === 'string') {
+      const filtered = clubs.filter((club) => {
+        // Extra-curricular clubs are always visible
+        if (club.category === 'extra-curricular') return true;
+        // Co-curricular clubs: check target branch eligibility
+        return isBranchEligible(studentBranch, (club as any).targetBranches || []);
+      });
+      res.status(200).json({ success: true, data: filtered });
+      return;
+    }
+
     res.status(200).json({ success: true, data: clubs });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
@@ -47,6 +63,7 @@ export const createClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorName,
       coordinatorContact,
       description,
+      targetBranches,
     } = req.body;
 
 
@@ -79,6 +96,7 @@ export const createClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorName,
       coordinatorContact,
       description,
+      targetBranches: targetBranches || [],
     });
 
     await club.save();
@@ -135,6 +153,7 @@ export const updateClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorName,
       coordinatorContact,
       description,
+      targetBranches,
     } = req.body;
 
     if (divisions && Array.isArray(divisions) && divisions.length > 0 && capacity !== undefined) {
@@ -167,6 +186,7 @@ export const updateClub = async (req: Request, res: Response): Promise<void> => 
       club.coordinatorContact = (coordinatorContact || '').trim();
     }
     if (description !== undefined) club.description = description;
+    if (targetBranches !== undefined) (club as any).targetBranches = targetBranches;
 
     if (divisions !== undefined && Array.isArray(divisions)) {
       club.divisions = divisions.map((div: any) => ({

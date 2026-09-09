@@ -1,8 +1,9 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import Student from '../models/Student';
 import Club from '../models/Club';
 import TermConfig from '../models/TermConfig';
 import AuditLog from '../models/AuditLog';
+import { isBranchEligible } from '../utils/branchMatcher';
 
 export const allocateClubSeat = async (studentId: string, clubId: string) => {
   const student = await Student.findById(studentId).lean();
@@ -21,6 +22,14 @@ export const allocateClubSeat = async (studentId: string, clubId: string) => {
   const targetClub = await Club.findById(clubId).lean();
   if (!targetClub || !targetClub.isActive) {
     throw new Error('Club not found or inactive');
+  }
+
+  // Enforce target branch restrictions for co-curricular clubs
+  if (targetClub.category === 'co-curricular') {
+    const clubTargetBranches = (targetClub as any).targetBranches || [];
+    if (clubTargetBranches.length > 0 && !isBranchEligible(student.branch, clubTargetBranches)) {
+      throw new Error('Your branch is not eligible for this co-curricular club. Please select a club that matches your program.');
+    }
   }
 
   const category = targetClub.category;
