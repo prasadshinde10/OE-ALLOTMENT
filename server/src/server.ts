@@ -84,6 +84,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/electives', electiveRoutes);
 app.use('/api/allocation', allocationRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/test', testRoutes);
