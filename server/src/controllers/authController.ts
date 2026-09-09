@@ -140,6 +140,8 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
         year: student.year,
         email: student.instituteEmail,
         name: student.fullName,
+        isProfileComplete: student.isProfileComplete || false,
+        isProfileLocked: student.isProfileLocked || false,
       },
       env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -163,6 +165,8 @@ export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
         name: student.fullName,
         year: student.year,
         email: student.instituteEmail,
+        isProfileComplete: student.isProfileComplete || false,
+        isProfileLocked: student.isProfileLocked || false,
       },
     });
   } catch (error: any) {
@@ -257,6 +261,8 @@ export const studentLogin = async (req: Request, res: Response): Promise<void> =
         year: student.year,
         email: student.instituteEmail,
         name: student.fullName,
+        isProfileComplete: student.isProfileComplete || false,
+        isProfileLocked: student.isProfileLocked || false,
       },
       env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -279,6 +285,8 @@ export const studentLogin = async (req: Request, res: Response): Promise<void> =
         email: student.instituteEmail,
         year: student.year,
         role: 'student',
+        isProfileComplete: student.isProfileComplete || false,
+        isProfileLocked: student.isProfileLocked || false,
       },
     });
   } catch (error: any) {
@@ -559,6 +567,7 @@ export const getMyProfile = async (req: Request, res: Response): Promise<void> =
         year: student.year || 3,
         isVerified: student.isVerified,
         isProfileComplete: student.isProfileComplete,
+        isProfileLocked: student.isProfileLocked || false,
       },
     });
   } catch (error: any) {
@@ -574,6 +583,14 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
     const student = await Student.findById(req.user?.userId);
     if (!student) {
       res.status(404).json({ success: false, message: 'Student account not found' });
+      return;
+    }
+
+    if (student.isProfileLocked) {
+      res.status(403).json({
+        success: false,
+        message: 'Profile is locked after submission. Contact your FY Coordinator to request changes.',
+      });
       return;
     }
 
@@ -656,6 +673,7 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
     student.rollNumber = rollNumber;
     student.year = Number(year);
     student.isProfileComplete = true;
+    student.isProfileLocked = true;
     student.isVerified = true;
 
     if (password && password.length >= 6) {
@@ -681,6 +699,7 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
         email: student.instituteEmail,
         name: student.fullName,
         isProfileComplete: true,
+        isProfileLocked: true,
       },
       env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -697,6 +716,7 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
         year: student.year,
         role: 'student',
         isProfileComplete: true,
+        isProfileLocked: true,
       },
     });
   } catch (error: any) {

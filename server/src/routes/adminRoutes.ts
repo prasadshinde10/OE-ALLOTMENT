@@ -20,12 +20,13 @@ import {
   getDivisionOverview,
   reassignDivision,
 } from '../controllers/divisionController';
+import { deleteStudent, deleteAllFYStudents } from '../controllers/studentController';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
 
-// All admin routes require authenticated admin role
-router.use(authenticateToken, authorizeRoles('admin'));
+// All admin routes require authenticated admin or FY Admin role
+router.use(authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'));
 
 router.get('/stats', getStats);
 router.get('/duplicates', getDuplicates);
@@ -53,5 +54,9 @@ router.post('/divisions/reassign', reassignDivision);
 router.get('/department-overview', getDepartmentOverview);
 router.get('/department-overview/export', exportDepartmentCSV);
 router.get('/department-overview/export-all', exportAllDepartmentsZip);
+
+// Student deletion (single & bulk purge)
+router.delete('/students/delete-all', deleteAllFYStudents);
+router.delete('/students/:id', deleteStudent);
 
 export default router;

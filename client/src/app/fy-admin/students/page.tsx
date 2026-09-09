@@ -139,6 +139,56 @@ export default function FYAdminStudentsPage() {
     (c) => c.category === reallocateModal.category && c.isActive
   )
 
+  // Single Student Delete State
+  const [singleDeleteModal, setSingleDeleteModal] = useState<{
+    isOpen: boolean
+    student: Student | null
+  }>({
+    isOpen: false,
+    student: null,
+  })
+  const [deletingSingle, setDeletingSingle] = useState(false)
+
+  // Bulk Student Delete State
+  const [bulkDeleteModal, setBulkDeleteModal] = useState(false)
+  const [bulkConfirmText, setBulkConfirmText] = useState('')
+  const [deletingBulk, setDeletingBulk] = useState(false)
+
+  const handleConfirmSingleDelete = async () => {
+    if (!singleDeleteModal.student) return
+    try {
+      setDeletingSingle(true)
+      await api.delete(`/api/admin/students/${singleDeleteModal.student._id}`)
+      toast.success(`Student ${singleDeleteModal.student.firstName} ${singleDeleteModal.student.lastName} deleted successfully`)
+      setSingleDeleteModal({ isOpen: false, student: null })
+      fetchStudents()
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete student')
+    } finally {
+      setDeletingSingle(false)
+    }
+  }
+
+  const handleConfirmBulkDelete = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (bulkConfirmText.trim() !== 'DELETE ALL FE STUDENTS') {
+      toast.error('Please type "DELETE ALL FE STUDENTS" to confirm.')
+      return
+    }
+    try {
+      setDeletingBulk(true)
+      const res = await api.delete('/api/admin/students/delete-all')
+      toast.success(res.data?.message || 'All First-Year student records have been permanently purged.')
+      setBulkDeleteModal(false)
+      setBulkConfirmText('')
+      fetchStudents()
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to purge students')
+    } finally {
+      setDeletingBulk(false)
+    }
+  }
+
   const columns = [
     { header: 'Roll No', accessor: (row: Student) => <span className="font-mono text-xs font-semibold bg-gray-100 px-2 py-1 rounded">{row.rollNumber || 'N/A'}</span> },
     {
@@ -209,6 +259,23 @@ export default function FYAdminStudentsPage() {
         </div>
       ),
     },
+    {
+      header: 'Actions',
+      accessor: (row: Student) => (
+        <div className="flex items-center justify-center">
+          <button
+            type="button"
+            title={`Delete ${row.firstName} ${row.lastName}`}
+            onClick={() => setSingleDeleteModal({ isOpen: true, student: row })}
+            className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -220,9 +287,22 @@ export default function FYAdminStudentsPage() {
             Monitor and export club allocation status across all Year-1 students ({total} students registered)
           </p>
         </div>
-        <Button variant="outline" onClick={handleExportCSV}>
-          📥 Export CSV
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            onClick={() => {
+              setBulkConfirmText('')
+              setBulkDeleteModal(true)
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 text-sm shadow-sm transition-colors"
+          >
+            <span>🗑️</span>
+            <span>Delete All Students</span>
+          </Button>
+          <Button variant="outline" onClick={handleExportCSV}>
+            📥 Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -389,6 +469,124 @@ export default function FYAdminStudentsPage() {
                   className="bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   {reallocating ? 'Re-assigning...' : 'Confirm Re-allocation'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Single Student Delete Confirmation Modal */}
+      {singleDeleteModal.isOpen && singleDeleteModal.student && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-red-600">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Delete Student</h3>
+                <p className="text-xs text-gray-500">Confirm student record removal</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-red-50 rounded-xl border border-red-100 text-sm text-red-900">
+              <p>
+                Are you sure you want to delete{' '}
+                <span className="font-bold">
+                  {singleDeleteModal.student.firstName} {singleDeleteModal.student.lastName}
+                </span>{' '}
+                ({singleDeleteModal.student.hallTicketNumber || singleDeleteModal.student.rollNumber || 'No PRN'})? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setSingleDeleteModal({ isOpen: false, student: null })}
+                disabled={deletingSingle}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleConfirmSingleDelete}
+                disabled={deletingSingle}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deletingSingle ? 'Deleting...' : 'Confirm Delete'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Double-Confirmation Modal */}
+      {bulkDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 border-2 border-red-500">
+            <div className="flex items-center gap-3 text-red-600 border-b pb-3">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-2xl">
+                ⚠️
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-red-700">Permanent Bulk Purge</h3>
+                <p className="text-xs text-gray-500">First-Year Student Records & Club Allotments</p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-red-50 border border-red-300 rounded-xl space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-red-800">
+                ⚠️ CRITICAL WARNING: You are about to permanently delete ALL First-Year student records and their current club allotment histories.
+              </h4>
+              <p className="text-xs text-red-700 leading-relaxed">
+                This will purge all ({total}) Year-1 student profiles, reset club seat counts back to zero, and erase all related allocation histories. Upper-year records will remain completely untouched. This action is irreversible.
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmBulkDelete} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  To confirm, type <span className="font-mono font-bold text-red-600">DELETE ALL FE STUDENTS</span> below:
+                </label>
+                <Input
+                  value={bulkConfirmText}
+                  onChange={(e) => setBulkConfirmText(e.target.value)}
+                  placeholder="DELETE ALL FE STUDENTS"
+                  className="font-mono text-sm border-red-300 focus:border-red-500 focus:ring-red-500"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setBulkDeleteModal(false)
+                    setBulkConfirmText('')
+                  }}
+                  disabled={deletingBulk}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={bulkConfirmText.trim() !== 'DELETE ALL FE STUDENTS' || deletingBulk}
+                  className={`text-white transition-all ${
+                    bulkConfirmText.trim() === 'DELETE ALL FE STUDENTS'
+                      ? 'bg-red-600 hover:bg-red-700 cursor-pointer shadow-md'
+                      : 'bg-red-300 cursor-not-allowed'
+                  }`}
+                >
+                  {deletingBulk ? 'Purging All Students...' : 'Permanently Delete All'}
                 </Button>
               </div>
             </form>

@@ -17,6 +17,7 @@ export interface IStudent extends Document {
   password?: string;
   isVerified: boolean;
   isProfileComplete: boolean;
+  isProfileLocked: boolean;
   otpHash?: string;
   otpExpiresAt?: Date;
   otpAttempts: number;
@@ -122,6 +123,10 @@ const studentSchema = new Schema<IStudent>(
       default: false,
     },
     isProfileComplete: {
+      type: Boolean,
+      default: false,
+    },
+    isProfileLocked: {
       type: Boolean,
       default: false,
     },

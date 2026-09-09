@@ -12,6 +12,7 @@ export interface Student {
   year: 1 | 2 | 3;
   isVerified: boolean;
   isProfileComplete?: boolean;
+  isProfileLocked?: boolean;
   password?: string;
   allocatedElectiveId?: string;
   allocatedElectiveName?: string;

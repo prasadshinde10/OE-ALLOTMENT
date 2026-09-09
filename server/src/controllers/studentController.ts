@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Student from '../models/Student';
 import Elective from '../models/Elective';
+import Club from '../models/Club';
+import TestSubmission from '../models/TestSubmission';
 import { logAudit } from '../services/auditService';
 import { transferSeat } from '../services/allocationService';
+import { broadcastSeatUpdate, broadcastClubSeatUpdate } from '../socket';
 
 export const getStudents = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -124,24 +128,195 @@ export const reassignElective = async (req: Request, res: Response): Promise<voi
 
 export const deleteStudent = async (req: Request, res: Response): Promise<void> => {
   try {
-    const student = await Student.findById(req.params.id);
+    const { id } = req.params;
+    if (!id) {
+      res.status(400).json({ success: false, message: 'Student ID or PRN is required' });
+      return;
+    }
+
+    const isObjectId = mongoose.Types.ObjectId.isValid(id);
+    const student = isObjectId
+      ? await Student.findById(id)
+      : await Student.findOne({ hallTicketNumber: id });
+
     if (!student) {
       res.status(404).json({ success: false, message: 'Student not found' });
       return;
     }
+
+    // 1. Purge Elective allotment (upper-year)
     if (student.allocatedElectiveId) {
-      await Elective.findByIdAndUpdate(student.allocatedElectiveId, { $inc: { seatsFilled: -1 } });
+      const elective = await Elective.findByIdAndUpdate(
+        student.allocatedElectiveId,
+        { $inc: { seatsFilled: -1 } },
+        { new: true }
+      );
+      if (elective) {
+        if (elective.seatsFilled < 0) {
+          elective.seatsFilled = 0;
+          await elective.save();
+        }
+        broadcastSeatUpdate(student.year || 3, {
+          electiveId: elective._id,
+          seatsFilled: elective.seatsFilled,
+          capacity: elective.capacity,
+        });
+      }
     }
-    await Student.findByIdAndDelete(req.params.id);
+
+    // 2. Purge Co-Curricular Club allotment (FY)
+    if (student.allocatedCoCurricularClubId) {
+      const ccClub = await Club.findByIdAndUpdate(
+        student.allocatedCoCurricularClubId,
+        { $inc: { seatsFilled: -1 } },
+        { new: true }
+      );
+      if (ccClub) {
+        if (ccClub.seatsFilled < 0) {
+          ccClub.seatsFilled = 0;
+          await ccClub.save();
+        }
+        broadcastClubSeatUpdate({
+          clubId: ccClub._id.toString(),
+          seatsFilled: ccClub.seatsFilled,
+          capacity: ccClub.capacity,
+          remaining: Math.max(0, ccClub.capacity - ccClub.seatsFilled),
+        });
+      }
+    }
+
+    // 3. Purge Extra-Curricular Club allotment (FY)
+    if (student.allocatedExtraCurricularClubId) {
+      const ecClub = await Club.findByIdAndUpdate(
+        student.allocatedExtraCurricularClubId,
+        { $inc: { seatsFilled: -1 } },
+        { new: true }
+      );
+      if (ecClub) {
+        if (ecClub.seatsFilled < 0) {
+          ecClub.seatsFilled = 0;
+          await ecClub.save();
+        }
+        broadcastClubSeatUpdate({
+          clubId: ecClub._id.toString(),
+          seatsFilled: ecClub.seatsFilled,
+          capacity: ecClub.capacity,
+          remaining: Math.max(0, ecClub.capacity - ecClub.seatsFilled),
+        });
+      }
+    }
+
+    // 4. Purge test submissions if any
+    try {
+      await TestSubmission.deleteMany({ studentId: String(student._id) });
+    } catch (e) {
+      // ignore
+    }
+
+    // 5. Delete student record
+    await Student.findByIdAndDelete(student._id);
+
+    // 6. Log audit
     await logAudit({
       action: 'STUDENT_DELETE',
-      actorId: (req as any).user.userId,
-      actorRole: 'admin',
+      actorId: (req as any).user?.userId || 'admin',
+      actorRole: (req as any).user?.role || 'admin',
       targetType: 'student',
-      targetId: req.params.id,
+      targetId: String(student._id),
+      metadata: {
+        studentName: student.fullName,
+        email: student.instituteEmail,
+        hallTicketNumber: student.hallTicketNumber,
+        branch: student.branch,
+        year: student.year,
+      },
     });
 
-    res.status(200).json({ success: true, message: 'Student deleted successfully' });
+    res.status(200).json({
+      success: true,
+      message: `Student "${student.fullName}" deleted successfully and all allotments purged.`,
+      data: { id: student._id },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+
+/**
+ * DELETE /api/admin/students/delete-all — Bulk purge all First-Year students
+ * Strictly restricted to FY Admin / Super Admin
+ * Hardcoded query filtering protects upper-year (year 2 & 3) records.
+ */
+export const deleteAllFYStudents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Hardcoded query filter to purge ONLY records where year === 1 or currentYear === 'FE', protecting upper-year records
+    const fyFilter: any = {
+      $and: [
+        { year: { $nin: [2, 3] } },
+        {
+          $or: [
+            { year: 1 },
+            { currentYear: 'FE' },
+          ],
+        },
+      ],
+    };
+
+    const countToDelete = await Student.countDocuments(fyFilter);
+    if (countToDelete === 0) {
+      res.status(200).json({
+        success: true,
+        message: 'No First-Year students found to delete.',
+        deletedCount: 0,
+      });
+      return;
+    }
+
+    // Find all FY student IDs to clean up associated TestSubmissions
+    const fyStudents = await Student.find(fyFilter, '_id').lean();
+    const fyStudentIds = fyStudents.map((s) => String(s._id));
+
+    if (fyStudentIds.length > 0) {
+      try {
+        await TestSubmission.deleteMany({ studentId: { $in: fyStudentIds } });
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Reset seats filled on all First-Year clubs to 0
+    await Club.updateMany({ year: 1 }, { $set: { seatsFilled: 0 } });
+
+    // Broadcast reset club seat updates
+    const fyClubs = await Club.find({ year: 1 });
+    for (const club of fyClubs) {
+      broadcastClubSeatUpdate({
+        clubId: club._id.toString(),
+        seatsFilled: 0,
+        capacity: club.capacity,
+        remaining: club.capacity,
+      });
+    }
+
+    // Execute hardcoded bulk delete strictly on FY students
+    const deleteResult = await Student.deleteMany(fyFilter);
+
+    // Audit log
+    await logAudit({
+      action: 'FY_STUDENTS_BULK_DELETE',
+      actorId: (req as any).user?.userId || 'admin',
+      actorRole: (req as any).user?.role || 'admin',
+      targetType: 'student',
+      metadata: {
+        deletedCount: deleteResult.deletedCount,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully purged ${deleteResult.deletedCount} First-Year students and reset all club allotments.`,
+      deletedCount: deleteResult.deletedCount,
+    });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }

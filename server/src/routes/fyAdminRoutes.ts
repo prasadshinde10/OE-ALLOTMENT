@@ -18,6 +18,7 @@ import {
   getClubDivisionOverview,
   reassignClubDivision,
 } from '../controllers/clubDivisionController';
+import { deleteStudent, deleteAllFYStudents } from '../controllers/studentController';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
@@ -52,5 +53,9 @@ router.post('/reassign', reassignStudentClub);
 router.post('/divisions/auto-assign/:clubId', autoAssignClubDivisions);
 router.get('/divisions/overview/:clubId', getClubDivisionOverview);
 router.post('/divisions/reassign', reassignClubDivision);
+
+// Student deletion (single & bulk purge)
+router.delete('/students/delete-all', deleteAllFYStudents);
+router.delete('/students/:id', deleteStudent);
 
 export default router;

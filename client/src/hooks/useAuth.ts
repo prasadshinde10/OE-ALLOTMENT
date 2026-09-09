@@ -9,6 +9,7 @@ export interface DecodedUser {
   year?: number;
   email: string;
   isProfileComplete?: boolean;
+  isProfileLocked?: boolean;
 }
 
 export function useAuth() {
