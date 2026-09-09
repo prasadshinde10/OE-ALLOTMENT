@@ -1,4 +1,9 @@
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import Club from '../models/Club';
+import { env } from '../config/env';
+
+dotenv.config();
 
 interface ClubSeedData {
   name: string;
@@ -225,4 +230,20 @@ export async function seedFirstYearClubs(): Promise<void> {
   }
 
   console.log(`🎯 First-Year Club Seeding: ${created} created, ${updated} updated, ${skipped} skipped (total: ${allClubs.length})`);
+}
+
+if (require.main === module) {
+  (async () => {
+    try {
+      if (mongoose.connection.readyState === 0) {
+        await mongoose.connect(env.MONGO_URI as string);
+        console.log('✅ Connected to MongoDB');
+      }
+      await seedFirstYearClubs();
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ Failed seeding clubs:', err);
+      process.exit(1);
+    }
+  })();
 }
