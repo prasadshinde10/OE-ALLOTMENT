@@ -4,7 +4,7 @@
   "description": "Backend for Open Elective Allotment Platform",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn src/server.ts",
+    "dev": "ts-node-dev --transpile-only --respawn src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "seed": "ts-node src/scripts/seed.ts"
