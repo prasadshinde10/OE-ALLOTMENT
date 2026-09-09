@@ -117,7 +117,6 @@ export function normalizeBranch(branch: string): string {
   }
 
   // 2. Clean common prefixes and suffixes
-  // Strip "FY-", "FY -", "FY_", "B.TECH -", "B.TECH ", "DEPARTMENT OF ", etc.
   const cleaned = upper
     .replace(/^FY\s*[-_:]\s*/i, '')
     .replace(/^B\.?\s*TECH\s*[-_:]?\s*/i, '')
@@ -142,11 +141,9 @@ export function normalizeBranch(branch: string): string {
   }
 
   // 3. Fallback keyword heuristic matching (order is critical!)
-  // CSD (Design) checked before general CSE
   if (cleaned.includes('DESIGN') || cleaned.includes('CSD')) {
     return 'CSD';
   }
-  // Electronics & Computer (E&CE) checked before general Computer (CSE) or Electronics (E&TC)
   if (
     cleaned.includes('ELECTRONICS AND COMPUTER') ||
     cleaned.includes('ELECTRONICS & COMPUTER') ||
@@ -155,7 +152,6 @@ export function normalizeBranch(branch: string): string {
   ) {
     return 'E&CE';
   }
-  // AI & Data Science
   if (
     cleaned.includes('ARTIFICIAL') ||
     cleaned.includes('DATA SCIENCE') ||
@@ -165,11 +161,9 @@ export function normalizeBranch(branch: string): string {
   ) {
     return 'AI&DS';
   }
-  // Mechatronics checked before Mechanical
   if (cleaned.includes('MECHATRONIC') || cleaned.includes('MTX')) {
     return 'MTX';
   }
-  // Telecommunication
   if (
     cleaned.includes('TELECOMMUNICATION') ||
     cleaned.includes('TELECOM') ||
@@ -178,7 +172,6 @@ export function normalizeBranch(branch: string): string {
   ) {
     return 'E&TC';
   }
-  // Computer Science / Engineering
   if (
     cleaned.includes('COMPUTER') ||
     cleaned.includes('CSE') ||
@@ -186,19 +179,15 @@ export function normalizeBranch(branch: string): string {
   ) {
     return 'CSE';
   }
-  // Mechanical
   if (cleaned.includes('MECHANIC') || cleaned.includes('MECH')) {
     return 'ME';
   }
-  // Electrical
   if (cleaned.includes('ELECTRICAL')) {
     return 'EE';
   }
-  // Agricultural
   if (cleaned.includes('AGRICULTUR') || cleaned.includes('AGRI')) {
     return 'AE';
   }
-  // Polymer / Plastic
   if (
     cleaned.includes('POLYMER') ||
     cleaned.includes('PLASTIC') ||
@@ -206,7 +195,6 @@ export function normalizeBranch(branch: string): string {
   ) {
     return 'PPE';
   }
-  // Civil
   if (cleaned.includes('CIVIL')) {
     return 'CIVIL';
   }

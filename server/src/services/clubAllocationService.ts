@@ -108,6 +108,14 @@ export const transferClubSeat = async (studentId: string, newClubId: string, adm
     throw new Error('Student is already allocated to this club');
   }
 
+  // Validate branch eligibility for co-curricular clubs
+  if (isCoCurricular) {
+    const clubTargetBranches = (newClub as any).targetBranches || [];
+    if (clubTargetBranches.length > 0 && !isBranchEligible(student.branch, clubTargetBranches)) {
+      throw new Error(`Student's branch (${student.branch}) is not eligible for this co-curricular club (${newClub.name}). Target branches: ${clubTargetBranches.join(', ')}`);
+    }
+  }
+
   // Attempt transaction
   try {
     const session = await mongoose.startSession();

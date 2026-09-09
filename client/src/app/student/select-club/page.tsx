@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { Club, TermConfig } from '@/types'
 import Link from 'next/link'
+import { normalizeBranch, isBranchEligible } from '@/utils/branchMatcher'
 
 export default function SelectClubPage() {
   const { user } = useAuthContext()
@@ -39,10 +40,20 @@ export default function SelectClubPage() {
       if (configRes.status === 'fulfilled') {
         setTermConfig(configRes.value.data.data || null)
       }
+      let resolvedBranch = ''
       if (statusRes.status === 'fulfilled') {
         setStudentStatus(statusRes.value.data.data || null)
-        setStudentBranch(statusRes.value.data.data?.branch || '')
+        resolvedBranch = statusRes.value.data.data?.branch || ''
       }
+      if (!resolvedBranch) {
+        try {
+          const meRes = await api.get('/api/auth/me')
+          resolvedBranch = meRes.data.data?.branch || ''
+        } catch (e) {
+          // ignore profile lookup fallback error
+        }
+      }
+      setStudentBranch(resolvedBranch)
     } catch (err) {
       toast.error('Failed to load club allocation portal')
     } finally {
@@ -70,9 +81,7 @@ export default function SelectClubPage() {
   const isEligibleForClub = (club: Club): boolean => {
     if (!club.targetBranches || club.targetBranches.length === 0) return true
     if (!studentBranch) return true // If branch unknown, show all
-    const normalizedStudent = studentBranch.replace(/^FY-/i, '').toUpperCase()
-    const normalizedTargets = club.targetBranches.map(b => b.toUpperCase())
-    return normalizedTargets.includes(normalizedStudent)
+    return isBranchEligible(studentBranch, club.targetBranches)
   }
 
   const coCurricularClubs = mergedClubs.filter((c) => c.category === 'co-curricular')
@@ -151,8 +160,15 @@ export default function SelectClubPage() {
       <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-xs font-semibold text-indigo-700 mb-2">
-              <span>🌟 First-Year Mandatory Selection</span>
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-xs font-semibold text-indigo-700">
+                🌟 First-Year Mandatory Selection
+              </span>
+              {studentBranch && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-bold text-blue-800">
+                  🎓 Your Branch: {studentBranch} ({normalizeBranch(studentBranch)})
+                </span>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900">
               First-Year Club Allotment Portal
