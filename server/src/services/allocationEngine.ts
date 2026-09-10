@@ -18,6 +18,13 @@ import Club from '../models/Club';
 import Student from '../models/Student';
 import { isBranchEligible } from '../utils/branchMatcher';
 
+/**
+ * Tracks hallTicketNumbers that have already been fully allocated (both CC + EC).
+ * Populated at boot from MongoDB, then updated on every successful allocation.
+ * Eliminates the Student.findOne() DB read from the HTTP critical path entirely.
+ */
+const allocatedStudentCache = new Set<string>();
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ClubMeta {
@@ -99,9 +106,10 @@ export async function initializeAllocationEngine(): Promise<void> {
 
   console.log('⚡ [AllocationEngine] Initializing in-memory seat cache…');
 
+  // ── Hydrate club caches ───────────────────────────────────────────────────
   const clubs = await Club.find(
-    {},
-    { _id: 1, name: 1, category: 1, targetBranches: 1, term: 1, capacity: 1, seatsFilled: 1, isActive: 1, year: 1 }
+    { isActive: true },
+    { _id: 1, name: 1, category: 1, targetBranches: 1, term: 1, capacity: 1, seatsFilled: 1, year: 1 }
   ).lean();
 
   let cached = 0;
@@ -120,11 +128,29 @@ export async function initializeAllocationEngine(): Promise<void> {
     cached++;
   }
 
+  // ── Hydrate already-allocated student cache ───────────────────────────────
+  // Pull only hallTicketNumbers of students with both club allocations set.
+  // This is a one-time boot scan; new allocations are added live via tryAllocate.
+  const allocatedStudents = await Student.find(
+    {
+      hallTicketNumber: { $exists: true, $ne: null },
+      allocatedCoCurricularClubId: { $exists: true, $ne: null },
+      allocatedExtraCurricularClubId: { $exists: true, $ne: null },
+    },
+    { hallTicketNumber: 1 }
+  ).lean();
+
+  for (const s of allocatedStudents) {
+    if (s.hallTicketNumber) allocatedStudentCache.add(s.hallTicketNumber);
+  }
+
+  console.log(`⚡ [AllocationEngine] Pre-allocated students in cache: ${allocatedStudentCache.size}`);
+
   // Start the background 500ms flush interval
   setInterval(flushBufferToDatabase, 500);
 
   isInitialized = true;
-  console.log(`⚡ [AllocationEngine] Ready — ${cached} clubs cached. Flush interval: 500ms.`);
+  console.log(`⚡ [AllocationEngine] Ready — ${cached} active clubs cached. Flush interval: 500ms.`);
 }
 
 // ── Hot-Path Allocation ───────────────────────────────────────────────────────
@@ -143,8 +169,6 @@ export function tryAllocate(params: {
   rollNumber: string;
   term: string;
   domain: string;
-  alreadyHasCoCurricular: boolean;
-  alreadyHasExtraCurricular: boolean;
 }): AllocationResult {
   const {
     hallTicketNumber,
@@ -154,9 +178,21 @@ export function tryAllocate(params: {
     rollNumber,
     term,
     domain,
-    alreadyHasCoCurricular,
-    alreadyHasExtraCurricular,
   } = params;
+
+  // ── O(1) in-memory idempotency check — zero DB I/O ───────────────────────
+  const alreadyFullyAllocated = allocatedStudentCache.has(hallTicketNumber);
+  if (alreadyFullyAllocated) {
+    return {
+      coCurricular:   'already_allocated',
+      extraCurricular: 'already_allocated',
+    };
+  }
+
+  // For partial re-submissions we check per-field in the write item below.
+  // We don't track partial state in the Set — first successful full allocation adds to Set.
+  const alreadyHasCoCurricular  = false;
+  const alreadyHasExtraCurricular = false;
 
   const emailSafe = hallTicketNumber.replace(/[^a-z0-9]/gi, '').toLowerCase();
   const instituteEmail = `test.${emailSafe}@${domain}`;
@@ -192,7 +228,7 @@ export function tryAllocate(params: {
   } else {
     const coClub = findEligibleClub('co-curricular', branch, term);
     if (!coClub) {
-      result.coCurricular = 'full'; // all co-curricular clubs are full for this branch
+      result.coCurricular = 'no_eligible_club'; // no branch-eligible club with seats exists
     } else {
       // Atomic decrement (safe: single-threaded JS event loop)
       const remaining = clubSeatCache.get(coClub._id)!;
@@ -216,7 +252,7 @@ export function tryAllocate(params: {
   } else {
     const ecClub = findEligibleClub('extra-curricular', branch, term);
     if (!ecClub) {
-      result.extraCurricular = 'full';
+      result.extraCurricular = 'no_eligible_club';
     } else {
       const remaining = clubSeatCache.get(ecClub._id)!;
       if (remaining <= 0) {
@@ -236,6 +272,10 @@ export function tryAllocate(params: {
   // Push to write buffer (if at least one allocation happened)
   if (shouldWrite) {
     writeBuffer.push(writeItem);
+    // Mark as fully allocated in memory if both slots are now filled
+    if (writeItem.allocatedCoCurricularClubId && writeItem.allocatedExtraCurricularClubId) {
+      allocatedStudentCache.add(hallTicketNumber);
+    }
     // Opportunistic early flush when buffer is full
     if (writeBuffer.length >= 75) {
       setImmediate(flushBufferToDatabase);

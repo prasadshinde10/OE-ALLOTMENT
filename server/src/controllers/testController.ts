@@ -86,18 +86,9 @@ export const clubAllocTest = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    // ── 1. Check existing allocation state (single lean read, projection only) ──
-    // This is the only DB read on the hot path — necessary to honour idempotency
-    // for students who submit twice. We use .lean() + minimal projection.
-    const existing = await Student.findOne(
-      { hallTicketNumber },
-      { allocatedCoCurricularClubId: 1, allocatedExtraCurricularClubId: 1 }
-    ).lean();
-
-    const alreadyHasCoCurricular  = !!(existing as any)?.allocatedCoCurricularClubId;
-    const alreadyHasExtraCurricular = !!(existing as any)?.allocatedExtraCurricularClubId;
-
-    // ── 2. In-memory seat reservation — O(1), zero DB I/O ─────────────────────
+    // ── Pure in-memory allocation — ZERO DB I/O on this request ──────────────
+    // allocationEngine handles idempotency internally via allocatedStudentCache.
+    // Seat reservation, branch eligibility, and write buffering all in-memory.
     const domain = process.env.ALLOWED_EMAIL_DOMAIN || 'mit.asia';
     const allocation = tryAllocate({
       hallTicketNumber,
@@ -107,8 +98,6 @@ export const clubAllocTest = async (req: Request, res: Response): Promise<void> 
       rollNumber,
       term,
       domain,
-      alreadyHasCoCurricular,
-      alreadyHasExtraCurricular,
     });
 
     // ── 3. Respond immediately — DB flush happens asynchronously ───────────────
