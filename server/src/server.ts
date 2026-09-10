@@ -23,6 +23,7 @@ import fyAdminRoutes from './routes/fyAdminRoutes';
 import fyBranchRoutes from './routes/fyBranchRoutes';
 import User from './models/User';
 import { setupSocket } from './socket';
+import { initializeAllocationEngine, drainAndShutdown } from './services/allocationEngine';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -124,6 +125,11 @@ async function start() {
     await connectDB();
     console.log('✅ Connected to MongoDB');
 
+    // ── Initialize in-memory FCFS allocation engine ────────────────────────
+    // Must run after DB connects and before server starts listening.
+    // Hydrates clubSeatCache + clubMetaCache and starts the 500ms flush interval.
+    await initializeAllocationEngine();
+
     // Ensure default super admin exists
     try {
       const adminEmail = process.env.ADMIN_EMAIL || 'admin@mit.asia';
@@ -209,3 +215,12 @@ async function start() {
 
 start();
 
+// ── Graceful Shutdown ──────────────────────────────────────────────────────────
+// Drain any buffered writes before the process exits so no allocations are lost.
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\n⚠️  ${signal} received — draining write buffer before exit…`);
+  await drainAndShutdown();
+  process.exit(0);
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
