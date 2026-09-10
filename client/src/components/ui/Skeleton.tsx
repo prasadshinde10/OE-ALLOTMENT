@@ -15,7 +15,7 @@ export function Skeleton({ className = '', ...props }: SkeletonProps) {
 
 export function SkeletonCard({ className = '' }: { className?: string }) {
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4 ${className}`}>
+    <div className={`bg-white rounded-xl border border-neutral-100 p-6 shadow-sm space-y-4 ${className}`}>
       <div className="flex justify-between items-center">
         <Skeleton className="h-5 w-24" />
         <Skeleton className="h-5 w-16" />
@@ -36,7 +36,7 @@ export function SkeletonCard({ className = '' }: { className?: string }) {
 
 export function SkeletonStat() {
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm space-y-3">
+    <div className="bg-white rounded-xl p-6 border border-neutral-100 shadow-sm space-y-3">
       <Skeleton className="h-4 w-28" />
       <Skeleton className="h-8 w-16" />
     </div>
@@ -45,7 +45,7 @@ export function SkeletonStat() {
 
 export function SkeletonTableRow({ cols = 5 }: { cols?: number }) {
   return (
-    <tr className="border-b border-gray-100">
+    <tr className="border-b border-neutral-100">
       {Array.from({ length: cols }).map((_, idx) => (
         <td key={idx} className="py-4 px-4">
           <Skeleton className="h-4 w-full max-w-[120px]" />
@@ -58,7 +58,7 @@ export function SkeletonTableRow({ cols = 5 }: { cols?: number }) {
 export function SkeletonTable({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
   return (
     <div className="w-full bg-white rounded-lg shadow ring-1 ring-black ring-opacity-5 overflow-hidden">
-      <div className="bg-gray-50 border-b border-gray-200 px-4 py-3.5 flex gap-4">
+      <div className="bg-gray-50 border-b border-neutral-100 px-4 py-3.5 flex gap-4">
         {Array.from({ length: cols }).map((_, idx) => (
           <Skeleton key={idx} className="h-4 w-24" />
         ))}

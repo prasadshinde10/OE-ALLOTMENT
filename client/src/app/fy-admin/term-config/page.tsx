@@ -199,7 +199,7 @@ export default function FYAdminTermConfigPage() {
     {
       header: 'Scope',
       accessor: () => (
-        <span className="text-xs font-semibold px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded">
+        <span className="text-xs font-semibold px-2 py-0.5 bg-teal-50 text-teal-700 rounded">
           1st Year (FY)
         </span>
       ),
@@ -309,7 +309,7 @@ export default function FYAdminTermConfigPage() {
             </p>
           </div>
           {activeConfig && (
-            <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg">
+            <span className="text-xs font-semibold px-2.5 py-1 bg-teal-50 text-teal-700 rounded-lg">
               Term: {activeConfig.term}
             </span>
           )}
@@ -327,7 +327,7 @@ export default function FYAdminTermConfigPage() {
                 id="regPhaseToggle"
                 checked={regPhaseActive}
                 onChange={(e) => setRegPhaseActive(e.target.checked)}
-                className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 rounded border-gray-300 cursor-pointer"
+                className="h-5 w-5 text-teal-600 focus:ring-teal-600 rounded border-gray-300 cursor-pointer"
               />
               <label htmlFor="regPhaseToggle" className="text-sm font-bold text-gray-800 cursor-pointer">
                 {regPhaseActive ? 'Enable Profile Editing' : 'Lock Profile Editing'}
@@ -365,7 +365,7 @@ export default function FYAdminTermConfigPage() {
           <Button
             onClick={handleSaveRegistrationPhase}
             disabled={savingPhase || !activeConfig}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5"
+            className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5"
           >
             {savingPhase ? 'Saving Settings...' : 'Save Registration Phase'}
           </Button>
@@ -392,7 +392,7 @@ export default function FYAdminTermConfigPage() {
             <select
               value={formData.term}
               onChange={(e) => setFormData({ ...formData, term: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
               required
             >
               <option value="Sem-1">Sem-1 (1st Semester)</option>
@@ -424,7 +424,7 @@ export default function FYAdminTermConfigPage() {
                 id="isActive"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                className="rounded text-teal-600 focus:ring-teal-600 h-4 w-4"
               />
               <label htmlFor="isActive" className="text-xs font-semibold text-gray-700">
                 Active Club Allotment Window
@@ -432,8 +432,8 @@ export default function FYAdminTermConfigPage() {
             </div>
           </div>
 
-          <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
-            <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-wider">
+          <div className="p-3 bg-teal-50/50 rounded-xl border border-teal-100 space-y-3">
+            <h4 className="text-xs font-bold text-teal-900 uppercase tracking-wider">
               Student Profile Registration & Edit Phase
             </h4>
             <div className="flex items-center gap-2">
@@ -442,7 +442,7 @@ export default function FYAdminTermConfigPage() {
                 id="modalIsRegistrationActive"
                 checked={formData.isRegistrationActive}
                 onChange={(e) => setFormData({ ...formData, isRegistrationActive: e.target.checked })}
-                className="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                className="rounded text-teal-600 focus:ring-teal-600 h-4 w-4"
               />
               <label htmlFor="modalIsRegistrationActive" className="text-xs font-semibold text-gray-800">
                 Enable Profile Registration & Editing for Students

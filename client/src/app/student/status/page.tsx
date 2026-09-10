@@ -108,13 +108,13 @@ export default function StudentStatusPage() {
             {isFYStudent ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Co-Curricular Club Card */}
-                <div className="border border-gray-200 rounded-xl p-5 bg-gradient-to-b from-indigo-50/40 to-white">
+                <div className="border border-gray-200 rounded-xl p-5 bg-gradient-to-b from-teal-50/40 to-white">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded">
-                      🎓 Co-Curricular Club
+                    <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-100 px-2.5 py-1 rounded">
+                      Co-Curricular Club
                     </span>
                     {clubStatus?.coCurricular?.clubName && (
-                      <span className="text-xs text-emerald-600 font-semibold">✓ Confirmed</span>
+                      <span className="text-xs text-emerald-600 font-semibold">Confirmed</span>
                     )}
                   </div>
 
@@ -123,7 +123,7 @@ export default function StudentStatusPage() {
                       <h5 className="text-lg font-bold text-gray-900">
                         {clubStatus.coCurricular.clubName}
                       </h5>
-                      <div className="space-y-1.5 text-xs text-gray-600 bg-white/80 p-3 rounded-lg border border-indigo-100">
+                      <div className="space-y-1.5 text-xs text-gray-600 bg-white/80 p-3 rounded-lg border border-teal-100">
                         <p>
                           <strong className="text-gray-800">Coordinator:</strong>{' '}
                           {clubStatus.coCurricular.coordinator || 'Assigned Division Coordinator'} |{' '}
@@ -154,13 +154,13 @@ export default function StudentStatusPage() {
                 </div>
 
                 {/* Extra-Curricular Club Card */}
-                <div className="border border-gray-200 rounded-xl p-5 bg-gradient-to-b from-purple-50/40 to-white">
+                <div className="border border-gray-200 rounded-xl p-5 bg-gradient-to-b from-accent-50/40 to-white">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
-                      🎨 Extra-Curricular Club
+                    <span className="text-xs font-bold uppercase tracking-wider text-accent-700 bg-accent-100 px-2.5 py-1 rounded">
+                      Extra-Curricular Club
                     </span>
                     {clubStatus?.extraCurricular?.clubName && (
-                      <span className="text-xs text-emerald-600 font-semibold">✓ Confirmed</span>
+                      <span className="text-xs text-emerald-600 font-semibold">Confirmed</span>
                     )}
                   </div>
 
@@ -169,7 +169,7 @@ export default function StudentStatusPage() {
                       <h5 className="text-lg font-bold text-gray-900">
                         {clubStatus.extraCurricular.clubName}
                       </h5>
-                      <div className="space-y-1.5 text-xs text-gray-600 bg-white/80 p-3 rounded-lg border border-purple-100">
+                      <div className="space-y-1.5 text-xs text-gray-600 bg-white/80 p-3 rounded-lg border border-accent-100">
                         <p>
                           <strong className="text-gray-800">Coordinator:</strong>{' '}
                           {clubStatus.extraCurricular.coordinator || 'Assigned Division Coordinator'} |{' '}

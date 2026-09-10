@@ -150,10 +150,10 @@ export default function AdminDashboard() {
 
       {stats && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-          <StatCard title="Total Students" value={stats.totalStudents} color="indigo" />
+          <StatCard title="Total Students" value={stats.totalStudents} color="teal" />
           <StatCard title="Verified Students" value={stats.verifiedStudents} color="green" />
           <StatCard title="Allocated Students" value={stats.allocatedStudents} color="blue" />
-          <StatCard title="Active Electives" value={stats.activeElectives} color="purple" />
+          <StatCard title="Active Electives" value={stats.activeElectives} color="accent" />
           <StatCard title="Total Electives" value={stats.totalElectives} color="gray" />
         </div>
       )}
@@ -163,10 +163,10 @@ export default function AdminDashboard() {
 
 function StatCard({ title, value, color }: { title: string; value: number; color: string }) {
   const colorMap: Record<string, string> = {
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    teal: 'bg-teal-50 text-teal-700 border-teal-200',
     green: 'bg-green-50 text-green-700 border-green-200',
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
-    purple: 'bg-purple-50 text-purple-700 border-purple-200',
+    accent: 'bg-accent-50 text-accent-700 border-accent-200',
     gray: 'bg-gray-50 text-gray-700 border-gray-200',
   }
 

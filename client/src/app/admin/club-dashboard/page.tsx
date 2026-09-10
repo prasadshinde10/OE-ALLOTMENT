@@ -238,16 +238,16 @@ export default function ClubAdminDashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-indigo-700 via-purple-700 to-purple-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-teal-700 via-accent-700 to-accent-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-purple-100 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-accent-100 mb-2">
               <span>🎯 Equal-Level Administrator</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               First-Year Club Dashboard
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-purple-200">
+            <p className="mt-1 text-sm sm:text-base text-accent-200">
               Manage First-Year Co-Curricular & Extra-Curricular Clubs, dynamic branches, and student re-allocations
             </p>
           </div>
@@ -292,7 +292,7 @@ export default function ClubAdminDashboardPage() {
             <span>Co-Curricular Allocated</span>
             <span className="text-lg">🎓</span>
           </div>
-          <div className="mt-2 text-3xl font-bold text-indigo-600">
+          <div className="mt-2 text-3xl font-bold text-teal-600">
             {loading ? '...' : stats?.coCurricularAllocated ?? 0}
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -305,7 +305,7 @@ export default function ClubAdminDashboardPage() {
             <span>Extra-Curricular Allocated</span>
             <span className="text-lg">🎨</span>
           </div>
-          <div className="mt-2 text-3xl font-bold text-purple-600">
+          <div className="mt-2 text-3xl font-bold text-accent-600">
             {loading ? '...' : stats?.extraCurricularAllocated ?? 0}
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -331,13 +331,13 @@ export default function ClubAdminDashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           href="/fy-admin/clubs"
-          className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all flex items-center gap-4"
+          className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
             🎪
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors text-sm">
+            <h3 className="font-bold text-gray-900 group-hover:text-teal-600 transition-colors text-sm">
               Club Management
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -348,13 +348,13 @@ export default function ClubAdminDashboardPage() {
 
         <Link
           href="/fy-admin/students"
-          className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-400 transition-all flex items-center gap-4"
+          className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-accent-400 transition-all flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
             📋
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors text-sm">
+            <h3 className="font-bold text-gray-900 group-hover:text-accent-600 transition-colors text-sm">
               Full Student Roster
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -390,7 +390,7 @@ export default function ClubAdminDashboardPage() {
               <h2 className="text-lg font-bold text-gray-900">
                 Dynamic First-Year Branch Management
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-100">
                 {branches.length} Active {branches.length === 1 ? 'Branch' : 'Branches'}
               </span>
             </div>
@@ -426,9 +426,9 @@ export default function ClubAdminDashboardPage() {
                   type="button"
                   onClick={() => handleAddBranch(undefined, preset)}
                   disabled={addingBranch}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-600 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 hover:text-teal-600 transition-colors shadow-sm"
                 >
-                  <span className="text-indigo-500 font-bold">+</span>
+                  <span className="text-teal-600 font-bold">+</span>
                   <span>{preset}</span>
                 </button>
               ))}
@@ -448,7 +448,7 @@ export default function ClubAdminDashboardPage() {
             <Button
               type="submit"
               disabled={addingBranch || !newBranchName.trim()}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0"
+              className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
             >
               {addingBranch ? 'Adding...' : '+ Add FY Branch'}
             </Button>
@@ -515,14 +515,14 @@ export default function ClubAdminDashboardPage() {
                   <tr key={b._id || b.name} className="hover:bg-gray-50/80 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2 font-semibold text-gray-900">
-                        <span className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">
+                        <span className="w-6 h-6 rounded bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold">
                           🏛️
                         </span>
                         <span>{b.name}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-indigo-50 text-indigo-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-teal-50 text-teal-700">
                         1st Year (FY)
                       </span>
                     </td>
@@ -539,7 +539,7 @@ export default function ClubAdminDashboardPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => setEditingBranch({ _id: b._id, name: b.name })}
-                          className="text-xs h-7 px-2.5 hover:border-indigo-400 hover:text-indigo-600"
+                          className="text-xs h-7 px-2.5 hover:border-teal-400 hover:text-teal-600"
                         >
                           ✏️ Edit
                         </Button>
@@ -612,13 +612,13 @@ export default function ClubAdminDashboardPage() {
                       <div className="font-semibold text-gray-900">
                         {`${s.firstName} ${s.middleName || ''} ${s.lastName}`.replace(/\s+/g, ' ').trim()}
                       </div>
-                      <div className="text-xs text-indigo-600 font-mono">{s.instituteEmail}</div>
+                      <div className="text-xs text-teal-600 font-mono">{s.instituteEmail}</div>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">{s.branch}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-between gap-2">
                         {s.allocatedCoCurricularClubName ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-700">
                             {s.allocatedCoCurricularClubName}
                           </span>
                         ) : (
@@ -627,7 +627,7 @@ export default function ClubAdminDashboardPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenReallocate(s, 'co-curricular')}
-                          className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                          className="text-[11px] text-teal-600 hover:text-teal-800 font-semibold underline"
                         >
                           {s.allocatedCoCurricularClubName ? 'Reassign' : 'Assign'}
                         </button>
@@ -636,7 +636,7 @@ export default function ClubAdminDashboardPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-between gap-2">
                         {s.allocatedExtraCurricularClubName ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-50 text-accent-700">
                             {s.allocatedExtraCurricularClubName}
                           </span>
                         ) : (
@@ -645,7 +645,7 @@ export default function ClubAdminDashboardPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenReallocate(s, 'extra-curricular')}
-                          className="text-[11px] text-purple-600 hover:text-purple-800 font-semibold underline"
+                          className="text-[11px] text-accent-600 hover:text-accent-800 font-semibold underline"
                         >
                           {s.allocatedExtraCurricularClubName ? 'Reassign' : 'Assign'}
                         </button>
@@ -661,7 +661,7 @@ export default function ClubAdminDashboardPage() {
         <div className="text-right pt-2">
           <Link
             href="/fy-admin/students"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 underline"
+            className="text-xs font-semibold text-teal-600 hover:text-teal-800 underline"
           >
             View all FY students in directory →
           </Link>
@@ -699,7 +699,7 @@ export default function ClubAdminDashboardPage() {
                     onClick={() => setReallocateModal((prev) => ({ ...prev, category: 'co-curricular', newClubId: '' }))}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border text-center transition-colors ${
                       reallocateModal.category === 'co-curricular'
-                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        ? 'bg-teal-600 text-white border-teal-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -710,7 +710,7 @@ export default function ClubAdminDashboardPage() {
                     onClick={() => setReallocateModal((prev) => ({ ...prev, category: 'extra-curricular', newClubId: '' }))}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border text-center transition-colors ${
                       reallocateModal.category === 'extra-curricular'
-                        ? 'bg-purple-600 text-white border-purple-600'
+                        ? 'bg-accent-600 text-white border-accent-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -737,7 +737,7 @@ export default function ClubAdminDashboardPage() {
                 <select
                   value={reallocateModal.newClubId}
                   onChange={(e) => setReallocateModal((prev) => ({ ...prev, newClubId: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
                   required
                 >
                   <option value="">-- Choose Club ({filteredClubOptions.length} available) --</option>
@@ -765,7 +765,7 @@ export default function ClubAdminDashboardPage() {
                   type="submit"
                   size="sm"
                   disabled={reallocating || !reallocateModal.newClubId}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="bg-teal-600 hover:bg-teal-700 text-white"
                 >
                   {reallocating ? 'Re-assigning...' : 'Confirm Re-allocation'}
                 </Button>
@@ -821,7 +821,7 @@ export default function ClubAdminDashboardPage() {
                   type="submit"
                   size="sm"
                   disabled={updatingBranch || !editingBranch.name.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="bg-teal-600 hover:bg-teal-700 text-white"
                 >
                   {updatingBranch ? 'Saving...' : 'Save Changes'}
                 </Button>

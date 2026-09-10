@@ -2,6 +2,7 @@
 import { useAuthContext } from '@/context/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { useRouter } from 'next/navigation'
+import Logo from '@/components/Logo'
 
 interface NavbarProps {
   onToggleSidebar?: () => void
@@ -60,7 +61,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
           </button>
         )}
         <div
-          className="flex items-center gap-2 cursor-pointer select-none group"
+          className="cursor-pointer select-none py-1"
           onClick={handleLogoClick}
           role="button"
           tabIndex={0}
@@ -68,19 +69,14 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
             if (e.key === 'Enter' || e.key === ' ') handleLogoClick()
           }}
         >
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-indigo-700 transition-colors">
-            AP
-          </div>
-          <span className="text-lg sm:text-xl font-bold text-indigo-700 tracking-tight group-hover:text-indigo-800 transition-colors">
-            Allocation Portal
-          </span>
+          <Logo variant="full" />
         </div>
       </div>
       {user && (
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="hidden sm:flex flex-col text-right">
             <span className="text-sm font-semibold text-gray-800">{user.name}</span>
-            <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-teal-600 uppercase tracking-wider">
               {getRoleLabel()}
             </span>
           </div>

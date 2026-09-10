@@ -33,10 +33,10 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
     >
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md sm:max-w-lg flex flex-col max-h-[90vh]">
         <div className="flex justify-between items-center px-4 sm:px-5 py-3 border-b border-gray-200 flex-shrink-0">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">{title}</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-neutral-900">{title}</h3>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg focus:outline-none"
+            className="p-1 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg focus:outline-none"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

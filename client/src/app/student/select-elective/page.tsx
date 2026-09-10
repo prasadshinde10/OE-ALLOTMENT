@@ -82,7 +82,7 @@ export default function SelectElectivePage() {
   }
 
   const getStatusColor = (capacity: number, filled: number, isSelected: boolean) => {
-    if (isSelected) return 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500 ring-opacity-50'
+    if (isSelected) return 'bg-teal-50 border-teal-300 ring-2 ring-teal-500 ring-opacity-50'
     const available = capacity - filled
     const ratio = available / capacity
     if (available <= 0) return 'bg-gray-50 border-gray-200 opacity-80'
@@ -139,17 +139,17 @@ export default function SelectElectivePage() {
   return (
     <div className="space-y-6">
       {allocationStatus && (
-        <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 sm:p-5 rounded-r-xl shadow-sm">
+        <div className="bg-teal-50 border-l-4 border-teal-600 p-4 sm:p-5 rounded-r-xl shadow-sm">
           <div className="space-y-1">
-            <h3 className="text-base sm:text-lg font-bold text-indigo-900">
+            <h3 className="text-base sm:text-lg font-bold text-teal-900">
               Allocated: {allocationStatus.allocatedElectiveName}
             </h3>
-            <p className="text-xs sm:text-sm text-indigo-700">
+            <p className="text-xs sm:text-sm text-teal-700">
               Semester: <span className="font-semibold">{allocationStatus.allocatedTerm || '-'}</span>
               <span className="hidden sm:inline"> | Allocated On: <span className="font-semibold">{allocationStatus.allocationTimestamp ? new Date(allocationStatus.allocationTimestamp).toLocaleString() : 'N/A'}</span></span>
             </p>
             {allocationStatus.allocatedDivision && (
-              <p className="text-xs sm:text-sm text-indigo-700">
+              <p className="text-xs sm:text-sm text-teal-700">
                 Division: <span className="font-semibold">{allocationStatus.allocatedDivision}</span>
                 {allocationStatus.allocatedFaculty && (
                   <> | Faculty: <span className="font-semibold">{allocationStatus.allocatedFaculty}</span> | Phone: <span className="font-semibold">{allocationStatus.allocatedFacultyPhone || allocationStatus.allocatedFacultyContact || 'N/A'}</span></>
@@ -200,7 +200,7 @@ export default function SelectElectivePage() {
             >
               <div>
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2.5 py-0.5 rounded-md">
+                  <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-100 px-2.5 py-0.5 rounded-md">
                     {elective.code}
                   </span>
                   {isSelected ? (
@@ -236,7 +236,7 @@ export default function SelectElectivePage() {
                     href={elective.syllabusUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -305,13 +305,13 @@ export default function SelectElectivePage() {
             <p className="text-sm text-gray-600">
               Are you sure you want to select the following elective? This action cannot be undone.
             </p>
-            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 space-y-1">
-              <p className="text-lg font-bold text-indigo-900">{confirmElective.name}</p>
-              <p className="text-sm text-indigo-700">Code: {confirmElective.code}</p>
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 space-y-1">
+              <p className="text-lg font-bold text-teal-900">{confirmElective.name}</p>
+              <p className="text-sm text-teal-700">Code: {confirmElective.code}</p>
               {confirmElective.offeredByDepartment && (
-                <p className="text-sm text-indigo-700">Department: {confirmElective.offeredByDepartment}</p>
+                <p className="text-sm text-teal-700">Department: {confirmElective.offeredByDepartment}</p>
               )}
-              <p className="text-sm text-indigo-700">
+              <p className="text-sm text-teal-700">
                 Available Seats: {confirmElective.capacity - (confirmElective.seatsFilled || 0)} / {confirmElective.capacity}
               </p>
             </div>

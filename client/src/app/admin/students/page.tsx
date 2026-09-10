@@ -267,7 +267,7 @@ export default function AdminStudentsPage() {
             <select
               value={formData.branch || ''}
               onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:border-transparent"
               required
             >
               <option value="">— Select Department —</option>
@@ -311,7 +311,7 @@ export default function AdminStudentsPage() {
               Student: <strong>{selectedStudent ? `${selectedStudent.firstName} ${selectedStudent.lastName}` : ''}</strong> ({selectedStudent?.hallTicketNumber})
             </p>
             <p>
-              Current Elective: <strong className="text-indigo-600">{selectedStudent?.allocatedElectiveName || 'None'}</strong>
+              Current Elective: <strong className="text-teal-600">{selectedStudent?.allocatedElectiveName || 'None'}</strong>
             </p>
           </div>
 
@@ -320,7 +320,7 @@ export default function AdminStudentsPage() {
             <select
               value={newElectiveId}
               onChange={(e) => setNewElectiveId(e.target.value)}
-              className="w-full border-gray-300 rounded-lg p-2.5 border text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full border-gray-300 rounded-lg p-2.5 border text-sm focus:ring-2 focus:ring-teal-600"
               required
             >
               <option value="">-- Select Target Elective --</option>

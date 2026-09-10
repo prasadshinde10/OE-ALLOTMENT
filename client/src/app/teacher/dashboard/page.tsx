@@ -81,7 +81,7 @@ export default function TeacherDashboard() {
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-            <select name="year" value={filters.year} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border py-2 px-3">
+            <select name="year" value={filters.year} onChange={handleFilterChange} className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-teal-600 focus:border-teal-600 sm:text-sm border py-2 px-3">
               <option value="">All Years</option>
               <option value="1">1st Year</option>
               <option value="2">2nd Year</option>

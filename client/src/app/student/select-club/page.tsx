@@ -144,7 +144,7 @@ export default function SelectClubPage() {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="text-center space-y-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto" />
           <p className="text-sm text-gray-500">Loading First-Year clubs...</p>
         </div>
       </div>
@@ -161,7 +161,7 @@ export default function SelectClubPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-xs font-semibold text-indigo-700">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-100 rounded-full text-xs font-semibold text-teal-700">
                 🌟 First-Year Mandatory Selection
               </span>
               {studentBranch && (
@@ -229,7 +229,7 @@ export default function SelectClubPage() {
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
               <span>🎓 1. Co-Curricular Clubs</span>
-              <span className="text-xs font-medium px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">
+              <span className="text-xs font-medium px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full">
                 Pick 1
               </span>
             </h2>
@@ -260,12 +260,12 @@ export default function SelectClubPage() {
                     ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
                     : isFull
                     ? 'border-gray-200 bg-gray-50/70 opacity-75'
-                    : 'border-gray-200 hover:border-indigo-300 hover:shadow-md'
+                    : 'border-gray-200 hover:border-teal-300 hover:shadow-md'
                 }`}
               >
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-2">
-                    <span className="text-xs font-bold tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                    <span className="text-xs font-bold tracking-wider text-teal-600 bg-teal-50 px-2 py-0.5 rounded">
                       {club.code}
                     </span>
                     {isAllocatedToThis && (
@@ -308,7 +308,7 @@ export default function SelectClubPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-2 rounded-full transition-all duration-500 ${
-                          isFull ? 'bg-red-500' : percentFilled >= 80 ? 'bg-amber-500' : 'bg-indigo-600'
+                          isFull ? 'bg-red-500' : percentFilled >= 80 ? 'bg-amber-500' : 'bg-teal-600'
                         }`}
                         style={{ width: `${percentFilled}%` }}
                       />
@@ -321,7 +321,7 @@ export default function SelectClubPage() {
                         href={club.syllabusUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1"
+                        className="text-xs text-teal-600 hover:text-teal-800 font-medium px-2 py-1"
                       >
                         Info ↗
                       </a>
@@ -400,7 +400,7 @@ export default function SelectClubPage() {
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
               <span>🎨 2. Extra-Curricular Clubs</span>
-              <span className="text-xs font-medium px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">
+              <span className="text-xs font-medium px-2 py-0.5 bg-accent-100 text-accent-800 rounded-full">
                 Pick 1
               </span>
             </h2>
@@ -431,12 +431,12 @@ export default function SelectClubPage() {
                     ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
                     : isFull
                     ? 'border-gray-200 bg-gray-50/70 opacity-75'
-                    : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+                    : 'border-gray-200 hover:border-accent-300 hover:shadow-md'
                 }`}
               >
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-2">
-                    <span className="text-xs font-bold tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                    <span className="text-xs font-bold tracking-wider text-accent-600 bg-accent-50 px-2 py-0.5 rounded">
                       {club.code}
                     </span>
                     {isAllocatedToThis && (
@@ -452,7 +452,7 @@ export default function SelectClubPage() {
                   {club.targetBranches && club.targetBranches.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {club.targetBranches.map((branch) => (
-                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded">
+                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-accent-50 text-accent-700 border border-accent-200 rounded">
                           {branch}
                         </span>
                       ))}
@@ -479,7 +479,7 @@ export default function SelectClubPage() {
                     <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                       <div
                         className={`h-2 rounded-full transition-all duration-500 ${
-                          isFull ? 'bg-red-500' : percentFilled >= 80 ? 'bg-amber-500' : 'bg-purple-600'
+                          isFull ? 'bg-red-500' : percentFilled >= 80 ? 'bg-amber-500' : 'bg-accent-600'
                         }`}
                         style={{ width: `${percentFilled}%` }}
                       />
@@ -492,7 +492,7 @@ export default function SelectClubPage() {
                         href={club.syllabusUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-xs text-purple-600 hover:text-purple-800 font-medium px-2 py-1"
+                        className="text-xs text-accent-600 hover:text-accent-800 font-medium px-2 py-1"
                       >
                         Info ↗
                       </a>
@@ -508,7 +508,7 @@ export default function SelectClubPage() {
                         allocatingId === club._id
                       }
                       variant={isAllocatedToThis ? 'secondary' : 'primary'}
-                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      className="w-full bg-accent-600 hover:bg-accent-700"
                       size="sm"
                     >
                       {allocatingId === club._id
@@ -534,7 +534,7 @@ export default function SelectClubPage() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-fadeIn">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl mx-auto">
+              <div className="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-2xl mx-auto">
                 {confirmClub.category === 'co-curricular' ? '🎓' : '🎨'}
               </div>
               <h3 className="text-lg font-bold text-gray-900">
@@ -552,7 +552,7 @@ export default function SelectClubPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Code:</span>
-                <span className="font-mono font-semibold text-indigo-600">{confirmClub.code}</span>
+                <span className="font-mono font-semibold text-teal-600">{confirmClub.code}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Category:</span>
@@ -586,7 +586,7 @@ export default function SelectClubPage() {
               </Button>
               <Button
                 type="button"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                 onClick={handleConfirmAllocation}
               >
                 Yes, Confirm Selection

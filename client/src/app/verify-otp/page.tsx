@@ -110,7 +110,7 @@ function VerifyOTPContent() {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-12 h-14 text-center text-2xl border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-12 h-14 text-center text-2xl border border-gray-300 rounded-md focus:ring-teal-600 focus:border-teal-600"
                   required
                 />
               ))}
@@ -125,7 +125,7 @@ function VerifyOTPContent() {
                 type="button"
                 onClick={handleResend}
                 disabled={countdown > 0 || loading}
-                className="text-sm font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400"
+                className="text-sm font-medium text-teal-600 hover:text-teal-600 disabled:text-gray-400"
               >
                 {countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
               </button>

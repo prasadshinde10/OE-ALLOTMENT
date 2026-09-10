@@ -61,7 +61,7 @@ export function DataTable<T>({
                 <th
                   key={idx}
                   scope="col"
-                  className="py-3.5 px-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-700"
+                  className="py-3.5 px-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700"
                 >
                   {col.header}
                 </th>
@@ -71,17 +71,17 @@ export function DataTable<T>({
           <tbody className="divide-y divide-gray-200 bg-white">
             {(!data || data.length === 0) ? (
               <tr>
-                <td colSpan={columns.length} className="py-8 text-center text-sm text-gray-500">
+                <td colSpan={columns.length} className="py-8 text-center text-sm text-neutral-500">
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
               data.map((item, rowIdx) => (
-                <tr key={rowIdx} className="hover:bg-gray-50 transition-colors">
+                <tr key={rowIdx} className="even:bg-gray-50/50 hover:bg-teal-50/30 transition-colors">
                   {columns.map((col, colIdx) => (
                     <td
                       key={colIdx}
-                      className="whitespace-nowrap py-3.5 px-4 text-sm text-gray-700"
+                      className="whitespace-nowrap py-3.5 px-4 text-sm text-neutral-700"
                     >
                       {renderCell(col, item)}
                     </td>
@@ -99,21 +99,21 @@ export function DataTable<T>({
             <button
               onClick={() => pagination.onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
             <button
               onClick={() => pagination.onPageChange(pagination.page + 1)}
               disabled={pagination.page >= totalPages}
-              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-gray-50 disabled:opacity-50"
             >
               Next
             </button>
           </div>
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-neutral-700">
                 Showing{' '}
                 <span className="font-medium">
                   {Math.min((pagination.page - 1) * pagination.limit + 1, pagination.total)}
@@ -130,18 +130,18 @@ export function DataTable<T>({
                 <button
                   onClick={() => pagination.onPageChange(pagination.page - 1)}
                   disabled={pagination.page <= 1}
-                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-neutral-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50"
                 >
                   <span className="sr-only">Previous</span>
                   &larr;
                 </button>
-                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300">
+                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-neutral-900 ring-1 ring-inset ring-gray-300">
                   Page {pagination.page} of {totalPages || 1}
                 </span>
                 <button
                   onClick={() => pagination.onPageChange(pagination.page + 1)}
                   disabled={pagination.page >= totalPages}
-                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-neutral-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 disabled:opacity-50"
                 >
                   <span className="sr-only">Next</span>
                   &rarr;

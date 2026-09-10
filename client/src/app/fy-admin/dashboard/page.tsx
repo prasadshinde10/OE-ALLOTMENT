@@ -61,16 +61,16 @@ export default function FYAdminDashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-teal-700 via-teal-800 to-accent-800 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-indigo-100 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-teal-100 mb-2">
               <span>🛡️ Dedicated Admin 2 Portal</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               First-Year Club Allocation Portal
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-indigo-200">
+            <p className="mt-1 text-sm sm:text-base text-teal-200">
               Manage First-Year Co-Curricular & Extra-Curricular Clubs, student registrations, and division alloting
             </p>
           </div>
@@ -105,7 +105,7 @@ export default function FYAdminDashboardPage() {
             <span>Co-Curricular Allocated</span>
             <span className="text-lg">🎓</span>
           </div>
-          <div className="mt-2 text-3xl font-bold text-indigo-600">
+          <div className="mt-2 text-3xl font-bold text-teal-600">
             {loading ? '...' : stats?.coCurricularAllocated ?? 0}
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -118,7 +118,7 @@ export default function FYAdminDashboardPage() {
             <span>Extra-Curricular Allocated</span>
             <span className="text-lg">🎨</span>
           </div>
-          <div className="mt-2 text-3xl font-bold text-purple-600">
+          <div className="mt-2 text-3xl font-bold text-accent-600">
             {loading ? '...' : stats?.extraCurricularAllocated ?? 0}
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -144,12 +144,12 @@ export default function FYAdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/fy-admin/clubs"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
             🏛️
           </div>
-          <h3 className="text-base font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+          <h3 className="text-base font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
             Club Management
           </h3>
           <p className="mt-1 text-xs text-gray-500">
@@ -159,12 +159,12 @@ export default function FYAdminDashboardPage() {
 
         <Link
           href="/fy-admin/students"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+          <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
             📋
           </div>
-          <h3 className="text-base font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+          <h3 className="text-base font-semibold text-gray-900 group-hover:text-accent-600 transition-colors">
             FY Student Directory
           </h3>
           <p className="mt-1 text-xs text-gray-500">
@@ -174,7 +174,7 @@ export default function FYAdminDashboardPage() {
 
         <Link
           href="/fy-admin/branches"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
           <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
             🏢
@@ -189,7 +189,7 @@ export default function FYAdminDashboardPage() {
 
         <Link
           href="/fy-admin/term-config"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-400 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
           <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
             ⏰

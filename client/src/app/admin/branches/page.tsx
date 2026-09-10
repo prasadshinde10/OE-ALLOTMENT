@@ -109,7 +109,7 @@ export default function AdminBranchesPage() {
             <select
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:border-transparent"
               required
             >
               <option value="">— Select Department —</option>
@@ -125,7 +125,7 @@ export default function AdminBranchesPage() {
             <select 
               value={formData.year} 
               onChange={e => setFormData({...formData, year: e.target.value})} 
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border" 
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-teal-600 focus:border-teal-600 sm:text-sm rounded-md border" 
               required
             >
               <option value="1">1st Year</option>

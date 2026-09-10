@@ -289,7 +289,7 @@ export default function StudentOnboardingPage() {
                   name="year"
                   value={formData.year}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                   required
                 >
                   <option value="1">1st Year (FY)</option>
@@ -304,7 +304,7 @@ export default function StudentOnboardingPage() {
                   name="semester"
                   value={formData.semester}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                   required
                 >
                   {getSemesterOptions(formData.year).map((sem) => (
@@ -323,7 +323,7 @@ export default function StudentOnboardingPage() {
                   name="branch"
                   value={formData.branch}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                   required
                 >
                   <option value="" disabled>Select Department / Branch</option>

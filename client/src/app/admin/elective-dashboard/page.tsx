@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import api from '@/lib/api'
@@ -119,7 +119,7 @@ export default function ElectiveDashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-blue-700 via-teal-700 to-teal-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-blue-100 mb-2">
@@ -158,10 +158,10 @@ export default function ElectiveDashboardPage() {
       {/* KPI Stats */}
       {stats && (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-          <StatCard title="Senior Students" value={stats.totalStudents} color="indigo" />
+          <StatCard title="Senior Students" value={stats.totalStudents} color="teal" />
           <StatCard title="Verified Students" value={stats.verifiedStudents} color="green" />
           <StatCard title="Allocated Students" value={stats.allocatedStudents} color="blue" />
-          <StatCard title="Active Electives" value={stats.activeElectives} color="purple" />
+          <StatCard title="Active Electives" value={stats.activeElectives} color="accent" />
           <StatCard title="Total Electives" value={stats.totalElectives} color="gray" />
         </div>
       )}
@@ -170,12 +170,12 @@ export default function ElectiveDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
         <Link
           href="/admin/electives"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
             📚
           </div>
-          <h3 className="text-base font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+          <h3 className="text-base font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
             Manage Open Electives
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -185,7 +185,7 @@ export default function ElectiveDashboardPage() {
 
         <Link
           href="/admin/students"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
           <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
             👥
@@ -200,12 +200,12 @@ export default function ElectiveDashboardPage() {
 
         <Link
           href="/admin/term-config"
-          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-300 transition-all"
+          className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
             ⏱️
           </div>
-          <h3 className="text-base font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+          <h3 className="text-base font-bold text-gray-900 group-hover:text-accent-600 transition-colors">
             Registration Windows
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -219,10 +219,10 @@ export default function ElectiveDashboardPage() {
 
 function StatCard({ title, value, color }: { title: string; value: number; color: string }) {
   const colorMap: Record<string, string> = {
-    indigo: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    teal: 'bg-teal-50 text-teal-700 border-teal-200',
     green: 'bg-green-50 text-green-700 border-green-200',
     blue: 'bg-blue-50 text-blue-700 border-blue-200',
-    purple: 'bg-purple-50 text-purple-700 border-purple-200',
+    accent: 'bg-accent-50 text-accent-700 border-accent-200',
     gray: 'bg-gray-50 text-gray-700 border-gray-200',
   }
 

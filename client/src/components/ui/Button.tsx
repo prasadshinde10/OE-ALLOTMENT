@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+  variant?: 'primary' | 'secondary' | 'danger' | 'accent' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
 }
@@ -15,7 +15,7 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-md focus:outline-none transition-colors';
+  const baseStyles = 'inline-flex items-center justify-center font-medium rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 transition-colors';
 
   const sizes = {
     sm: 'px-2.5 py-1.5 text-xs',
@@ -24,11 +24,12 @@ export function Button({
   };
   
   const variants = {
-    primary: 'text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400',
-    secondary: 'text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50',
+    primary: 'text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400',
+    secondary: 'text-neutral-700 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-50',
     danger: 'text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400',
-    ghost: 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:bg-transparent disabled:text-gray-400',
-    outline: 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
+    accent: 'text-white bg-accent-500 hover:bg-accent-600 disabled:bg-accent-300',
+    ghost: 'text-neutral-600 hover:bg-gray-100 hover:text-neutral-900 disabled:bg-transparent disabled:text-gray-400',
+    outline: 'text-neutral-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400'
   };
 
   return (

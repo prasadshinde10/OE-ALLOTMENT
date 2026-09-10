@@ -67,7 +67,7 @@ export default function AdminDuplicatesPage() {
                 {group.records.map((record: any) => (
                   <li key={record._id} className="p-4 sm:px-6 hover:bg-gray-50 flex justify-between items-center">
                     <div>
-                      <p className="text-sm font-medium text-indigo-600">
+                      <p className="text-sm font-medium text-teal-600">
                         {`${record.firstName} ${record.middleName || ''} ${record.lastName}`.replace(/\s+/g, ' ').trim()}
                       </p>
                       <div className="mt-2 text-sm text-gray-500 flex flex-col sm:flex-row sm:gap-4">

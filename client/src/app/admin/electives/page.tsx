@@ -246,7 +246,7 @@ export default function AdminElectivesPage() {
       accessor: (row: Elective) => (
         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
           (row.divisions?.length || 0) > 0
-            ? 'bg-indigo-50 text-indigo-700'
+            ? 'bg-teal-50 text-teal-700'
             : 'bg-gray-100 text-gray-500'
         }`}>
           {row.divisions?.length || 0}
@@ -320,7 +320,7 @@ export default function AdminElectivesPage() {
             <select
               value={formData.offeredByDepartment}
               onChange={e => setFormData({ ...formData, offeredByDepartment: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:border-transparent"
               required
             >
               <option value="">— Select Department —</option>
@@ -336,7 +336,7 @@ export default function AdminElectivesPage() {
               <select
                 value={formData.year}
                 onChange={e => setFormData({ ...formData, year: Number(e.target.value) })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:border-transparent"
               >
                 <option value={1}>1st Year</option>
                 <option value={2}>2nd Year</option>
@@ -348,7 +348,7 @@ export default function AdminElectivesPage() {
               <select
                 value={formData.term}
                 onChange={e => setFormData({ ...formData, term: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600 focus:border-transparent"
               >
                 {Array.from({ length: 8 }, (_, i) => (
                   <option key={`sem-${i + 1}`} value={`Sem-${i + 1}`}>Sem-{i + 1}</option>

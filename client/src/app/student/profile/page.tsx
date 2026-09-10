@@ -321,7 +321,7 @@ export default function StudentProfilePage() {
                 value={formData.branch}
                 onChange={handleChange}
                 disabled={!isRegistrationPhaseActive}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value="">Select Department / Branch</option>
@@ -350,7 +350,7 @@ export default function StudentProfilePage() {
                 value={formData.year}
                 onChange={handleChange}
                 disabled={!isRegistrationPhaseActive}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value={1}>1st Year (FY)</option>
@@ -366,7 +366,7 @@ export default function StudentProfilePage() {
                 value={formData.semester}
                 onChange={handleChange}
                 disabled={!isRegistrationPhaseActive}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                 required
               >
                 <option value="Sem-1">Sem-1 (1st Sem)</option>

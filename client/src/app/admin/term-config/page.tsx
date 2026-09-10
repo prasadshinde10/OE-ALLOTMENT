@@ -104,7 +104,7 @@ export default function AdminTermConfigPage() {
             <select 
               value={formData.term} 
               onChange={e => setFormData({...formData, term: e.target.value})} 
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border" 
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-teal-600 focus:border-teal-600 sm:text-sm rounded-md border" 
               required
             >
               {Array.from({ length: 8 }, (_, i) => (

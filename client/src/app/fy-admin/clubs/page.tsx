@@ -229,8 +229,8 @@ export default function FYAdminClubsPage() {
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             row.category === 'co-curricular'
-              ? 'bg-indigo-100 text-indigo-800'
-              : 'bg-purple-100 text-purple-800'
+              ? 'bg-teal-100 text-teal-800'
+              : 'bg-accent-100 text-accent-800'
           }`}
         >
           {row.category === 'co-curricular' ? 'Co-Curricular' : 'Extra-Curricular'}
@@ -268,7 +268,7 @@ export default function FYAdminClubsPage() {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
               <div
-                className={`h-1.5 rounded-full ${percent >= 100 ? 'bg-red-500' : percent >= 80 ? 'bg-amber-500' : 'bg-indigo-600'}`}
+                className={`h-1.5 rounded-full ${percent >= 100 ? 'bg-red-500' : percent >= 80 ? 'bg-amber-500' : 'bg-teal-600'}`}
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -363,7 +363,7 @@ export default function FYAdminClubsPage() {
           onClick={() => setCategoryFilter('all')}
           className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
             categoryFilter === 'all'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-teal-600 text-teal-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -373,7 +373,7 @@ export default function FYAdminClubsPage() {
           onClick={() => setCategoryFilter('co-curricular')}
           className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
             categoryFilter === 'co-curricular'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-teal-600 text-teal-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -383,7 +383,7 @@ export default function FYAdminClubsPage() {
           onClick={() => setCategoryFilter('extra-curricular')}
           className={`py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
             categoryFilter === 'extra-curricular'
-              ? 'border-purple-600 text-purple-600'
+              ? 'border-accent-600 text-accent-600'
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -425,7 +425,7 @@ export default function FYAdminClubsPage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
                 required
               >
                 <option value="co-curricular">🎓 Co-Curricular Club</option>
@@ -438,7 +438,7 @@ export default function FYAdminClubsPage() {
               <select
                 value={formData.term}
                 onChange={(e) => setFormData({ ...formData, term: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
                 required
               >
                 <option value="Sem-1">Sem-1 (1st Semester)</option>
@@ -467,8 +467,8 @@ export default function FYAdminClubsPage() {
                     }}
                     className={`px-3 py-1 text-xs font-semibold rounded-full border transition-colors ${
                       (formData.targetBranches || []).includes(prog)
-                        ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
+                        ? 'bg-teal-600 text-white border-teal-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:border-teal-400'
                     }`}
                   >
                     {prog}
@@ -476,7 +476,7 @@ export default function FYAdminClubsPage() {
                 ))}
               </div>
               {formData.targetBranches && formData.targetBranches.length > 0 && (
-                <p className="text-xs text-indigo-600 mt-1 font-medium">
+                <p className="text-xs text-teal-600 mt-1 font-medium">
                   Selected: {formData.targetBranches.join(', ')}
                 </p>
               )}
@@ -507,7 +507,7 @@ export default function FYAdminClubsPage() {
                 <h4 className="text-sm font-semibold text-gray-900">Club Divisions</h4>
                 <p className="text-xs text-gray-500">
                   Total division capacity:{' '}
-                  <span className="font-bold text-indigo-600">
+                  <span className="font-bold text-teal-600">
                     {divisions.reduce((acc, d) => acc + Number(d.capacity || 0), 0)}
                   </span>{' '}
                   / {formData.capacity}

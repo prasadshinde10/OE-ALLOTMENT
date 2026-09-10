@@ -198,7 +198,7 @@ export default function FYAdminStudentsPage() {
           <div className="font-semibold text-gray-900">
             {`${row.firstName} ${row.middleName || ''} ${row.lastName}`.replace(/\s+/g, ' ').trim()}
           </div>
-          <div className="text-xs text-indigo-600 font-mono mt-0.5">{row.instituteEmail}</div>
+          <div className="text-xs text-teal-600 font-mono mt-0.5">{row.instituteEmail}</div>
         </div>
       ),
     },
@@ -209,7 +209,7 @@ export default function FYAdminStudentsPage() {
         <div className="flex items-center justify-between gap-2">
           {row.allocatedCoCurricularClubName ? (
             <div>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-700">
                 {row.allocatedCoCurricularClubName}
               </span>
               {row.allocatedCoCurricularDivision && (
@@ -224,7 +224,7 @@ export default function FYAdminStudentsPage() {
           <button
             type="button"
             onClick={() => handleOpenReallocate(row, 'co-curricular')}
-            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-medium underline"
+            className="text-[11px] text-teal-600 hover:text-teal-800 font-medium underline"
           >
             {row.allocatedCoCurricularClubName ? 'Reassign' : 'Assign'}
           </button>
@@ -237,7 +237,7 @@ export default function FYAdminStudentsPage() {
         <div className="flex items-center justify-between gap-2">
           {row.allocatedExtraCurricularClubName ? (
             <div>
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-accent-50 text-accent-700">
                 {row.allocatedExtraCurricularClubName}
               </span>
               {row.allocatedExtraCurricularDivision && (
@@ -252,7 +252,7 @@ export default function FYAdminStudentsPage() {
           <button
             type="button"
             onClick={() => handleOpenReallocate(row, 'extra-curricular')}
-            className="text-[11px] text-purple-600 hover:text-purple-800 font-medium underline"
+            className="text-[11px] text-accent-600 hover:text-accent-800 font-medium underline"
           >
             {row.allocatedExtraCurricularClubName ? 'Reassign' : 'Assign'}
           </button>
@@ -322,7 +322,7 @@ export default function FYAdminStudentsPage() {
             <select
               value={filters.branch}
               onChange={(e) => setFilters({ ...filters, branch: e.target.value, page: 1 })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
             >
               <option value="">All Departments</option>
               {branches.map((b) => (
@@ -338,7 +338,7 @@ export default function FYAdminStudentsPage() {
             <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
             >
               <option value="">All Statuses</option>
               <option value="allocated_both">Fully Allocated (Both Clubs)</option>
@@ -400,7 +400,7 @@ export default function FYAdminStudentsPage() {
                     onClick={() => setReallocateModal((prev) => ({ ...prev, category: 'co-curricular', newClubId: '' }))}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border text-center transition-colors ${
                       reallocateModal.category === 'co-curricular'
-                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        ? 'bg-teal-600 text-white border-teal-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -411,7 +411,7 @@ export default function FYAdminStudentsPage() {
                     onClick={() => setReallocateModal((prev) => ({ ...prev, category: 'extra-curricular', newClubId: '' }))}
                     className={`py-2 px-3 text-xs font-medium rounded-lg border text-center transition-colors ${
                       reallocateModal.category === 'extra-curricular'
-                        ? 'bg-purple-600 text-white border-purple-600'
+                        ? 'bg-accent-600 text-white border-accent-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -438,7 +438,7 @@ export default function FYAdminStudentsPage() {
                 <select
                   value={reallocateModal.newClubId}
                   onChange={(e) => setReallocateModal((prev) => ({ ...prev, newClubId: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
                   required
                 >
                   <option value="">-- Choose Club ({filteredClubOptions.length} available) --</option>
@@ -466,7 +466,7 @@ export default function FYAdminStudentsPage() {
                   type="submit"
                   size="sm"
                   disabled={reallocating || !reallocateModal.newClubId}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="bg-teal-600 hover:bg-teal-700 text-white"
                 >
                   {reallocating ? 'Re-assigning...' : 'Confirm Re-allocation'}
                 </Button>

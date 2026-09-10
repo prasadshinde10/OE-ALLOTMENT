@@ -146,7 +146,7 @@ export default function DepartmentOverviewPage() {
     {
       header: 'Division',
       accessor: (s: DeptStudent) => s.allocatedDivision ? (
-        <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium">
+        <span className="px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full text-xs font-medium">
           {s.allocatedDivision}
         </span>
       ) : (
@@ -200,7 +200,7 @@ export default function DepartmentOverviewPage() {
             <select
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             >
               <option value="">All Departments</option>
               {departments.map((d) => (
@@ -215,7 +215,7 @@ export default function DepartmentOverviewPage() {
             <select
               value={year}
               onChange={(e) => setYear(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             >
               <option value="">All Years</option>
               <option value="1">1st Year</option>
@@ -228,7 +228,7 @@ export default function DepartmentOverviewPage() {
             <select
               value={elective}
               onChange={(e) => setElective(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
             >
               <option value="">All Electives</option>
               {electives.map((el) => (
@@ -244,7 +244,7 @@ export default function DepartmentOverviewPage() {
       {/* Results count */}
       <div className="text-sm text-gray-500">
         Showing {students.length} of {total} allocated students
-        {department && <span className="ml-1 font-medium text-indigo-600">in {department}</span>}
+        {department && <span className="ml-1 font-medium text-teal-600">in {department}</span>}
       </div>
 
       {/* Data table */}

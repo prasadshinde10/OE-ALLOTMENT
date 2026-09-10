@@ -36,7 +36,7 @@ export default function StudentForgotPasswordPage() {
           {submitted ? (
             <div className="text-center">
               <p className="text-green-600 mb-4 font-medium">If an account exists with this email, a password reset link has been sent.</p>
-              <Link href="/" className="text-indigo-600 hover:text-indigo-500 font-medium">
+              <Link href="/" className="text-teal-600 hover:text-teal-600 font-medium">
                 Back to Login
               </Link>
             </div>
@@ -53,7 +53,7 @@ export default function StudentForgotPasswordPage() {
                 {loading ? 'Sending...' : 'Send Reset Link'}
               </Button>
               <div className="mt-4 text-center">
-                <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-500">
+                <Link href="/" className="text-sm text-teal-600 hover:text-teal-600">
                   Back to Login
                 </Link>
               </div>

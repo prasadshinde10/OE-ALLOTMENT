@@ -121,7 +121,7 @@ export default function FYAdminBranchesPage() {
       header: 'Department / Branch Name',
       accessor: (row: any) => (
         <div className="flex items-center gap-2 font-semibold text-gray-900">
-          <span className="w-6 h-6 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold">
+          <span className="w-6 h-6 rounded bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold">
             🏛️
           </span>
           <span>{row.name}</span>
@@ -131,7 +131,7 @@ export default function FYAdminBranchesPage() {
     {
       header: 'Academic Year Scope',
       accessor: () => (
-        <span className="text-xs font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
+        <span className="text-xs font-semibold px-2.5 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">
           1st Year (FY)
         </span>
       ),
@@ -187,9 +187,9 @@ export default function FYAdminBranchesPage() {
                 key={preset}
                 type="button"
                 onClick={() => handleQuickAdd(preset)}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 hover:text-indigo-600 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium bg-white hover:bg-teal-50 border border-slate-200 hover:border-teal-300 text-slate-700 hover:text-teal-600 transition-colors shadow-sm"
               >
-                <span className="text-indigo-500 font-bold">+</span>
+                <span className="text-teal-600 font-bold">+</span>
                 <span>{preset}</span>
               </button>
             ))}
