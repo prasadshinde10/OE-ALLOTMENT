@@ -58,7 +58,7 @@ export default function Home() {
   }
 
   const handleMicrosoftLogin = () => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || ''
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://allocation-portal.duckdns.org'
     window.location.href = `${backendUrl}/api/auth/microsoft`
   }
 
