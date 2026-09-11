@@ -125,8 +125,8 @@ export default function Home() {
   }
 
   const handleMicrosoftLogin = () => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || ''
-    window.location.href = backendUrl ? `${backendUrl}/api/auth/microsoft` : '/api/auth/microsoft'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://allocation-portal.duckdns.org'
+    window.location.href = `${backendUrl}/api/auth/microsoft`
   }
 
   const scrollToSection = (id: string) => {
