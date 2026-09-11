@@ -77,7 +77,7 @@ export function DataTable<T>({
               </tr>
             ) : (
               data.map((item, rowIdx) => (
-                <tr key={rowIdx} className="even:bg-gray-50/50 hover:bg-teal-50/30 transition-colors">
+                <tr key={rowIdx} className="even:bg-neutral-50 hover:bg-teal-50/30 transition-colors">
                   {columns.map((col, colIdx) => (
                     <td
                       key={colIdx}

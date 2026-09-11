@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-sm border border-neutral-200 sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
             <Input label="Password" type="password" name="password" value={formData.password} onChange={handleChange} required />
@@ -72,6 +72,10 @@ export default function AdminLoginPage() {
             </div>
           </form>
         </div>
+        <p className="mt-6 text-center text-xs text-neutral-400">
+          Designed &amp; Developed by{' '}
+          <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitra.tech Solutions</a>
+        </p>
       </div>
     </div>
   )

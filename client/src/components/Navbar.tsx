@@ -46,7 +46,7 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-30">
+    <nav className="bg-white shadow-sm border-b border-neutral-200 px-4 sm:px-6 py-3 flex justify-between items-center sticky top-0 z-30">
       <div className="flex items-center gap-3">
         {/* Mobile hamburger — for OE admin and Club admin */}
         {(isOEAdmin || isFYAdmin) && onToggleSidebar && (

@@ -119,16 +119,16 @@ export default function ElectiveDashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Banner */}
-      <div className="bg-gradient-to-r from-blue-700 via-teal-700 to-teal-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-teal-600 rounded-2xl p-6 sm:p-8 text-white shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-blue-100 mb-2">
-              <span>🏛️ Open Elective Administrator</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500 rounded-full text-xs font-semibold tracking-wide text-teal-50 mb-2">
+              <span>Open Elective Administrator</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Open Elective Dashboard
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-blue-200">
+            <p className="mt-1 text-sm sm:text-base text-teal-100">
               Manage upper-year (SY/TY) Open Electives, departmental quotas, and senior student allotments
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function ElectiveDashboardPage() {
               disabled={exportingStudents}
               className="bg-white/20 hover:bg-white/30 text-white border-0"
             >
-              {exportingStudents ? 'Exporting...' : '📥 Export Students'}
+              {exportingStudents ? 'Exporting...' : 'Export Students'}
             </Button>
             <Button
               variant="secondary"
@@ -149,7 +149,7 @@ export default function ElectiveDashboardPage() {
               disabled={exportingElectives}
               className="bg-white/20 hover:bg-white/30 text-white border-0"
             >
-              {exportingElectives ? 'Exporting...' : '📊 Export Electives'}
+              {exportingElectives ? 'Exporting...' : 'Export Electives'}
             </Button>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function ElectiveDashboardPage() {
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
           <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
-            📚
+            OE
           </div>
           <h3 className="text-base font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
             Manage Open Electives
@@ -187,10 +187,10 @@ export default function ElectiveDashboardPage() {
           href="/admin/students"
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
-            👥
+          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
+            SR
           </div>
-          <h3 className="text-base font-bold text-gray-900 group-hover:text-green-600 transition-colors">
+          <h3 className="text-base font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
             Student Roster
           </h3>
           <p className="text-xs text-gray-500 mt-1">
@@ -203,7 +203,7 @@ export default function ElectiveDashboardPage() {
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all"
         >
           <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-105 transition-transform">
-            ⏱️
+            TC
           </div>
           <h3 className="text-base font-bold text-gray-900 group-hover:text-accent-600 transition-colors">
             Registration Windows
@@ -221,7 +221,7 @@ function StatCard({ title, value, color }: { title: string; value: number; color
   const colorMap: Record<string, string> = {
     teal: 'bg-teal-50 text-teal-700 border-teal-200',
     green: 'bg-green-50 text-green-700 border-green-200',
-    blue: 'bg-blue-50 text-blue-700 border-blue-200',
+    blue: 'bg-teal-50 text-teal-700 border-teal-200',
     accent: 'bg-accent-50 text-accent-700 border-accent-200',
     gray: 'bg-gray-50 text-gray-700 border-gray-200',
   }

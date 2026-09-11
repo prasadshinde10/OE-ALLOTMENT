@@ -43,14 +43,14 @@ export default function StudentLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Student Login</h2>
         <p className="mt-2 text-center text-sm text-gray-600">Password login for existing students</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white py-8 px-4 shadow-sm border border-neutral-200 sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <Input 
               label="Institute Email" 
@@ -80,6 +80,10 @@ export default function StudentLoginPage() {
             </div>
           </form>
         </div>
+        <p className="mt-6 text-center text-xs text-neutral-400">
+          Designed &amp; Developed by{' '}
+          <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitra.tech Solutions</a>
+        </p>
       </div>
     </div>
   )

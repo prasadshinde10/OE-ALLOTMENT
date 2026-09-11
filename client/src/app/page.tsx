@@ -193,22 +193,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <section id="overview" className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 overflow-hidden bg-neutral-50 border-b border-neutral-200">
-        {/* Abstract Geometric Grid Elements (MIT CSN Teal & Orange) */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="dot-grid" width="32" height="32" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1.2" fill="#D1D7DA" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dot-grid)" />
-          </svg>
-        </div>
 
-        {/* Clean Geometric Accent Shapes (Single-color, outline style) */}
-        <div className="absolute top-12 right-12 w-64 h-64 border border-teal-200/50 rounded-full pointer-events-none hidden lg:block" />
-        <div className="absolute top-24 right-24 w-40 h-40 border border-accent-200/50 rounded-full pointer-events-none hidden lg:block" />
-        <div className="absolute -bottom-10 left-10 w-48 h-48 border border-neutral-200 rounded-2xl rotate-12 pointer-events-none hidden lg:block" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -606,7 +591,17 @@ export default function Home() {
             </p>
           </div>
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-400 gap-4">
-            <p>&copy; {new Date().getFullYear()} MIT CSN. All rights reserved. Open Elective Allocation Portal.</p>
+            <p>
+              Designed &amp; Developed by{' '}
+              <a
+                href="https://webmitra.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent-400 hover:text-accent-300 font-semibold transition-colors"
+              >
+                WebMitra.tech Solutions
+              </a>
+            </p>
             <div className="flex items-center gap-6">
               <Link href="/login/admin" className="hover:text-teal-300 transition-colors">
                 Admin Console
