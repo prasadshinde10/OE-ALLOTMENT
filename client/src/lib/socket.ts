@@ -6,7 +6,7 @@ let socket: Socket | null = null;
 
 export const getSocket = (): Socket => {
   if (!socket) {
-    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const url = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000');
     let token = '';
     if (typeof window !== 'undefined') {
       token = localStorage.getItem('token') || '';

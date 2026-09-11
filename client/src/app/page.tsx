@@ -58,7 +58,7 @@ export default function Home() {
   }
 
   const handleMicrosoftLogin = () => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || ''
     window.location.href = `${backendUrl}/api/auth/microsoft`
   }
 
