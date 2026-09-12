@@ -13,22 +13,25 @@ export default function FYAdminStudentsPage() {
   const [loading, setLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [branches, setBranches] = useState<any[]>([])
+  const [clubs, setClubs] = useState<any[]>([])
 
   const [filters, setFilters] = useState({
     search: '',
     branch: '',
     status: '',
     clubType: '',
+    clubId: '',
     page: 1,
     limit: 15,
   })
 
   useEffect(() => {
     fetchStudents()
-  }, [filters.page, filters.limit, filters.branch, filters.status, filters.clubType])
+  }, [filters.page, filters.limit, filters.branch, filters.status, filters.clubType, filters.clubId])
 
   useEffect(() => {
     fetchBranches()
+    fetchClubs()
   }, [])
 
   const fetchBranches = async () => {
@@ -40,6 +43,17 @@ export default function FYAdminStudentsPage() {
     }
   }
 
+  const fetchClubs = async () => {
+    try {
+      const res = await api.get('/api/clubs?year=1')
+      const loadedClubs = res.data.data || []
+      setClubs(loadedClubs)
+      setAvailableClubs(loadedClubs)
+    } catch (err) {
+      setClubs([])
+    }
+  }
+
   const fetchStudents = async () => {
     try {
       setLoading(true)
@@ -48,6 +62,7 @@ export default function FYAdminStudentsPage() {
       if (filters.branch) params.set('branch', filters.branch)
       if (filters.status) params.set('status', filters.status)
       if (filters.clubType) params.set('clubType', filters.clubType)
+      if (filters.clubId) params.set('clubId', filters.clubId)
       params.set('page', String(filters.page))
       params.set('limit', String(filters.limit))
 
@@ -72,11 +87,25 @@ export default function FYAdminStudentsPage() {
       const params = new URLSearchParams()
       if (filters.branch) params.set('branch', filters.branch)
       if (filters.clubType) params.set('clubType', filters.clubType)
+      if (filters.clubId) params.set('clubId', filters.clubId)
       const res = await api.get(`/api/fy-admin/export?${params.toString()}`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
       link.href = url
-      link.setAttribute('download', `FY_Students_Report_${new Date().toISOString().split('T')[0]}.csv`)
+
+      let downloadName = 'FY_Students'
+      if (filters.clubId) {
+        const found = clubs.find((c) => String(c._id) === filters.clubId)
+        if (found) {
+          downloadName = `FY_${found.name.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+        }
+      } else if (filters.clubType) {
+        downloadName = `FY_${filters.clubType === 'co-curricular' ? 'CoCurricular' : 'ExtraCurricular'}`
+      }
+      if (filters.branch) {
+        downloadName += `_${filters.branch.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+      }
+      link.setAttribute('download', `${downloadName}_Report_${new Date().toISOString().split('T')[0]}.csv`)
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -310,7 +339,7 @@ export default function FYAdminStudentsPage() {
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
           <div>
             <Input
               label="Search Name / PRN / Roll"
@@ -354,19 +383,111 @@ export default function FYAdminStudentsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Club Type</label>
             <select
               value={filters.clubType}
-              onChange={(e) => setFilters({ ...filters, clubType: e.target.value, page: 1 })}
+              onChange={(e) => {
+                const newType = e.target.value
+                let resetClub = false
+                if (newType && filters.clubId) {
+                  const curr = clubs.find((c) => String(c._id) === filters.clubId)
+                  if (curr && curr.category !== newType) {
+                    resetClub = true
+                  }
+                }
+                setFilters((prev) => ({
+                  ...prev,
+                  clubType: newType,
+                  clubId: resetClub ? '' : prev.clubId,
+                  page: 1,
+                }))
+              }}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
             >
               <option value="">All Club Types</option>
-              <option value="co-curricular">Co-Curricular Allocated</option>
-              <option value="extra-curricular">Extra-Curricular Allocated</option>
+              <option value="co-curricular">Co-Curricular</option>
+              <option value="extra-curricular">Extra-Curricular</option>
             </select>
           </div>
 
           <div>
-            <Button type="submit" className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Specific Club</label>
+            <select
+              value={filters.clubId}
+              onChange={(e) => {
+                const selectedId = e.target.value
+                const selectedClub = clubs.find((c) => String(c._id) === selectedId)
+                setFilters((prev) => ({
+                  ...prev,
+                  clubId: selectedId,
+                  clubType: selectedClub ? selectedClub.category : prev.clubType,
+                  page: 1,
+                }))
+              }}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
+            >
+              <option value="">
+                {filters.clubType === 'co-curricular'
+                  ? 'All Co-Curricular Clubs'
+                  : filters.clubType === 'extra-curricular'
+                  ? 'All Extra-Curricular Clubs'
+                  : 'All Specific Clubs'}
+              </option>
+              {filters.clubType === '' ? (
+                <>
+                  <optgroup label="Co-Curricular Clubs">
+                    {clubs
+                      .filter((c) => c.category === 'co-curricular' && c.isActive)
+                      .map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                  <optgroup label="Extra-Curricular Clubs">
+                    {clubs
+                      .filter((c) => c.category === 'extra-curricular' && c.isActive)
+                      .map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                </>
+              ) : (
+                clubs
+                  .filter((c) => c.category === filters.clubType && c.isActive)
+                  .map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
+                  ))
+              )}
+            </select>
+          </div>
+
+          <div className="flex gap-2">
+            <Button type="submit" className="flex-1">
               Search
             </Button>
+            {(filters.search || filters.branch || filters.status || filters.clubType || filters.clubId) && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setFilters({
+                    search: '',
+                    branch: '',
+                    status: '',
+                    clubType: '',
+                    clubId: '',
+                    page: 1,
+                    limit: 15,
+                  })
+                }
+                title="Reset Filters"
+                className="px-3"
+              >
+                ✕
+              </Button>
+            )}
           </div>
         </form>
       </div>

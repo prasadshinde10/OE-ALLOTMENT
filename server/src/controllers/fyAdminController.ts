@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Student from '../models/Student';
 import Club from '../models/Club';
 import TermConfig from '../models/TermConfig';
@@ -60,13 +61,33 @@ export const getFYStats = async (_req: Request, res: Response): Promise<void> =>
 
 export const getFYStudents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { branch, search, page = 1, limit = 10, status, clubType, category } = req.query;
+    const { branch, search, page = 1, limit = 10, status, clubType, category, clubId } = req.query;
     const filter: any = { year: 1 };
 
     if (branch) filter.branch = branch;
 
     const typeFilter = clubType || category;
-    if (typeFilter === 'co-curricular' || typeFilter === 'co') {
+    if (clubId) {
+      let clubDoc: any = null;
+      if (mongoose.Types.ObjectId.isValid(String(clubId))) {
+        clubDoc = await Club.findById(clubId).lean();
+      }
+      if (!clubDoc) {
+        clubDoc = await Club.findOne({ name: String(clubId) }).lean();
+      }
+
+      if (clubDoc) {
+        if (clubDoc.category === 'extra-curricular') {
+          filter.allocatedExtraCurricularClubId = clubDoc._id;
+        } else {
+          filter.allocatedCoCurricularClubId = clubDoc._id;
+        }
+      } else if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
+        filter.allocatedExtraCurricularClubId = clubId;
+      } else {
+        filter.allocatedCoCurricularClubId = clubId;
+      }
+    } else if (typeFilter === 'co-curricular' || typeFilter === 'co') {
       filter.allocatedCoCurricularClubId = { $ne: null };
     } else if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
       filter.allocatedExtraCurricularClubId = { $ne: null };
@@ -124,6 +145,8 @@ function buildFYClubCSV(students: any[]): string {
     'First Name',
     'Middle Name',
     'Last Name',
+    'Email',
+    'Mobile Number',
     'Department / Branch',
     'Co-Curricular Club',
     'Co-Curricular Division',
@@ -151,6 +174,8 @@ function buildFYClubCSV(students: any[]): string {
       escape(s.firstName),
       escape(s.middleName),
       escape(s.lastName),
+      escape(s.instituteEmail),
+      escape(s.mobileNumber),
       escape(s.branch),
       escape(s.allocatedCoCurricularClubName || 'Unallocated'),
       escape(s.allocatedCoCurricularDivision || 'N/A'),
@@ -175,8 +200,23 @@ export const exportFYClubCSV = async (req: Request, res: Response): Promise<void
 
     if (branch) filter.branch = branch;
     const typeFilter = clubType || category;
+    let clubDoc: any = null;
+
     if (clubId) {
-      if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
+      if (mongoose.Types.ObjectId.isValid(String(clubId))) {
+        clubDoc = await Club.findById(clubId).lean();
+      }
+      if (!clubDoc) {
+        clubDoc = await Club.findOne({ name: String(clubId) }).lean();
+      }
+
+      if (clubDoc) {
+        if (clubDoc.category === 'extra-curricular') {
+          filter.allocatedExtraCurricularClubId = clubDoc._id;
+        } else {
+          filter.allocatedCoCurricularClubId = clubDoc._id;
+        }
+      } else if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
         filter.allocatedExtraCurricularClubId = clubId;
       } else {
         filter.allocatedCoCurricularClubId = clubId;
@@ -190,9 +230,17 @@ export const exportFYClubCSV = async (req: Request, res: Response): Promise<void
     const students = await Student.find(filter).sort({ branch: 1, rollNumber: 1 }).lean();
 
     const csv = buildFYClubCSV(students);
-    const filename = branch
-      ? `FY_${String(branch).replace(/\s+/g, '_')}_Clubs_Report.csv`
-      : 'FY_All_Departments_Clubs_Report.csv';
+    const filenameParts: string[] = ['FY'];
+    if (clubDoc) {
+      filenameParts.push(clubDoc.name.replace(/[^a-zA-Z0-9_-]/g, '_'));
+    } else if (typeFilter) {
+      filenameParts.push(typeFilter === 'co-curricular' || typeFilter === 'co' ? 'CoCurricular' : 'ExtraCurricular');
+    }
+    if (branch) {
+      filenameParts.push(String(branch).replace(/[^a-zA-Z0-9_-]/g, '_'));
+    }
+    filenameParts.push('Report.csv');
+    const filename = filenameParts.join('_');
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
