@@ -133,6 +133,7 @@ export async function initializeAllocationEngine(): Promise<void> {
   // This is a one-time boot scan; new allocations are added live via tryAllocate.
   const allocatedStudents = await Student.find(
     {
+      year: 1,
       hallTicketNumber: { $exists: true, $ne: null },
       allocatedCoCurricularClubId: { $exists: true, $ne: null },
       allocatedExtraCurricularClubId: { $exists: true, $ne: null },
@@ -484,6 +485,7 @@ export async function resetAllocationEngine(): Promise<void> {
   // Re-hydrate allocated student cache
   const allocatedStudents = await Student.find(
     {
+      year: 1,
       hallTicketNumber: { $exists: true, $ne: null },
       allocatedCoCurricularClubId: { $exists: true, $ne: null },
       allocatedExtraCurricularClubId: { $exists: true, $ne: null },

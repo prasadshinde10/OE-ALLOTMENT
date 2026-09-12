@@ -274,16 +274,6 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
       ],
     };
 
-    const countToDelete = await Student.countDocuments(fyFilter);
-    if (countToDelete === 0) {
-      res.status(200).json({
-        success: true,
-        message: 'No First-Year students found to delete.',
-        deletedCount: 0,
-      });
-      return;
-    }
-
     // Find all FY student IDs to clean up associated TestSubmissions
     const fyStudents = await Student.find(fyFilter, '_id').lean();
     const fyStudentIds = fyStudents.map((s) => String(s._id));
@@ -296,10 +286,13 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
       }
     }
 
-    // Reset seats filled on all First-Year clubs to 0
+    // 1. Execute hardcoded bulk delete strictly on FY students FIRST
+    const deleteResult = await Student.deleteMany(fyFilter);
+
+    // 2. Reset seats filled on all First-Year clubs to 0 in MongoDB
     await Club.updateMany({ year: 1 }, { $set: { seatsFilled: 0 } });
 
-    // Broadcast reset club seat updates
+    // 3. Broadcast reset club seat updates via Socket.io
     const fyClubs = await Club.find({ year: 1 });
     for (const club of fyClubs) {
       broadcastClubSeatUpdate({
@@ -310,11 +303,8 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
       });
     }
 
-    // Re-sync in-memory allocation engine so new allocations see the zeroed state
+    // 4. Re-sync in-memory allocation engine AFTER students are deleted from MongoDB
     await resetAllocationEngine();
-
-    // Execute hardcoded bulk delete strictly on FY students
-    const deleteResult = await Student.deleteMany(fyFilter);
 
     // Audit log
     await logAudit({
@@ -338,23 +328,12 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
 };
 
 /**
- * DELETE /api/admin/students/delete-all — Bulk purge all upper-year (2nd & 3rd Year) OE students
- * Strictly restricted to OE Admin / Admin
- * Hardcoded query filtering strictly protects 1st Year (FE) records.
+ * Bulk delete all Open Elective (2nd & 3rd Year) students.
+ * Hardcoded query filtering protects First-Year records (year: 1).
  */
 export const deleteAllOEStudents = async (req: Request, res: Response): Promise<void> => {
   try {
     const oeFilter: any = { year: { $gte: 2 } };
-
-    const countToDelete = await Student.countDocuments(oeFilter);
-    if (countToDelete === 0) {
-      res.status(200).json({
-        success: true,
-        message: 'No 2nd/3rd Year students found to delete.',
-        deletedCount: 0,
-      });
-      return;
-    }
 
     // Clean up associated TestSubmissions for OE students
     const oeStudents = await Student.find(oeFilter, '_id').lean();
@@ -368,10 +347,13 @@ export const deleteAllOEStudents = async (req: Request, res: Response): Promise<
       }
     }
 
-    // Reset seatsFilled on all Electives to 0
+    // 1. Execute bulk delete strictly on 2nd and 3rd year students
+    const deleteResult = await Student.deleteMany(oeFilter);
+
+    // 2. Reset seatsFilled on all Electives to 0
     await Elective.updateMany({}, { $set: { seatsFilled: 0 } });
 
-    // Broadcast reset seat updates for electives
+    // 3. Broadcast reset seat updates for electives
     const electives = await Elective.find({});
     for (const elective of electives) {
       broadcastSeatUpdate(elective.year || 3, {
@@ -380,9 +362,6 @@ export const deleteAllOEStudents = async (req: Request, res: Response): Promise<
         capacity: elective.capacity,
       });
     }
-
-    // Execute bulk delete strictly on 2nd and 3rd year students
-    const deleteResult = await Student.deleteMany(oeFilter);
 
     // Audit log
     await logAudit({
