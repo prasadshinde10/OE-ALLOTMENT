@@ -13,7 +13,18 @@ export const getStudents = async (req: Request, res: Response): Promise<void> =>
   try {
     const { year, branch, class: sClass, term, elective, search, page = 1, limit = 10 } = req.query;
     const filter: any = {};
-    if (year) filter.year = Number(year);
+    if (year) {
+      const parsedYear = Number(year);
+      if (parsedYear >= 2) {
+        filter.year = parsedYear;
+      } else {
+        // Enforce upper-year isolation: exclude 1st year students from OE view
+        filter.year = { $gte: 2 };
+      }
+    } else {
+      // Default: show only 2nd year and above students
+      filter.year = { $gte: 2 };
+    }
     if (branch || sClass) filter.branch = branch || sClass;
     if (term) filter.allocatedTerm = term;
     if (elective) filter.allocatedElectiveId = elective;
@@ -325,3 +336,72 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
 };
+
+/**
+ * DELETE /api/admin/students/delete-all — Bulk purge all upper-year (2nd & 3rd Year) OE students
+ * Strictly restricted to OE Admin / Admin
+ * Hardcoded query filtering strictly protects 1st Year (FE) records.
+ */
+export const deleteAllOEStudents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const oeFilter: any = { year: { $gte: 2 } };
+
+    const countToDelete = await Student.countDocuments(oeFilter);
+    if (countToDelete === 0) {
+      res.status(200).json({
+        success: true,
+        message: 'No 2nd/3rd Year students found to delete.',
+        deletedCount: 0,
+      });
+      return;
+    }
+
+    // Clean up associated TestSubmissions for OE students
+    const oeStudents = await Student.find(oeFilter, '_id').lean();
+    const oeStudentIds = oeStudents.map((s) => String(s._id));
+
+    if (oeStudentIds.length > 0) {
+      try {
+        await TestSubmission.deleteMany({ studentId: { $in: oeStudentIds } });
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Reset seatsFilled on all Electives to 0
+    await Elective.updateMany({}, { $set: { seatsFilled: 0 } });
+
+    // Broadcast reset seat updates for electives
+    const electives = await Elective.find({});
+    for (const elective of electives) {
+      broadcastSeatUpdate(elective.year || 3, {
+        electiveId: elective._id,
+        seatsFilled: 0,
+        capacity: elective.capacity,
+      });
+    }
+
+    // Execute bulk delete strictly on 2nd and 3rd year students
+    const deleteResult = await Student.deleteMany(oeFilter);
+
+    // Audit log
+    await logAudit({
+      action: 'OE_STUDENTS_BULK_DELETE',
+      actorId: (req as any).user?.userId || 'admin',
+      actorRole: (req as any).user?.role || 'admin',
+      targetType: 'student',
+      metadata: {
+        deletedCount: deleteResult.deletedCount,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully purged ${deleteResult.deletedCount} senior students (2nd & 3rd Year) and reset all elective allotments.`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};
+

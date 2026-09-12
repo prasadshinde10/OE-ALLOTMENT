@@ -52,10 +52,10 @@ export const authorizeRoles = (...roles: string[]) => {
       ) {
         return true;
       }
-      // ADMIN and SUPER_ADMIN aliases
+      // ADMIN, OE_ADMIN, and SUPER_ADMIN aliases
       if (
-        (role === 'admin' || role === 'ADMIN' || role === 'SUPER_ADMIN') &&
-        (userRole === 'admin' || userRole === 'ADMIN' || userRole === 'SUPER_ADMIN')
+        (role === 'admin' || role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || role === 'oe_admin') &&
+        (userRole === 'admin' || userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'OE_ADMIN' || userRole === 'oe_admin')
       ) {
         return true;
       }

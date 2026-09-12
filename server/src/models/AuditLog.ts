@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IAuditLog extends Document {
   action: string;
   actorId: string;
-  actorRole: 'student' | 'admin' | 'teacher' | 'system' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN';
+  actorRole: 'student' | 'admin' | 'teacher' | 'system' | 'first_year_admin' | 'FY_ADMIN' | 'SUPER_ADMIN' | 'ADMIN' | 'OE_ADMIN';
   targetType: 'student' | 'elective' | 'term_config' | 'user' | 'branch' | 'club';
   targetId?: string;
   before?: any;
@@ -24,7 +24,7 @@ const auditLogSchema = new Schema<IAuditLog>({
   actorRole: {
     type: String,
     required: true,
-    enum: ['student', 'admin', 'teacher', 'system', 'first_year_admin', 'FY_ADMIN', 'SUPER_ADMIN', 'ADMIN'],
+    enum: ['student', 'admin', 'teacher', 'system', 'first_year_admin', 'FY_ADMIN', 'SUPER_ADMIN', 'ADMIN', 'OE_ADMIN'],
   },
   targetType: {
     type: String,

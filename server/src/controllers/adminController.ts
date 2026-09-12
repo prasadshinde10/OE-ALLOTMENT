@@ -12,9 +12,9 @@ const archiver = require('archiver');
 export const getStats = async (_req: Request, res: Response): Promise<void> => {
   try {
     const [totalStudents, verifiedStudents, allocatedStudents, activeElectives, totalElectives] = await Promise.all([
-      Student.countDocuments(),
-      Student.countDocuments({ isVerified: true }),
-      Student.countDocuments({ allocatedElectiveId: { $ne: null } }),
+      Student.countDocuments({ year: { $gte: 2 } }),
+      Student.countDocuments({ year: { $gte: 2 }, isVerified: true }),
+      Student.countDocuments({ year: { $gte: 2 }, allocatedElectiveId: { $ne: null } }),
       Elective.countDocuments({ isActive: true }),
       Elective.countDocuments(),
     ]);
@@ -30,6 +30,7 @@ export const getStats = async (_req: Request, res: Response): Promise<void> => {
 export const getDuplicates = async (req: Request, res: Response): Promise<void> => {
   try {
     const duplicates = await Student.aggregate([
+      { $match: { year: { $gte: 2 } } },
       {
         $group: {
           _id: { $toLower: { $concat: ['$firstName', ' ', '$lastName'] } },
@@ -272,10 +273,13 @@ function buildDepartmentCSV(students: any[]): string {
 export const getDepartmentOverview = async (req: Request, res: Response): Promise<void> => {
   try {
     const { department, year, elective, page = '1', limit = '50' } = req.query;
-    const filter: any = { allocatedElectiveId: { $ne: null } };
+    const filter: any = { allocatedElectiveId: { $ne: null }, year: { $gte: 2 } };
 
     if (department) filter.branch = department;
-    if (year) filter.year = Number(year);
+    if (year) {
+      const parsedYear = Number(year);
+      if (parsedYear >= 2) filter.year = parsedYear;
+    }
     if (elective) filter.allocatedElectiveName = elective;
 
     const pageNum = Math.max(1, Number(page));
@@ -293,8 +297,8 @@ export const getDepartmentOverview = async (req: Request, res: Response): Promis
     ]);
 
     // Get unique departments for filter dropdown
-    const allDepartments = await Student.distinct('branch', { allocatedElectiveId: { $ne: null } });
-    const allElectives = await Student.distinct('allocatedElectiveName', { allocatedElectiveId: { $ne: null } });
+    const allDepartments = await Student.distinct('branch', { allocatedElectiveId: { $ne: null }, year: { $gte: 2 } });
+    const allElectives = await Student.distinct('allocatedElectiveName', { allocatedElectiveId: { $ne: null }, year: { $gte: 2 } });
 
     res.json({
       success: true,
@@ -320,10 +324,13 @@ export const getDepartmentOverview = async (req: Request, res: Response): Promis
 export const exportDepartmentCSV = async (req: Request, res: Response): Promise<void> => {
   try {
     const { department, year, elective } = req.query;
-    const filter: any = { allocatedElectiveId: { $ne: null } };
+    const filter: any = { allocatedElectiveId: { $ne: null }, year: { $gte: 2 } };
 
     if (department) filter.branch = department;
-    if (year) filter.year = Number(year);
+    if (year) {
+      const parsedYear = Number(year);
+      if (parsedYear >= 2) filter.year = parsedYear;
+    }
     if (elective) filter.allocatedElectiveName = elective;
 
     const students = await Student.find(filter)
@@ -350,8 +357,11 @@ export const exportDepartmentCSV = async (req: Request, res: Response): Promise<
  */
 export const exportAllDepartmentsZip = async (req: Request, res: Response): Promise<void> => {
   try {
-    const filter: any = { allocatedElectiveId: { $ne: null } };
-    if (req.query.year) filter.year = Number(req.query.year);
+    const filter: any = { allocatedElectiveId: { $ne: null }, year: { $gte: 2 } };
+    if (req.query.year) {
+      const parsedYear = Number(req.query.year);
+      if (parsedYear >= 2) filter.year = parsedYear;
+    }
 
     const students = await Student.find(filter)
       .select('firstName middleName lastName hallTicketNumber branch year allocatedElectiveName allocatedDivision allocatedFaculty allocatedFacultyPhone allocatedHall')

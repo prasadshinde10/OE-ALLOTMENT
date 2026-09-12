@@ -20,7 +20,7 @@ import {
   getDivisionOverview,
   reassignDivision,
 } from '../controllers/divisionController';
-import { deleteStudent, deleteAllFYStudents } from '../controllers/studentController';
+import { deleteStudent, deleteAllOEStudents } from '../controllers/studentController';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 
 const router = Router();
@@ -56,7 +56,7 @@ router.get('/department-overview/export', exportDepartmentCSV);
 router.get('/department-overview/export-all', exportAllDepartmentsZip);
 
 // Student deletion (single & bulk purge)
-router.delete('/students/delete-all', deleteAllFYStudents);
+router.delete('/students/delete-all', deleteAllOEStudents);
 router.delete('/students/:id', deleteStudent);
 
 export default router;

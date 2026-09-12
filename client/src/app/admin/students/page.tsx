@@ -32,6 +32,31 @@ export default function AdminStudentsPage() {
   const [reassigning, setReassigning] = useState(false)
   const [exporting, setExporting] = useState(false)
 
+  // Bulk Student Delete State
+  const [bulkDeleteModal, setBulkDeleteModal] = useState(false)
+  const [bulkConfirmText, setBulkConfirmText] = useState('')
+  const [deletingBulk, setDeletingBulk] = useState(false)
+
+  const handleConfirmBulkDelete = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (bulkConfirmText.trim() !== 'DELETE ALL SENIOR STUDENTS') {
+      toast.error('Please type "DELETE ALL SENIOR STUDENTS" to confirm.')
+      return
+    }
+    try {
+      setDeletingBulk(true)
+      const res = await api.delete('/api/admin/students/delete-all')
+      toast.success(res.data?.message || 'All senior student records have been permanently purged.')
+      setBulkDeleteModal(false)
+      setBulkConfirmText('')
+      fetchStudents()
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to purge students')
+    } finally {
+      setDeletingBulk(false)
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
     fetchBranches()
@@ -199,9 +224,23 @@ export default function AdminStudentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Manage Students</h1>
-        <Button variant="outline" onClick={handleExportCSV} disabled={exporting}>
-          {exporting ? 'Exporting...' : 'Export Students'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="danger"
+            onClick={() => {
+              setBulkConfirmText('')
+              setBulkDeleteModal(true)
+            }}
+            className="flex items-center gap-2"
+          >
+            <span>🗑️</span>
+            <span>Delete All Students</span>
+          </Button>
+          <Button variant="outline" onClick={handleExportCSV} disabled={exporting}>
+            {exporting ? 'Exporting...' : 'Export Students'}
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -217,10 +256,9 @@ export default function AdminStudentsPage() {
             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
             className="border-gray-300 rounded-md shadow-sm border px-3 py-2 text-sm"
           >
-            <option value="">All Years</option>
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
+            <option value="">All Senior Years (2nd & 3rd)</option>
+            <option value="2">2nd Year (SY)</option>
+            <option value="3">3rd Year (TY)</option>
           </select>
           <Button type="submit">Search</Button>
         </form>
@@ -350,6 +388,59 @@ export default function AdminStudentsPage() {
             </Button>
             <Button type="submit" disabled={!newElectiveId || reassigning}>
               {reassigning ? 'Reassigning...' : 'Confirm Reassign'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Bulk Delete Senior Students Modal */}
+      <Modal
+        isOpen={bulkDeleteModal}
+        onClose={() => {
+          if (!deletingBulk) setBulkDeleteModal(false)
+        }}
+        title="⚠️ Danger: Delete All Senior Students"
+      >
+        <form onSubmit={handleConfirmBulkDelete} className="space-y-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3.5 text-red-800 text-sm space-y-2">
+            <p className="font-bold text-red-900">This action is irreversible!</p>
+            <p>
+              This will permanently delete all <strong>2nd Year and 3rd Year</strong> student accounts and reset all open elective seat allocations to zero.
+            </p>
+            <p className="text-xs text-red-700">
+              First-Year club students and club allocations will NOT be affected.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1">
+              Type <span className="font-mono text-red-600 bg-red-100 px-1 py-0.5 rounded">DELETE ALL SENIOR STUDENTS</span> to confirm:
+            </label>
+            <Input
+              value={bulkConfirmText}
+              onChange={(e) => setBulkConfirmText(e.target.value)}
+              placeholder="DELETE ALL SENIOR STUDENTS"
+              required
+              disabled={deletingBulk}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setBulkDeleteModal(false)}
+              disabled={deletingBulk}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="danger"
+              disabled={bulkConfirmText.trim() !== 'DELETE ALL SENIOR STUDENTS' || deletingBulk}
+              isLoading={deletingBulk}
+            >
+              {deletingBulk ? 'Purging Students...' : 'Permanently Delete All'}
             </Button>
           </div>
         </form>

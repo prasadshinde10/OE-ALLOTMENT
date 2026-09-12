@@ -130,22 +130,26 @@ async function start() {
     // Hydrates clubSeatCache + clubMetaCache and starts the 500ms flush interval.
     await initializeAllocationEngine();
 
-    // Ensure default super admin exists
+    // Ensure default OE admin exists
     try {
       const adminEmail = process.env.ADMIN_EMAIL || 'admin@mit.asia';
       const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
       if (!existingAdmin) {
         const defaultAdmin = new User({
-          name: 'Super Admin',
+          name: 'OE Admin',
           email: adminEmail.toLowerCase(),
           password: 'admin123',
           role: 'admin',
         });
         await defaultAdmin.save();
-        console.log(`👑 Default admin created: ${adminEmail} (password: admin123)`);
+        console.log(`👑 Default OE admin created: ${adminEmail} (password: admin123)`);
+      } else if (existingAdmin.name === 'Super Admin') {
+        existingAdmin.name = 'OE Admin';
+        await existingAdmin.save();
+        console.log(`👑 Default admin verified & renamed to OE Admin: ${adminEmail}`);
       }
     } catch (adminErr) {
-      console.warn('⚠️ Could not verify default admin:', adminErr);
+      console.warn('⚠️ Could not verify default OE admin:', adminErr);
     }
 
     // Ensure Admin 2 (First-Year Club Admin) exists with role FY_ADMIN

@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -24,20 +24,24 @@ async function seedAdmins() {
     await mongoose.connect(mongoUri);
     console.log('Connected to MongoDB');
 
-    // 1. Super Admin
+    // 1. OE Admin
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@mit.asia').toLowerCase();
     let admin = await User.findOne({ email: adminEmail });
     if (!admin) {
       admin = new User({
-        name: 'Super Admin',
+        name: 'OE Admin',
         email: adminEmail,
         password: 'admin123',
         role: 'admin'
       });
       await admin.save();
-      console.log(`✓ Super Admin created: ${adminEmail} (role: admin)`);
+      console.log(`✓ OE Admin created: ${adminEmail} (role: admin)`);
     } else {
-      console.log(`✓ Super Admin verified: ${adminEmail}`);
+      if (admin.name === 'Super Admin') {
+        admin.name = 'OE Admin';
+        await admin.save();
+      }
+      console.log(`✓ OE Admin verified: ${adminEmail}`);
     }
 
     // 2. Second Admin (FY Club Admin)

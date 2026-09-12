@@ -18,13 +18,14 @@ export default function FYAdminStudentsPage() {
     search: '',
     branch: '',
     status: '',
+    clubType: '',
     page: 1,
     limit: 15,
   })
 
   useEffect(() => {
     fetchStudents()
-  }, [filters.page, filters.limit, filters.branch, filters.status])
+  }, [filters.page, filters.limit, filters.branch, filters.status, filters.clubType])
 
   useEffect(() => {
     fetchBranches()
@@ -46,6 +47,7 @@ export default function FYAdminStudentsPage() {
       if (filters.search) params.set('search', filters.search)
       if (filters.branch) params.set('branch', filters.branch)
       if (filters.status) params.set('status', filters.status)
+      if (filters.clubType) params.set('clubType', filters.clubType)
       params.set('page', String(filters.page))
       params.set('limit', String(filters.limit))
 
@@ -69,6 +71,7 @@ export default function FYAdminStudentsPage() {
     try {
       const params = new URLSearchParams()
       if (filters.branch) params.set('branch', filters.branch)
+      if (filters.clubType) params.set('clubType', filters.clubType)
       const res = await api.get(`/api/fy-admin/export?${params.toString()}`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
@@ -177,7 +180,7 @@ export default function FYAdminStudentsPage() {
     }
     try {
       setDeletingBulk(true)
-      const res = await api.delete('/api/admin/students/delete-all')
+      const res = await api.delete('/api/fy-admin/students/delete-all')
       toast.success(res.data?.message || 'All First-Year student records have been permanently purged.')
       setBulkDeleteModal(false)
       setBulkConfirmText('')
@@ -307,7 +310,7 @@ export default function FYAdminStudentsPage() {
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
           <div>
             <Input
               label="Search Name / PRN / Roll"
@@ -344,6 +347,19 @@ export default function FYAdminStudentsPage() {
               <option value="allocated_both">Fully Allocated (Both Clubs)</option>
               <option value="allocated_partial">Partially Allocated (1 Club)</option>
               <option value="unallocated">Unallocated (0 Clubs)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Club Type</label>
+            <select
+              value={filters.clubType}
+              onChange={(e) => setFilters({ ...filters, clubType: e.target.value, page: 1 })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
+            >
+              <option value="">All Club Types</option>
+              <option value="co-curricular">Co-Curricular Allocated</option>
+              <option value="extra-curricular">Extra-Curricular Allocated</option>
             </select>
           </div>
 

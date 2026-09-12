@@ -60,10 +60,17 @@ export const getFYStats = async (_req: Request, res: Response): Promise<void> =>
 
 export const getFYStudents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { branch, search, page = 1, limit = 10, status } = req.query;
+    const { branch, search, page = 1, limit = 10, status, clubType, category } = req.query;
     const filter: any = { year: 1 };
 
     if (branch) filter.branch = branch;
+
+    const typeFilter = clubType || category;
+    if (typeFilter === 'co-curricular' || typeFilter === 'co') {
+      filter.allocatedCoCurricularClubId = { $ne: null };
+    } else if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
+      filter.allocatedExtraCurricularClubId = { $ne: null };
+    }
 
     if (status === 'allocated_both') {
       filter.allocatedCoCurricularClubId = { $ne: null };
@@ -163,16 +170,21 @@ function buildFYClubCSV(students: any[]): string {
 
 export const exportFYClubCSV = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { branch, clubId, category } = req.query;
+    const { branch, clubId, category, clubType } = req.query;
     const filter: any = { year: 1 };
 
     if (branch) filter.branch = branch;
+    const typeFilter = clubType || category;
     if (clubId) {
-      if (category === 'extra-curricular') {
+      if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
         filter.allocatedExtraCurricularClubId = clubId;
       } else {
         filter.allocatedCoCurricularClubId = clubId;
       }
+    } else if (typeFilter === 'extra-curricular' || typeFilter === 'extra') {
+      filter.allocatedExtraCurricularClubId = { $ne: null };
+    } else if (typeFilter === 'co-curricular' || typeFilter === 'co') {
+      filter.allocatedCoCurricularClubId = { $ne: null };
     }
 
     const students = await Student.find(filter).sort({ branch: 1, rollNumber: 1 }).lean();

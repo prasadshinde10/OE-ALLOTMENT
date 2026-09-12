@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getStudents, getStudentById, updateStudent, reassignElective, deleteStudent, deleteAllFYStudents } from '../controllers/studentController';
+import { getStudents, getStudentById, updateStudent, reassignElective, deleteStudent, deleteAllOEStudents } from '../controllers/studentController';
 import { updateMyProfile } from '../controllers/profileController';
 import { authenticateToken, authorizeRoles } from '../middleware/auth';
 import { checkRegistrationPhase } from '../middleware/registrationPhase';
@@ -44,7 +44,7 @@ router.get('/', authenticateToken, authorizeRoles('admin', 'teacher'), getStuden
 router.get('/:id', authenticateToken, authorizeRoles('admin', 'teacher'), getStudentById);
 router.put('/:id', authenticateToken, authorizeRoles('admin'), updateStudent);
 router.post('/:id/reassign', authenticateToken, authorizeRoles('admin'), reassignElective);
-router.delete('/delete-all', authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'), deleteAllFYStudents);
+router.delete('/delete-all', authenticateToken, authorizeRoles('admin'), deleteAllOEStudents);
 router.delete('/:id', authenticateToken, authorizeRoles('admin', 'first_year_admin', 'FY_ADMIN'), deleteStudent);
 
 export default router;

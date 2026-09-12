@@ -15,7 +15,7 @@ const seedAdmin = async () => {
 
     if (!existingAdmin) {
       const admin = new User({
-        name: 'Super Admin',
+        name: 'OE Admin',
         email: adminEmail,
         password: 'admin123',
         role: 'admin'

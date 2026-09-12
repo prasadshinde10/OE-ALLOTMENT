@@ -75,7 +75,9 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
       {user && (
         <div className="flex items-center gap-2 sm:gap-4">
           <div className="hidden sm:flex flex-col text-right">
-            <span className="text-sm font-semibold text-gray-800">{user.name}</span>
+            <span className="text-sm font-semibold text-gray-800">
+              {user.name === 'Super Admin' ? 'OE Admin' : user.name}
+            </span>
             <span className="text-xs font-semibold text-teal-600 uppercase tracking-wider">
               {getRoleLabel()}
             </span>
