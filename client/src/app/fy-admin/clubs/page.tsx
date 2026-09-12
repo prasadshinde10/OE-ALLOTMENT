@@ -150,6 +150,7 @@ export default function FYAdminClubsPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     const divSum = divisions.reduce((acc, d) => acc + Number(d.capacity || 0), 0)
     if (divisions.length > 0 && divSum !== Number(formData.capacity)) {
       toast.error(`Division capacities sum (${divSum}) must equal total capacity (${formData.capacity})`)
