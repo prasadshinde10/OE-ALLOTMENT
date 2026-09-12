@@ -12,6 +12,7 @@ import {
   updateFYBranch,
   deleteFYBranch,
   reassignStudentClub,
+  reconcileClubSeats,
 } from '../controllers/fyAdminController';
 import {
   autoAssignClubDivisions,
@@ -57,5 +58,8 @@ router.post('/divisions/reassign', reassignClubDivision);
 // Student deletion (single & bulk purge)
 router.delete('/students/delete-all', deleteAllFYStudents);
 router.delete('/students/:id', deleteStudent);
+
+// Seat reconciliation — recalculates seatsFilled from actual Student data
+router.post('/reconcile-seats', reconcileClubSeats);
 
 export default router;

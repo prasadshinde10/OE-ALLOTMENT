@@ -432,6 +432,157 @@ export async function flushBufferToDatabase(): Promise<void> {
   }
 }
 
+// ── Engine Reset (post-bulk-delete) ───────────────────────────────────────────
+
+/**
+ * Resets all in-memory state and rehydrates caches from MongoDB.
+ * Call this after any operation that bulk-mutates Student/Club data outside the
+ * engine's own write path (e.g. admin "delete all students").
+ *
+ * Steps:
+ *   1. Wait for any in-flight flush to finish
+ *   2. Discard remaining writeBuffer items (the DB state they'd write to is gone)
+ *   3. Clear clubSeatCache, clubMetaCache, allocatedStudentCache
+ *   4. Re-fetch clubs & allocated students from MongoDB
+ */
+export async function resetAllocationEngine(): Promise<void> {
+  console.log('⚡ [AllocationEngine] Resetting — clearing caches and rehydrating from MongoDB…');
+
+  // Wait for any in-flight flush to complete so we don't race on the buffer
+  while (isFlushing) {
+    await new Promise((r) => setTimeout(r, 50));
+  }
+
+  // Discard pending writes — the underlying data has been externally mutated
+  writeBuffer.splice(0, writeBuffer.length);
+
+  // Clear all caches
+  clubSeatCache.clear();
+  clubMetaCache.clear();
+  allocatedStudentCache.clear();
+
+  // Re-hydrate club caches from current DB state
+  const clubs = await Club.find(
+    { isActive: true },
+    { _id: 1, name: 1, category: 1, targetBranches: 1, term: 1, capacity: 1, seatsFilled: 1, year: 1 }
+  ).lean();
+
+  for (const club of clubs) {
+    const id = String(club._id);
+    const remaining = Math.max(0, club.capacity - club.seatsFilled);
+    clubSeatCache.set(id, remaining);
+    clubMetaCache.set(id, {
+      _id: id,
+      name: club.name,
+      category: club.category,
+      targetBranches: (club as any).targetBranches || [],
+      term: club.term,
+      capacity: club.capacity,
+    });
+  }
+
+  // Re-hydrate allocated student cache
+  const allocatedStudents = await Student.find(
+    {
+      hallTicketNumber: { $exists: true, $ne: null },
+      allocatedCoCurricularClubId: { $exists: true, $ne: null },
+      allocatedExtraCurricularClubId: { $exists: true, $ne: null },
+    },
+    { hallTicketNumber: 1 }
+  ).lean();
+
+  for (const s of allocatedStudents) {
+    if (s.hallTicketNumber) allocatedStudentCache.add(s.hallTicketNumber);
+  }
+
+  console.log(
+    `⚡ [AllocationEngine] Reset complete — ${clubSeatCache.size} clubs cached, ${allocatedStudentCache.size} pre-allocated students.`
+  );
+}
+
+// ── Seat Reconciliation ───────────────────────────────────────────────────────
+
+export interface ReconciliationResult {
+  clubsChecked: number;
+  clubsCorrected: number;
+  corrections: Array<{ clubId: string; clubName: string; before: number; after: number }>;
+}
+
+/**
+ * Recalculates every Club's seatsFilled by aggregating actual Student allocations.
+ * Fixes any drift between the Club counters and reality, then re-syncs the in-memory cache.
+ *
+ * Safe to call at any time — it is idempotent.
+ */
+export async function reconcileSeats(): Promise<ReconciliationResult> {
+  console.log('🔄 [AllocationEngine] Reconciling club seats from actual student allocations…');
+
+  // Aggregate co-curricular allocation counts
+  const coCounts: Array<{ _id: string; count: number }> = await Student.aggregate([
+    { $match: { allocatedCoCurricularClubId: { $ne: null } } },
+    { $group: { _id: '$allocatedCoCurricularClubId', count: { $sum: 1 } } },
+  ]);
+
+  // Aggregate extra-curricular allocation counts
+  const ecCounts: Array<{ _id: string; count: number }> = await Student.aggregate([
+    { $match: { allocatedExtraCurricularClubId: { $ne: null } } },
+    { $group: { _id: '$allocatedExtraCurricularClubId', count: { $sum: 1 } } },
+  ]);
+
+  // Merge into a single map: clubId → total actual allocations
+  const actualCounts = new Map<string, number>();
+  for (const { _id, count } of coCounts) {
+    const id = String(_id);
+    actualCounts.set(id, (actualCounts.get(id) || 0) + count);
+  }
+  for (const { _id, count } of ecCounts) {
+    const id = String(_id);
+    actualCounts.set(id, (actualCounts.get(id) || 0) + count);
+  }
+
+  // Fetch all clubs and compare
+  const allClubs = await Club.find({}, { _id: 1, name: 1, seatsFilled: 1 }).lean();
+  const corrections: ReconciliationResult['corrections'] = [];
+  const bulkOps: any[] = [];
+
+  for (const club of allClubs) {
+    const id = String(club._id);
+    const actual = actualCounts.get(id) || 0;
+    if (club.seatsFilled !== actual) {
+      corrections.push({
+        clubId: id,
+        clubName: club.name,
+        before: club.seatsFilled,
+        after: actual,
+      });
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: club._id },
+          update: { $set: { seatsFilled: actual } },
+        },
+      });
+    }
+  }
+
+  if (bulkOps.length > 0) {
+    await Club.bulkWrite(bulkOps, { ordered: false });
+  }
+
+  // Re-sync in-memory cache from the now-corrected DB
+  await resetAllocationEngine();
+
+  const result: ReconciliationResult = {
+    clubsChecked: allClubs.length,
+    clubsCorrected: corrections.length,
+    corrections,
+  };
+
+  console.log(
+    `🔄 [AllocationEngine] Reconciliation done — ${result.clubsCorrected}/${result.clubsChecked} clubs corrected.`
+  );
+  return result;
+}
+
 /**
  * Graceful shutdown: flush any remaining items in the write buffer before process exits.
  * Call this from SIGTERM/SIGINT handlers.

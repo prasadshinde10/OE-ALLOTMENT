@@ -7,6 +7,7 @@ import TestSubmission from '../models/TestSubmission';
 import { logAudit } from '../services/auditService';
 import { transferSeat } from '../services/allocationService';
 import { broadcastSeatUpdate, broadcastClubSeatUpdate } from '../socket';
+import { resetAllocationEngine } from '../services/allocationEngine';
 
 export const getStudents = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -297,6 +298,9 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
         remaining: club.capacity,
       });
     }
+
+    // Re-sync in-memory allocation engine so new allocations see the zeroed state
+    await resetAllocationEngine();
 
     // Execute hardcoded bulk delete strictly on FY students
     const deleteResult = await Student.deleteMany(fyFilter);

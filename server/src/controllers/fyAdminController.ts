@@ -7,6 +7,7 @@ import AuditLog from '../models/AuditLog';
 import { logAudit } from '../services/auditService';
 import { transferClubSeat } from '../services/clubAllocationService';
 import { broadcastClubSeatUpdate } from '../socket';
+import { reconcileSeats } from '../services/allocationEngine';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const archiver = require('archiver');
 
@@ -438,3 +439,48 @@ export const reassignStudentClub = async (req: Request, res: Response): Promise<
     res.status(400).json({ success: false, message: error.message || 'Reallocation failed' });
   }
 };
+
+/**
+ * POST /api/fy-admin/reconcile-seats
+ * Recalculates Club.seatsFilled from actual Student allocations using an
+ * aggregation pipeline, updates MongoDB, re-syncs the in-memory engine,
+ * and broadcasts corrected counts to connected clients.
+ */
+export const reconcileClubSeats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await reconcileSeats();
+
+    // Broadcast corrected seat counts for all FY clubs
+    const fyClubs = await Club.find({ year: 1 }).lean();
+    for (const club of fyClubs) {
+      broadcastClubSeatUpdate({
+        clubId: club._id.toString(),
+        seatsFilled: club.seatsFilled,
+        capacity: club.capacity,
+        remaining: Math.max(0, club.capacity - club.seatsFilled),
+      });
+    }
+
+    await logAudit({
+      action: 'FY_SEATS_RECONCILED',
+      actorId: (req as any).user?.userId || 'system',
+      actorRole: (req as any).user?.role || 'first_year_admin',
+      targetType: 'club',
+      metadata: {
+        clubsChecked: result.clubsChecked,
+        clubsCorrected: result.clubsCorrected,
+        corrections: result.corrections,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Reconciliation complete — ${result.clubsCorrected} of ${result.clubsChecked} clubs corrected.`,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error('Reconciliation error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Reconciliation failed' });
+  }
+};
+
