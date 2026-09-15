@@ -60,7 +60,7 @@ export default function StudentStatusPage() {
           </div>
           <Link href="/student/profile">
             <Button size="sm" variant="outline">
-              ✏️ Edit Profile
+              Edit Profile
             </Button>
           </Link>
         </div>

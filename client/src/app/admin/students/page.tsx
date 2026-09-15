@@ -232,10 +232,8 @@ export default function AdminStudentsPage() {
               setBulkConfirmText('')
               setBulkDeleteModal(true)
             }}
-            className="flex items-center gap-2"
           >
-            <span>🗑️</span>
-            <span>Delete All Students</span>
+            Delete All Students
           </Button>
           <Button variant="outline" onClick={handleExportCSV} disabled={exporting}>
             {exporting ? 'Exporting...' : 'Export Students'}
@@ -399,7 +397,7 @@ export default function AdminStudentsPage() {
         onClose={() => {
           if (!deletingBulk) setBulkDeleteModal(false)
         }}
-        title="⚠️ Danger: Delete All Senior Students"
+        title="Danger: Delete All Senior Students"
       >
         <form onSubmit={handleConfirmBulkDelete} className="space-y-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-3.5 text-red-800 text-sm space-y-2">

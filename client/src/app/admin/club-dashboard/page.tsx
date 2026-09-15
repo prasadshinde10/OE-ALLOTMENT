@@ -258,7 +258,7 @@ export default function ClubAdminDashboardPage() {
               onClick={handleExportCSV}
               className="bg-white/20 hover:bg-white/30 text-white border-0"
             >
-              📥 Export All CSV
+              Export All CSV
             </Button>
             <Button
               variant="secondary"
@@ -266,7 +266,7 @@ export default function ClubAdminDashboardPage() {
               onClick={handleExportZIP}
               className="bg-white/20 hover:bg-white/30 text-white border-0"
             >
-              📦 Export Dept ZIP
+              Export Dept ZIP
             </Button>
           </div>
         </div>
@@ -277,7 +277,6 @@ export default function ClubAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Total FY Students</span>
-            <span className="text-lg">👥</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-gray-900">
             {loading ? '...' : stats?.totalFYStudents ?? 0}
@@ -290,7 +289,6 @@ export default function ClubAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Co-Curricular Allocated</span>
-            <span className="text-lg">🎓</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-teal-600">
             {loading ? '...' : stats?.coCurricularAllocated ?? 0}
@@ -303,7 +301,6 @@ export default function ClubAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Extra-Curricular Allocated</span>
-            <span className="text-lg">🎨</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-accent-600">
             {loading ? '...' : stats?.extraCurricularAllocated ?? 0}
@@ -316,7 +313,6 @@ export default function ClubAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Fully Allocated (Both)</span>
-            <span className="text-lg">✅</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-emerald-600">
             {loading ? '...' : stats?.fullyAllocated ?? 0}
@@ -333,9 +329,6 @@ export default function ClubAdminDashboardPage() {
           href="/fy-admin/clubs"
           className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
-            🎪
-          </div>
           <div>
             <h3 className="font-bold text-gray-900 group-hover:text-teal-600 transition-colors text-sm">
               Club Management
@@ -350,9 +343,6 @@ export default function ClubAdminDashboardPage() {
           href="/fy-admin/students"
           className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-accent-400 transition-all flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-accent-50 text-accent-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
-            📋
-          </div>
           <div>
             <h3 className="font-bold text-gray-900 group-hover:text-accent-600 transition-colors text-sm">
               Full Student Roster
@@ -367,9 +357,6 @@ export default function ClubAdminDashboardPage() {
           href="/fy-admin/term-config"
           className="group bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all flex items-center gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xl group-hover:scale-110 transition-transform">
-            ⏰
-          </div>
           <div>
             <h3 className="font-bold text-gray-900 group-hover:text-emerald-600 transition-colors text-sm">
               Registration Windows
@@ -386,7 +373,6 @@ export default function ClubAdminDashboardPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-gray-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">🌿</span>
               <h2 className="text-lg font-bold text-gray-900">
                 Dynamic First-Year Branch Management
               </h2>
@@ -406,7 +392,7 @@ export default function ClubAdminDashboardPage() {
             disabled={loadingBranches}
             className="text-xs shrink-0"
           >
-            {loadingBranches ? 'Refreshing...' : '🔄 Refresh Branches'}
+            {loadingBranches ? 'Refreshing...' : 'Refresh Branches'}
           </Button>
         </div>
 
@@ -414,7 +400,7 @@ export default function ClubAdminDashboardPage() {
         {COMMON_FY_BRANCH_PRESETS.some((preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())) && (
           <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-2">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
-              <span>⚡ Quick Add Presets:</span>
+              <span>Quick Add Presets:</span>
               <span className="text-[11px] font-normal text-slate-400">Click to instantly add standard First-Year branches</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -504,7 +490,7 @@ export default function ClubAdminDashboardPage() {
                             COMMON_FY_BRANCH_PRESETS.forEach((preset) => handleAddBranch(undefined, preset))
                           }}
                         >
-                          ⚡ Initialize Standard FY Branches
+                          Initialize Standard FY Branches
                         </Button>
                       )}
                     </div>
@@ -514,10 +500,7 @@ export default function ClubAdminDashboardPage() {
                 filteredBranches.map((b) => (
                   <tr key={b._id || b.name} className="hover:bg-gray-50/80 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 font-semibold text-gray-900">
-                        <span className="w-6 h-6 rounded bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold">
-                          🏛️
-                        </span>
+                      <div className="font-semibold text-gray-900">
                         <span>{b.name}</span>
                       </div>
                     </td>
@@ -541,7 +524,7 @@ export default function ClubAdminDashboardPage() {
                           onClick={() => setEditingBranch({ _id: b._id, name: b.name })}
                           className="text-xs h-7 px-2.5 hover:border-teal-400 hover:text-teal-600"
                         >
-                          ✏️ Edit
+                          Edit
                         </Button>
                         <Button
                           type="button"
@@ -550,7 +533,7 @@ export default function ClubAdminDashboardPage() {
                           onClick={() => handleDeleteBranch(b._id, b.name)}
                           className="text-xs h-7 px-2.5"
                         >
-                          🗑️ Delete
+                          Delete
                         </Button>
                       </div>
                     </td>
@@ -566,8 +549,8 @@ export default function ClubAdminDashboardPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span>🔄</span> Student Allocations & Manual Re-allocation
+            <h2 className="text-lg font-bold text-gray-900">
+              Student Allocations & Manual Re-allocation
             </h2>
             <p className="text-xs text-gray-500">
               Directly override, swap, or reassign a First-Year student's allocated club
@@ -586,9 +569,11 @@ export default function ClubAdminDashboardPage() {
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Roll No</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Class</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Branch</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Division of Class</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Roll Number</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Student Details</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Department</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Co-Curricular Club</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 text-xs uppercase">Extra-Curricular Club</th>
               </tr>
@@ -596,25 +581,35 @@ export default function ClubAdminDashboardPage() {
             <tbody className="divide-y divide-gray-100 bg-white">
               {loadingStudents ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-6 text-gray-400">Loading student roster...</td>
+                  <td colSpan={7} className="text-center py-6 text-gray-400">Loading student roster...</td>
                 </tr>
               ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-6 text-gray-400">No students match your query.</td>
+                  <td colSpan={7} className="text-center py-6 text-gray-400">No students match your query.</td>
                 </tr>
               ) : (
                 filteredStudents.map((s) => (
                   <tr key={s._id} className="hover:bg-gray-50/80 transition-colors">
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800">
+                        {s.year === 1 ? '1st Year (FY)' : `${s.year} Year`}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs font-medium text-gray-900">{s.branch}</td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-100">
+                        Division {s.division || 'A'}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs font-semibold text-gray-700">
                       {s.rollNumber || 'N/A'}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-gray-900 text-xs">
                         {`${s.firstName} ${s.middleName || ''} ${s.lastName}`.replace(/\s+/g, ' ').trim()}
                       </div>
-                      <div className="text-xs text-teal-600 font-mono">{s.instituteEmail}</div>
+                      <div className="text-[11px] text-teal-600 font-mono">{s.instituteEmail}</div>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-600">{s.branch}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-between gap-2">
                         {s.allocatedCoCurricularClubName ? (
@@ -703,7 +698,7 @@ export default function ClubAdminDashboardPage() {
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🎓 Co-Curricular
+                    Co-Curricular
                   </button>
                   <button
                     type="button"
@@ -714,7 +709,7 @@ export default function ClubAdminDashboardPage() {
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🎨 Extra-Curricular
+                    Extra-Curricular
                   </button>
                 </div>
               </div>
@@ -780,8 +775,8 @@ export default function ClubAdminDashboardPage() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <span>✏️</span> Edit First-Year Branch
+              <h3 className="text-lg font-bold text-gray-900">
+                Edit First-Year Branch
               </h3>
               <button
                 type="button"

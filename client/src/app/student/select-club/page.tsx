@@ -162,11 +162,11 @@ export default function SelectClubPage() {
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-100 rounded-full text-xs font-semibold text-teal-700">
-                🌟 First-Year Mandatory Selection
+                First-Year Mandatory Selection
               </span>
               {studentBranch && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-bold text-blue-800">
-                  🎓 Your Branch: {studentBranch} ({normalizeBranch(studentBranch)})
+                  Your Branch: {studentBranch} ({normalizeBranch(studentBranch)})
                 </span>
               )}
             </div>
@@ -191,7 +191,7 @@ export default function SelectClubPage() {
         {/* Window Banner */}
         {isWindowUpcoming && (
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm flex items-center gap-3">
-            <span className="text-xl">⏳</span>
+            <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 bg-amber-200/70 rounded">Upcoming</span>
             <div>
               <strong>Club registration is upcoming.</strong> Selection opens on{' '}
               {new Date(termConfig!.registrationOpensAt).toLocaleString()}.
@@ -201,7 +201,7 @@ export default function SelectClubPage() {
 
         {isWindowClosed && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm flex items-center gap-3">
-            <span className="text-xl">🔒</span>
+            <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 bg-red-200/70 rounded">Closed</span>
             <div>
               <strong>Club registration is currently closed.</strong> Submissions closed on{' '}
               {termConfig ? new Date(termConfig.registrationClosesAt).toLocaleString() : 'N/A'}.
@@ -228,7 +228,7 @@ export default function SelectClubPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <span>🎓 1. Co-Curricular Clubs</span>
+              <span>1. Co-Curricular Clubs</span>
               <span className="text-xs font-medium px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full">
                 Pick 1
               </span>
@@ -399,7 +399,7 @@ export default function SelectClubPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <span>🎨 2. Extra-Curricular Clubs</span>
+              <span>2. Extra-Curricular Clubs</span>
               <span className="text-xs font-medium px-2 py-0.5 bg-accent-100 text-accent-800 rounded-full">
                 Pick 1
               </span>
@@ -534,8 +534,8 @@ export default function SelectClubPage() {
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-fadeIn">
             <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-2xl mx-auto">
-                {confirmClub.category === 'co-curricular' ? '🎓' : '🎨'}
+              <div className="w-12 h-12 rounded-full bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-base mx-auto border border-teal-200">
+                {confirmClub.category === 'co-curricular' ? 'CC' : 'EC'}
               </div>
               <h3 className="text-lg font-bold text-gray-900">
                 Confirm Club Selection
@@ -569,7 +569,7 @@ export default function SelectClubPage() {
             </div>
 
             <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-[11px] text-amber-800 space-y-1">
-              <p className="font-semibold">⚠️ Important Allocation Rule:</p>
+              <p className="font-semibold">Important Allocation Rule:</p>
               <p>
                 First-Year students can select <strong>only one</strong> {confirmClub.category.replace('-', ' ')} club for this semester. Allotment is processed instantly on a First-Come, First-Served basis and cannot be changed by the student once locked.
               </p>

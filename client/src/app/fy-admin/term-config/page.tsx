@@ -158,14 +158,14 @@ export default function FYAdminTermConfigPage() {
     if (!regPhaseActive) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
-          🔒 Locked / Disabled
+          Locked / Disabled
         </span>
       )
     }
     if (!regStartDate && !regEndDate) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
-          🟢 Live & Unrestricted
+          Live & Unrestricted
         </span>
       )
     }
@@ -176,20 +176,20 @@ export default function FYAdminTermConfigPage() {
     if (now < start) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
-          ⏳ Scheduled (Opens {new Date(regStartDate).toLocaleDateString()})
+          Scheduled (Opens {new Date(regStartDate).toLocaleDateString()})
         </span>
       )
     }
     if (now > end) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
-          🔒 Closed (Ended {new Date(regEndDate).toLocaleDateString()})
+          Closed (Ended {new Date(regEndDate).toLocaleDateString()})
         </span>
       )
     }
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
-        🟢 Live & Open for Edits
+        Live & Open for Edits
       </span>
     )
   }
@@ -223,14 +223,14 @@ export default function FYAdminTermConfigPage() {
         if (row.isRegistrationActive === false) {
           return (
             <span className="text-xs font-bold px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full">
-              🔒 Locked
+              Locked
             </span>
           )
         }
         if (!row.registrationStartDate && !row.registrationEndDate) {
           return (
             <span className="text-xs font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
-              🟢 Unrestricted
+              Unrestricted
             </span>
           )
         }
@@ -240,20 +240,20 @@ export default function FYAdminTermConfigPage() {
         if (now < start) {
           return (
             <span className="text-xs font-bold px-2.5 py-1 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-full">
-              ⏳ Scheduled
+              Scheduled
             </span>
           )
         }
         if (now > end) {
           return (
             <span className="text-xs font-bold px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full">
-              🔒 Closed
+              Closed
             </span>
           )
         }
         return (
           <span className="text-xs font-bold px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
-            🟢 Open
+            Open
           </span>
         )
       },
@@ -265,9 +265,9 @@ export default function FYAdminTermConfigPage() {
         const open = new Date(row.registrationOpensAt)
         const close = new Date(row.registrationClosesAt)
         if (!row.isActive) return <span className="text-gray-400 font-semibold">Disabled</span>
-        if (now < open) return <span className="text-yellow-600 font-semibold">⏳ Upcoming</span>
-        if (now > close) return <span className="text-red-600 font-semibold">🔒 Closed</span>
-        return <span className="text-emerald-600 font-semibold">🟢 Active (Open)</span>
+        if (now < open) return <span className="text-yellow-600 font-semibold">Upcoming</span>
+        if (now > close) return <span className="text-red-600 font-semibold">Closed</span>
+        return <span className="text-emerald-600 font-semibold">Active (Open)</span>
       },
     },
     {

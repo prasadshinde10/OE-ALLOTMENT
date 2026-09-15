@@ -9,6 +9,14 @@ import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import toast from 'react-hot-toast'
 
+const DIVISION_OPTIONS = [
+  { value: 'A', label: 'Division A' },
+  { value: 'B', label: 'Division B' },
+  { value: 'C', label: 'Division C' },
+  { value: 'D', label: 'Division D' },
+  { value: 'E', label: 'Division E' },
+]
+
 export default function StudentOnboardingPage() {
   const router = useRouter()
   const { user, login } = useAuthContext()
@@ -16,6 +24,7 @@ export default function StudentOnboardingPage() {
   const [fetching, setFetching] = useState(true)
   const [branches, setBranches] = useState<any[]>([])
   const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const [verifiedEmail, setVerifiedEmail] = useState('')
 
@@ -28,6 +37,7 @@ export default function StudentOnboardingPage() {
     year: '3',
     semester: 'Sem-5',
     branch: '',
+    division: 'A',
     rollNumber: '',
     password: '',
   })
@@ -56,6 +66,7 @@ export default function StudentOnboardingPage() {
             mobileNumber: profile.mobileNumber || '',
             branch: profile.branch && profile.branch !== 'General' ? profile.branch : '',
             semester: profile.semester || 'Sem-5',
+            division: profile.division || 'A',
             rollNumber: profile.rollNumber || '',
             year: String(profile.year || '3'),
           }))
@@ -140,6 +151,10 @@ export default function StudentOnboardingPage() {
       toast.error('Please select your Department / Branch')
       return false
     }
+    if (!formData.division) {
+      toast.error('Please select your Class Division')
+      return false
+    }
     if (!formData.rollNumber.trim()) {
       toast.error('Please enter your Class Roll Number')
       return false
@@ -147,10 +162,13 @@ export default function StudentOnboardingPage() {
     return true
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleOpenConfirm = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
+    setShowConfirmModal(true)
+  }
 
+  const handleFinalSubmit = async () => {
     try {
       setLoading(true)
       const res = await api.post('/api/auth/complete-profile', {
@@ -160,6 +178,7 @@ export default function StudentOnboardingPage() {
         lastName: formData.lastName.trim(),
         hallTicketNumber: formData.hallTicketNumber.trim(),
         mobileNumber: formData.mobileNumber.trim(),
+        division: formData.division.trim(),
         rollNumber: formData.rollNumber.trim(),
       })
 
@@ -167,7 +186,8 @@ export default function StudentOnboardingPage() {
         login(res.data.token, res.data.student)
       }
 
-      toast.success('Registration finalized! Welcome to OE Allotment')
+      setShowConfirmModal(false)
+      toast.success('Registration finalized successfully!')
       router.replace('/student/status')
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to complete registration')
@@ -197,7 +217,7 @@ export default function StudentOnboardingPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-xl">
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-full mb-3">
-            <span>✓ Verified with Microsoft Entra ID</span>
+            <span>Verified with Microsoft Entra ID</span>
           </div>
           <h2 className="text-3xl font-extrabold text-gray-900">Complete Student Registration</h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -206,14 +226,14 @@ export default function StudentOnboardingPage() {
         </div>
 
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100">
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleOpenConfirm}>
             {/* Verified Email Banner */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Verified Microsoft Email
                 </span>
-                <span className="text-xs text-emerald-600 font-medium">🔒 Verified</span>
+                <span className="text-xs text-emerald-600 font-medium">Verified</span>
               </div>
               <input
                 type="text"
@@ -316,7 +336,7 @@ export default function StudentOnboardingPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Department / Branch</label>
                 <select
@@ -326,7 +346,7 @@ export default function StudentOnboardingPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
                   required
                 >
-                  <option value="" disabled>Select Department / Branch</option>
+                  <option value="" disabled>Select Department</option>
                   {branches.length > 0 ? (
                     branches.map((b) => (
                       <option key={b._id || b.name} value={b.name}>
@@ -353,6 +373,23 @@ export default function StudentOnboardingPage() {
                 </select>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Class Division</label>
+                <select
+                  name="division"
+                  value={formData.division}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 focus:border-teal-600"
+                  required
+                >
+                  {DIVISION_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <Input
                 label="Class Roll Number"
                 name="rollNumber"
@@ -376,20 +413,100 @@ export default function StudentOnboardingPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-8 text-gray-500 hover:text-gray-700 text-sm select-none"
+                className="absolute right-3 top-8 text-xs font-semibold text-gray-500 hover:text-gray-700 select-none py-1 px-2"
               >
-                {showPassword ? '🙈' : '👁️'}
+                {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
 
             <div className="pt-2">
               <Button type="submit" className="w-full py-3" disabled={loading}>
-                {loading ? 'Saving Registration...' : 'Complete Registration & Continue'}
+                Submit Registration
               </Button>
             </div>
           </form>
         </div>
       </div>
+
+      {/* Confirmation & Submission Warning Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 border border-gray-200">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Confirm Your Registration</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Please review your academic details before final submission.</p>
+            </div>
+
+            {/* Mandatory Warning Banner */}
+            <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm">
+              <p className="font-semibold text-amber-950">
+                Important: This cannot be changed after submitting. Please recheck your data carefully.
+              </p>
+            </div>
+
+            {/* Details Summary Table */}
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-xs space-y-2">
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Full Name:</span>
+                <span className="font-semibold text-gray-900">
+                  {`${formData.firstName} ${formData.middleName || ''} ${formData.lastName}`.replace(/\s+/g, ' ').trim()}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Email:</span>
+                <span className="font-semibold text-teal-700 font-mono">{verifiedEmail}</span>
+              </div>
+              {formData.year !== '1' && (
+                <div className="flex justify-between py-1 border-b border-gray-200">
+                  <span className="text-gray-500 font-medium">Hall Ticket / PRN:</span>
+                  <span className="font-semibold text-gray-900 font-mono">{formData.hallTicketNumber}</span>
+                </div>
+              )}
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Mobile Number:</span>
+                <span className="font-semibold text-gray-900 font-mono">{formData.mobileNumber}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Class & Semester:</span>
+                <span className="font-semibold text-gray-900">
+                  {formData.year === '1' ? '1st Year (FY)' : formData.year === '2' ? '2nd Year (SY)' : '3rd Year (TY)'} • {formData.semester}
+                </span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Department / Branch:</span>
+                <span className="font-semibold text-gray-900">{formData.branch}</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-gray-200">
+                <span className="text-gray-500 font-medium">Division of Class:</span>
+                <span className="font-semibold text-teal-700 font-medium">Division {formData.division}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-gray-500 font-medium">Class Roll Number:</span>
+                <span className="font-semibold text-gray-900 font-mono">{formData.rollNumber}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowConfirmModal(false)}
+                disabled={loading}
+              >
+                Go Back
+              </Button>
+              <Button
+                type="button"
+                onClick={handleFinalSubmit}
+                disabled={loading}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                {loading ? 'Submitting...' : 'Confirm & Submit'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

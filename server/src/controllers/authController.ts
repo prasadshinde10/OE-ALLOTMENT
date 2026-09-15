@@ -20,6 +20,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       mobileNumber,
       branch,
       semester,
+      division,
       rollNumber,
       year,
       password,
@@ -57,6 +58,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
       student.mobileNumber = mobileNumber;
       student.branch = branch;
       student.semester = semester;
+      student.division = division || student.division || 'A';
       student.rollNumber = rollNumber;
       student.year = year;
       student.password = password; // pre-save hook will hash it
@@ -70,6 +72,7 @@ export const sendOtp = async (req: Request, res: Response): Promise<void> => {
         mobileNumber,
         branch,
         semester,
+        division: division || 'A',
         rollNumber,
         year,
         password,
@@ -563,6 +566,7 @@ export const getMyProfile = async (req: Request, res: Response): Promise<void> =
         mobileNumber: student.mobileNumber || '',
         branch: student.branch || '',
         semester: student.semester || 'Sem-5',
+        division: student.division || 'A',
         rollNumber: student.rollNumber || '',
         year: student.year || 3,
         isVerified: student.isVerified,
@@ -602,6 +606,7 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
       mobileNumber,
       branch,
       semester,
+      division,
       rollNumber,
       year,
       password,
@@ -670,6 +675,7 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
     student.mobileNumber = mobileNumber;
     student.branch = branch;
     student.semester = semester;
+    student.division = (division || 'A').trim();
     student.rollNumber = rollNumber;
     student.year = Number(year);
     student.isProfileComplete = true;

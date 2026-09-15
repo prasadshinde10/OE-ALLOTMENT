@@ -12,6 +12,7 @@ export interface IStudent extends Document {
   mobileNumber: string;
   branch: string;
   semester: string;
+  division?: string;
   rollNumber: string;
   year: number;
   password?: string;
@@ -105,6 +106,11 @@ const studentSchema = new Schema<IStudent>(
       type: String,
       default: 'Sem-5',
       enum: ['Sem-1','Sem-2','Sem-3','Sem-4','Sem-5','Sem-6','Sem-7','Sem-8'],
+    },
+    division: {
+      type: String,
+      default: 'A',
+      trim: true,
     },
     rollNumber: {
       type: String,

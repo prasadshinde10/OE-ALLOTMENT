@@ -1,4 +1,4 @@
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import Student from '../models/Student';
 import { env } from '../config/env';
@@ -25,6 +25,7 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
       mobileNumber,
       branch,
       semester,
+      division,
       rollNumber,
       year,
     } = req.body;
@@ -93,6 +94,7 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
       mobileNumber: student.mobileNumber,
       branch: student.branch,
       semester: student.semester,
+      division: student.division,
       rollNumber: student.rollNumber,
       year: student.year,
     };
@@ -103,6 +105,7 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
     if (mobileNumber !== undefined) student.mobileNumber = newMobile;
     if (branch !== undefined) student.branch = targetBranch;
     if (semester !== undefined) student.semester = targetSemester;
+    if (division !== undefined) student.division = (division || 'A').trim();
     if (rollNumber !== undefined) student.rollNumber = targetRoll;
     if (year !== undefined) student.year = Number(year);
 
@@ -122,6 +125,7 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
         mobileNumber: student.mobileNumber,
         branch: student.branch,
         semester: student.semester,
+        division: student.division,
         rollNumber: student.rollNumber,
         year: student.year,
       },
@@ -156,6 +160,7 @@ export const updateMyProfile = async (req: Request, res: Response): Promise<void
         mobileNumber: student.mobileNumber,
         branch: student.branch,
         semester: student.semester,
+        division: student.division || 'A',
         rollNumber: student.rollNumber,
         year: student.year,
         isVerified: student.isVerified,

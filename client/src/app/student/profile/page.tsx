@@ -17,6 +17,14 @@ const APPROVED_DEPARTMENTS = [
   'Electronics and Telecommunication',
 ]
 
+const DIVISION_OPTIONS = [
+  { value: 'A', label: 'Division A' },
+  { value: 'B', label: 'Division B' },
+  { value: 'C', label: 'Division C' },
+  { value: 'D', label: 'Division D' },
+  { value: 'E', label: 'Division E' },
+]
+
 export default function StudentProfilePage() {
   const { user, login } = useAuthContext()
   const [loading, setLoading] = useState(false)
@@ -33,6 +41,7 @@ export default function StudentProfilePage() {
     mobileNumber: '',
     branch: '',
     semester: 'Sem-1',
+    division: 'A',
     rollNumber: '',
     year: 1,
   })
@@ -58,6 +67,7 @@ export default function StudentProfilePage() {
           mobileNumber: profile.mobileNumber || '',
           branch: profile.branch || '',
           semester: profile.semester || 'Sem-1',
+          division: profile.division || 'A',
           rollNumber: profile.rollNumber || '',
           year: studentYear,
         })
@@ -129,6 +139,10 @@ export default function StudentProfilePage() {
       toast.error('Please select your Department / Branch')
       return false
     }
+    if (!formData.division) {
+      toast.error('Please select your Class Division')
+      return false
+    }
     if (!formData.rollNumber.trim()) {
       toast.error('Please enter your Class Roll Number')
       return false
@@ -153,6 +167,7 @@ export default function StudentProfilePage() {
         mobileNumber: formData.mobileNumber.trim(),
         branch: formData.branch,
         semester: formData.semester,
+        division: formData.division,
         rollNumber: formData.rollNumber.trim(),
         year: Number(formData.year),
       })
@@ -200,7 +215,7 @@ export default function StudentProfilePage() {
             </div>
             {!isRegistrationPhaseActive && (
               <span className="text-xs font-bold px-3 py-1 bg-red-100 text-red-800 rounded-full">
-                🔒 Editing Locked
+                Editing Locked
               </span>
             )}
           </div>
@@ -209,7 +224,6 @@ export default function StudentProfilePage() {
         {/* Closed Phase Warning Banner */}
         {!isRegistrationPhaseActive && (
           <div className="mx-6 mt-6 p-4 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-sm flex items-start gap-3 shadow-sm">
-            <span className="text-xl flex-shrink-0">⚠️</span>
             <div>
               <h4 className="font-bold text-amber-950 text-sm">
                 Profile Registration Phase is Closed
@@ -229,7 +243,7 @@ export default function StudentProfilePage() {
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Institute Email (Primary ID)
                 </label>
-                <span className="text-[10px] text-emerald-600 font-semibold">🔒 Permanent</span>
+                <span className="text-[10px] text-emerald-600 font-semibold">Permanent</span>
               </div>
               <input
                 type="text"
@@ -290,8 +304,8 @@ export default function StudentProfilePage() {
             </div>
           </div>
 
-          {/* Mobile & Roll Number */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Mobile, Class Division & Roll Number */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
               label="Mobile Phone Number"
               name="mobileNumber"
@@ -301,6 +315,25 @@ export default function StudentProfilePage() {
               placeholder="10-digit number"
               disabled={!isRegistrationPhaseActive}
             />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Class Division</label>
+              <select
+                name="division"
+                value={formData.division}
+                onChange={handleChange}
+                disabled={!isRegistrationPhaseActive}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-600 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                required
+              >
+                {DIVISION_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <Input
               label="Class Roll Number"
               name="rollNumber"
@@ -392,7 +425,7 @@ export default function StudentProfilePage() {
               {loading
                 ? 'Saving Profile...'
                 : !isRegistrationPhaseActive
-                ? '🔒 Profile Editing Locked'
+                ? 'Profile Editing Locked'
                 : 'Save Changes'}
             </Button>
           </div>

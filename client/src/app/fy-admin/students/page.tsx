@@ -18,6 +18,7 @@ export default function FYAdminStudentsPage() {
   const [filters, setFilters] = useState({
     search: '',
     branch: '',
+    division: '',
     status: '',
     clubType: '',
     clubId: '',
@@ -27,7 +28,7 @@ export default function FYAdminStudentsPage() {
 
   useEffect(() => {
     fetchStudents()
-  }, [filters.page, filters.limit, filters.branch, filters.status, filters.clubType, filters.clubId])
+  }, [filters.page, filters.limit, filters.branch, filters.division, filters.status, filters.clubType, filters.clubId])
 
   useEffect(() => {
     fetchBranches()
@@ -60,6 +61,7 @@ export default function FYAdminStudentsPage() {
       const params = new URLSearchParams()
       if (filters.search) params.set('search', filters.search)
       if (filters.branch) params.set('branch', filters.branch)
+      if (filters.division) params.set('division', filters.division)
       if (filters.status) params.set('status', filters.status)
       if (filters.clubType) params.set('clubType', filters.clubType)
       if (filters.clubId) params.set('clubId', filters.clubId)
@@ -86,6 +88,7 @@ export default function FYAdminStudentsPage() {
     try {
       const params = new URLSearchParams()
       if (filters.branch) params.set('branch', filters.branch)
+      if (filters.division) params.set('division', filters.division)
       if (filters.clubType) params.set('clubType', filters.clubType)
       if (filters.clubId) params.set('clubId', filters.clubId)
       const res = await api.get(`/api/fy-admin/export?${params.toString()}`, { responseType: 'blob' })
@@ -104,6 +107,9 @@ export default function FYAdminStudentsPage() {
       }
       if (filters.branch) {
         downloadName += `_${filters.branch.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+      }
+      if (filters.division) {
+        downloadName += `_Div_${filters.division}`
       }
       link.setAttribute('download', `${downloadName}_Report_${new Date().toISOString().split('T')[0]}.csv`)
       document.body.appendChild(link)
@@ -222,19 +228,47 @@ export default function FYAdminStudentsPage() {
   }
 
   const columns = [
-    { header: 'Roll No', accessor: (row: Student) => <span className="font-mono text-xs font-semibold bg-gray-100 px-2 py-1 rounded">{row.rollNumber || 'N/A'}</span> },
+    {
+      header: 'Class',
+      accessor: (row: Student) => (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800">
+          {row.year === 1 ? '1st Year (FY)' : `${row.year} Year`}
+        </span>
+      ),
+    },
+    {
+      header: 'Branch',
+      accessor: (row: Student) => (
+        <span className="font-medium text-gray-900 text-xs">{row.branch}</span>
+      ),
+    },
+    {
+      header: 'Division of Class',
+      accessor: (row: Student) => (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-100">
+          Division {row.division || 'A'}
+        </span>
+      ),
+    },
+    {
+      header: 'Roll Number',
+      accessor: (row: Student) => (
+        <span className="font-mono text-xs font-semibold bg-gray-100 px-2 py-1 rounded text-gray-800">
+          {row.rollNumber || 'N/A'}
+        </span>
+      ),
+    },
     {
       header: 'Student Details',
       accessor: (row: Student) => (
         <div>
-          <div className="font-semibold text-gray-900">
+          <div className="font-semibold text-gray-900 text-xs">
             {`${row.firstName} ${row.middleName || ''} ${row.lastName}`.replace(/\s+/g, ' ').trim()}
           </div>
-          <div className="text-xs text-teal-600 font-mono mt-0.5">{row.instituteEmail}</div>
+          <div className="text-[11px] text-teal-600 font-mono mt-0.5">{row.instituteEmail}</div>
         </div>
       ),
     },
-    { header: 'Department', accessor: 'branch' },
     {
       header: 'Co-Curricular Club',
       accessor: (row: Student) => (
@@ -328,18 +362,17 @@ export default function FYAdminStudentsPage() {
             }}
             className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 text-sm shadow-sm transition-colors"
           >
-            <span>🗑️</span>
-            <span>Delete All Students</span>
+            Delete All Students
           </Button>
           <Button variant="outline" onClick={handleExportCSV}>
-            📥 Export CSV
+            Export CSV
           </Button>
         </div>
       </div>
 
       {/* Filter Bar */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+        <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 items-end">
           <div>
             <Input
               label="Search Name / PRN / Roll"
@@ -362,6 +395,22 @@ export default function FYAdminStudentsPage() {
                   {b.name}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Class Division</label>
+            <select
+              value={filters.division}
+              onChange={(e) => setFilters({ ...filters, division: e.target.value, page: 1 })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
+            >
+              <option value="">All Divisions</option>
+              <option value="A">Division A</option>
+              <option value="B">Division B</option>
+              <option value="C">Division C</option>
+              <option value="D">Division D</option>
+              <option value="E">Division E</option>
             </select>
           </div>
 
@@ -467,7 +516,7 @@ export default function FYAdminStudentsPage() {
             <Button type="submit" className="flex-1">
               Search
             </Button>
-            {(filters.search || filters.branch || filters.status || filters.clubType || filters.clubId) && (
+            {(filters.search || filters.branch || filters.division || filters.status || filters.clubType || filters.clubId) && (
               <Button
                 type="button"
                 variant="outline"
@@ -475,6 +524,7 @@ export default function FYAdminStudentsPage() {
                   setFilters({
                     search: '',
                     branch: '',
+                    division: '',
                     status: '',
                     clubType: '',
                     clubId: '',
@@ -541,7 +591,7 @@ export default function FYAdminStudentsPage() {
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🎓 Co-Curricular
+                    Co-Curricular
                   </button>
                   <button
                     type="button"
@@ -552,7 +602,7 @@ export default function FYAdminStudentsPage() {
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🎨 Extra-Curricular
+                    Extra-Curricular
                   </button>
                 </div>
               </div>
@@ -668,9 +718,6 @@ export default function FYAdminStudentsPage() {
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 border-2 border-red-500">
             <div className="flex items-center gap-3 text-red-600 border-b pb-3">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 text-2xl">
-                ⚠️
-              </div>
               <div>
                 <h3 className="text-lg font-bold text-red-700">Permanent Bulk Purge</h3>
                 <p className="text-xs text-gray-500">First-Year Student Records & Club Allotments</p>
@@ -679,7 +726,7 @@ export default function FYAdminStudentsPage() {
 
             <div className="p-4 bg-red-50 border border-red-300 rounded-xl space-y-2">
               <h4 className="text-xs font-bold uppercase tracking-wider text-red-800">
-                ⚠️ CRITICAL WARNING: You are about to permanently delete ALL First-Year student records and their current club allotment histories.
+                CRITICAL WARNING: You are about to permanently delete ALL First-Year student records and their current club allotment histories.
               </h4>
               <p className="text-xs text-red-700 leading-relaxed">
                 This will purge all ({total}) Year-1 student profiles, reset club seat counts back to zero, and erase all related allocation histories. Upper-year records will remain completely untouched. This action is irreversible.

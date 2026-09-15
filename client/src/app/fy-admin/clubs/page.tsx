@@ -378,7 +378,7 @@ export default function FYAdminClubsPage() {
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
-          🎓 Co-Curricular Clubs ({clubs.filter((c) => c.category === 'co-curricular').length})
+          Co-Curricular Clubs ({clubs.filter((c) => c.category === 'co-curricular').length})
         </button>
         <button
           onClick={() => setCategoryFilter('extra-curricular')}
@@ -388,7 +388,7 @@ export default function FYAdminClubsPage() {
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
-          🎨 Extra-Curricular Clubs ({clubs.filter((c) => c.category === 'extra-curricular').length})
+          Extra-Curricular Clubs ({clubs.filter((c) => c.category === 'extra-curricular').length})
         </button>
       </div>
 
@@ -429,8 +429,8 @@ export default function FYAdminClubsPage() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
                 required
               >
-                <option value="co-curricular">🎓 Co-Curricular Club</option>
-                <option value="extra-curricular">🎨 Extra-Curricular Club</option>
+                <option value="co-curricular">Co-Curricular Club</option>
+                <option value="extra-curricular">Extra-Curricular Club</option>
               </select>
             </div>
 

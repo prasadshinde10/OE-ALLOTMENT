@@ -76,10 +76,10 @@ export default function FYAdminDashboardPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button onClick={handleExportCSV} variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0">
-              📥 Export All CSV
+              Export All CSV
             </Button>
             <Button onClick={handleExportZIP} variant="secondary" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0">
-              📦 Export Dept ZIP
+              Export Dept ZIP
             </Button>
           </div>
         </div>
@@ -90,7 +90,6 @@ export default function FYAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Total FY Students</span>
-            <span className="text-lg">👥</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-gray-900">
             {loading ? '...' : stats?.totalFYStudents ?? 0}
@@ -103,7 +102,6 @@ export default function FYAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Co-Curricular Allocated</span>
-            <span className="text-lg">🎓</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-teal-600">
             {loading ? '...' : stats?.coCurricularAllocated ?? 0}
@@ -116,7 +114,6 @@ export default function FYAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Extra-Curricular Allocated</span>
-            <span className="text-lg">🎨</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-accent-600">
             {loading ? '...' : stats?.extraCurricularAllocated ?? 0}
@@ -129,7 +126,6 @@ export default function FYAdminDashboardPage() {
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
           <div className="flex justify-between items-center text-sm font-medium text-gray-500">
             <span>Fully Allocated</span>
-            <span className="text-lg">✨</span>
           </div>
           <div className="mt-2 text-3xl font-bold text-emerald-600">
             {loading ? '...' : stats?.fullyAllocated ?? 0}
@@ -146,9 +142,6 @@ export default function FYAdminDashboardPage() {
           href="/fy-admin/clubs"
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
-            🏛️
-          </div>
           <h3 className="text-base font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
             Club Management
           </h3>
@@ -161,9 +154,6 @@ export default function FYAdminDashboardPage() {
           href="/fy-admin/students"
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
-            📋
-          </div>
           <h3 className="text-base font-semibold text-gray-900 group-hover:text-accent-600 transition-colors">
             FY Student Directory
           </h3>
@@ -176,9 +166,6 @@ export default function FYAdminDashboardPage() {
           href="/fy-admin/branches"
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
-            🏢
-          </div>
           <h3 className="text-base font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">
             FY Branch Config
           </h3>
@@ -191,9 +178,6 @@ export default function FYAdminDashboardPage() {
           href="/fy-admin/term-config"
           className="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-teal-400 transition-all"
         >
-          <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
-            ⏰
-          </div>
           <h3 className="text-base font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">
             Registration Windows
           </h3>

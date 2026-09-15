@@ -8,6 +8,7 @@ export interface Student {
   mobileNumber: string;
   branch: string;
   semester: string;
+  division?: string;
   rollNumber: string;
   year: 1 | 2 | 3;
   isVerified: boolean;

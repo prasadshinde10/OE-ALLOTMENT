@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
@@ -120,10 +120,7 @@ export default function FYAdminBranchesPage() {
     {
       header: 'Department / Branch Name',
       accessor: (row: any) => (
-        <div className="flex items-center gap-2 font-semibold text-gray-900">
-          <span className="w-6 h-6 rounded bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold">
-            🏛️
-          </span>
+        <div className="font-semibold text-gray-900">
           <span>{row.name}</span>
         </div>
       ),
@@ -150,10 +147,10 @@ export default function FYAdminBranchesPage() {
       accessor: (row: any) => (
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => handleOpenEdit(row)}>
-            ✏️ Edit
+            Edit
           </Button>
           <Button size="sm" variant="danger" onClick={() => handleDelete(row._id, row.name)}>
-            🗑️ Delete
+            Delete
           </Button>
         </div>
       ),
@@ -176,7 +173,7 @@ export default function FYAdminBranchesPage() {
       {COMMON_FY_BRANCH_PRESETS.some((preset) => !branches.some((b) => b.name?.toLowerCase() === preset.toLowerCase())) && (
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
-            <span>⚡ Quick Add Presets:</span>
+            <span>Quick Add Presets:</span>
             <span className="text-[11px] font-normal text-slate-400">Click to instantly add standard First-Year branches</span>
           </div>
           <div className="flex flex-wrap gap-2">

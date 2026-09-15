@@ -61,10 +61,11 @@ export const getFYStats = async (_req: Request, res: Response): Promise<void> =>
 
 export const getFYStudents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { branch, search, page = 1, limit = 10, status, clubType, category, clubId } = req.query;
+    const { branch, division, search, page = 1, limit = 10, status, clubType, category, clubId } = req.query;
     const filter: any = { year: 1 };
 
     if (branch) filter.branch = branch;
+    if (division) filter.division = division;
 
     const typeFilter = clubType || category;
     if (clubId) {
@@ -122,7 +123,7 @@ export const getFYStudents = async (req: Request, res: Response): Promise<void> 
     const skip = (pageNum - 1) * limitNum;
 
     const [students, total] = await Promise.all([
-      Student.find(filter).sort({ branch: 1, rollNumber: 1 }).skip(skip).limit(limitNum).lean(),
+      Student.find(filter).sort({ branch: 1, division: 1, rollNumber: 1 }).skip(skip).limit(limitNum).lean(),
       Student.countDocuments(filter),
     ]);
 
@@ -148,6 +149,7 @@ function buildFYClubCSV(students: any[]): string {
     'Email',
     'Mobile Number',
     'Department / Branch',
+    'Class Division',
     'Co-Curricular Club',
     'Co-Curricular Division',
     'Co-Curricular Coordinator',
@@ -177,6 +179,7 @@ function buildFYClubCSV(students: any[]): string {
       escape(s.instituteEmail),
       escape(s.mobileNumber),
       escape(s.branch),
+      escape(s.division || 'A'),
       escape(s.allocatedCoCurricularClubName || 'Unallocated'),
       escape(s.allocatedCoCurricularDivision || 'N/A'),
       escape(s.allocatedCoCurricularCoordinator || 'N/A'),
@@ -195,10 +198,11 @@ function buildFYClubCSV(students: any[]): string {
 
 export const exportFYClubCSV = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { branch, clubId, category, clubType } = req.query;
+    const { branch, division, clubId, category, clubType } = req.query;
     const filter: any = { year: 1 };
 
     if (branch) filter.branch = branch;
+    if (division) filter.division = division;
     const typeFilter = clubType || category;
     let clubDoc: any = null;
 
@@ -227,7 +231,7 @@ export const exportFYClubCSV = async (req: Request, res: Response): Promise<void
       filter.allocatedCoCurricularClubId = { $ne: null };
     }
 
-    const students = await Student.find(filter).sort({ branch: 1, rollNumber: 1 }).lean();
+    const students = await Student.find(filter).sort({ branch: 1, division: 1, rollNumber: 1 }).lean();
 
     const csv = buildFYClubCSV(students);
     const filenameParts: string[] = ['FY'];
@@ -238,6 +242,9 @@ export const exportFYClubCSV = async (req: Request, res: Response): Promise<void
     }
     if (branch) {
       filenameParts.push(String(branch).replace(/[^a-zA-Z0-9_-]/g, '_'));
+    }
+    if (division) {
+      filenameParts.push(`Div_${division}`);
     }
     filenameParts.push('Report.csv');
     const filename = filenameParts.join('_');
