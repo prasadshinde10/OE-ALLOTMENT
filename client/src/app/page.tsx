@@ -10,72 +10,7 @@ import Logo from '@/components/Logo'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 
-interface FeaturedElective {
-  code: string
-  name: string
-  department: string
-  capacity: number
-  filled: number
-  description: string
-  icon: string
-}
 
-const FEATURED_ELECTIVES: FeaturedElective[] = [
-  {
-    code: 'OE-CSE-01',
-    name: 'Cloud Computing & DevOps Architecture',
-    department: 'Computer Science and Engineering',
-    capacity: 60,
-    filled: 48,
-    description: 'Containerization with Docker, Kubernetes orchestration, CI/CD automated pipelines, and AWS cloud deployment.',
-    icon: 'cloud'
-  },
-  {
-    code: 'OE-AIDS-02',
-    name: 'Applied Machine Learning & Neural Networks',
-    department: 'Artificial Intelligence and Data Science',
-    capacity: 60,
-    filled: 54,
-    description: 'Supervised and unsupervised models, deep neural networks, computer vision, and NLP application pipelines.',
-    icon: 'cpu'
-  },
-  {
-    code: 'OE-MECH-03',
-    name: 'Electric Vehicle Design & Battery Tech',
-    department: 'Mechanical Engineering',
-    capacity: 60,
-    filled: 36,
-    description: 'EV powertrain dynamics, lithium-ion battery management systems (BMS), motor control, and charging standards.',
-    icon: 'battery'
-  },
-  {
-    code: 'OE-ENTC-04',
-    name: 'IoT & Smart Embedded Systems',
-    department: 'Electronics and Telecommunication',
-    capacity: 60,
-    filled: 42,
-    description: 'Sensor interfacing, ARM Cortex architectures, wireless protocols (MQTT/BLE), and edge computing telemetry.',
-    icon: 'wifi'
-  },
-  {
-    code: 'OE-CIVIL-05',
-    name: 'Green Building Design & Sustainable Infrastructure',
-    department: 'Civil Engineering',
-    capacity: 60,
-    filled: 30,
-    description: 'LEED rating systems, energy modeling, eco-friendly materials, and smart climate-resilient architecture.',
-    icon: 'building'
-  },
-  {
-    code: 'OE-CSD-06',
-    name: 'UI/UX Design Systems & Human-Computer Interaction',
-    department: 'Computer Science and Design',
-    capacity: 60,
-    filled: 51,
-    description: 'Design thinking methodologies, wireframing, interactive prototyping in Figma, and usability engineering.',
-    icon: 'layout'
-  }
-]
 
 export default function Home() {
   const router = useRouter()
@@ -115,7 +50,7 @@ export default function Home() {
       if (err.response?.data?.needsVerification) {
         toast.error('Account not verified. Please sign in using your official Microsoft SSO account.')
       } else if (err.response?.data?.message?.toLowerCase().includes('password')) {
-        toast.error(err.response?.data?.message || 'Invalid password. Try reset password or sign in with Microsoft.')
+        toast.error(err.response?.data?.message || 'Invalid password. Please sign in with Microsoft.')
       } else {
         toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
       }
@@ -158,12 +93,6 @@ export default function Home() {
               How It Works
             </button>
             <button
-              onClick={() => scrollToSection('electives')}
-              className="hover:text-teal-600 transition-colors cursor-pointer"
-            >
-              Our Electives
-            </button>
-            <button
               onClick={() => scrollToSection('auth-card')}
               className="hover:text-teal-600 transition-colors cursor-pointer"
             >
@@ -201,11 +130,11 @@ export default function Home() {
             <div className="lg:col-span-7 space-y-6 text-left">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-accent-500 animate-pulse" />
-                Academic Term 2025–26 • Open Elective System
+                Academic Year 2026-2027 • Allocation Portal
               </div>
 
               <h1 className="text-3xl sm:text-5xl font-extrabold text-neutral-900 tracking-tight leading-tight">
-                Choice-Based Open Elective Registration & Allotment
+                Allocation Portal
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-700 leading-relaxed max-w-2xl font-normal">
@@ -223,7 +152,7 @@ export default function Home() {
                   <p className="text-xs font-medium text-neutral-700 mt-0.5">Live Quota Sync</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-accent-600">6+</p>
+                  <p className="text-2xl font-bold text-accent-600">10+</p>
                   <p className="text-xs font-medium text-neutral-700 mt-0.5">Departments</p>
                 </div>
               </div>
@@ -241,13 +170,6 @@ export default function Home() {
                     <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                   </svg>
                   <span>Continue with Microsoft (@mit.asia)</span>
-                </button>
-
-                <button
-                  onClick={() => scrollToSection('electives')}
-                  className="inline-flex items-center justify-center px-5 py-3.5 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-700 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Browse Electives & Syllabi &rarr;
                 </button>
               </div>
 
@@ -332,13 +254,7 @@ export default function Home() {
                 )}
 
                 {/* Portal Footer Links */}
-                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-700">
-                  <Link
-                    href="/forgot-password/student"
-                    className="hover:text-teal-600 transition-colors"
-                  >
-                    Forgot Password?
-                  </Link>
+                <div className="pt-2 border-t border-neutral-100 flex items-center justify-end text-xs text-neutral-700">
                   <Link
                     href="/login/admin"
                     className="font-medium text-teal-700 hover:text-teal-900 transition-colors"
@@ -396,10 +312,10 @@ export default function Home() {
                 </div>
                 <div>
                   <span className="text-xs font-semibold text-neutral-700 uppercase tracking-wider">Step 02</span>
-                  <h3 className="text-base font-semibold text-neutral-900 mt-1">Review Syllabi</h3>
+                  <h3 className="text-base font-semibold text-neutral-900 mt-1">Explore Offerings</h3>
                 </div>
                 <p className="text-xs text-neutral-700 leading-relaxed">
-                  Browse elective courses offered for your semester. Download syllabus documents to evaluate prerequisites and unit outcomes.
+                  Browse available course and club options for your term, evaluate prerequisites, and plan your preferences.
                 </p>
               </div>
             </div>
@@ -443,106 +359,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Electives Section with Live Progress Bars */}
-      <section id="electives" className="py-16 sm:py-24 bg-neutral-50 border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-            <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-accent-600">
-                Curriculum Catalog
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900">
-                Our Open Electives
-              </h2>
-              <p className="text-sm text-neutral-700 max-w-xl">
-                Cross-disciplinary courses designed to build industry-ready skills beyond primary branch specializations.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => scrollToSection('auth-card')}
-              className="self-start md:self-auto text-xs"
-            >
-              Sign In to View All
-            </Button>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURED_ELECTIVES.map((elective) => {
-              const available = elective.capacity - elective.filled
-              const fillPercentage = Math.round((elective.filled / elective.capacity) * 100)
-              const isFull = available <= 0
-
-              return (
-                <div
-                  key={elective.code}
-                  className="rounded-xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow bg-white flex flex-col justify-between"
-                >
-                  <div className="space-y-3">
-                    {/* Header with Code & Available Badge */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold uppercase tracking-wider text-teal-700 bg-teal-50 border border-teal-100 px-2.5 py-1 rounded">
-                        {elective.code}
-                      </span>
-                      <span
-                        className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                          isFull
-                            ? 'bg-red-100 text-red-800 border border-red-200'
-                            : available <= 10
-                            ? 'bg-accent-100 text-accent-800 border border-accent-200'
-                            : 'bg-green-100 text-green-800 border border-green-200'
-                        }`}
-                      >
-                        {isFull ? 'Full' : `${available} Seats Left`}
-                      </span>
-                    </div>
-
-                    <h3 className="text-base font-semibold text-neutral-900 leading-snug">
-                      {elective.name}
-                    </h3>
-
-                    <p className="text-xs font-medium text-teal-700">
-                      Offered by: {elective.department}
-                    </p>
-
-                    <p className="text-xs text-neutral-700 leading-relaxed">
-                      {elective.description}
-                    </p>
-
-                    {/* Progress Bar & Seat Counts */}
-                    <div className="pt-3 border-t border-neutral-100 space-y-1.5">
-                      <div className="flex justify-between text-xs text-neutral-700 font-medium">
-                        <span>Capacity: <strong className="text-neutral-900">{elective.capacity}</strong></span>
-                        <span>Filled: <strong className="text-neutral-900">{elective.filled}</strong> ({fillPercentage}%)</span>
-                      </div>
-                      <div className="w-full bg-neutral-200 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-500 ${
-                            fillPercentage > 85 ? 'bg-red-500' : fillPercentage > 60 ? 'bg-accent-500' : 'bg-teal-600'
-                          }`}
-                          style={{ width: `${fillPercentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-5 mt-4 border-t border-neutral-100">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="w-full text-xs font-medium"
-                      onClick={() => scrollToSection('auth-card')}
-                    >
-                      Sign In to Register
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* Guidelines & Information Section */}
       <section className="py-16 bg-white border-b border-neutral-200">
@@ -599,7 +416,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="text-accent-400 hover:text-accent-300 font-semibold transition-colors"
               >
-                WebMitra.tech Solutions
+                WebMitraStudio
               </a>
             </p>
             <div className="flex items-center gap-6">

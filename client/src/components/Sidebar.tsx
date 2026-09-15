@@ -30,8 +30,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   }, [isOpen, onClose])
 
   const role = (user?.role || '').toUpperCase()
-  const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia'
-  const isOEAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || user?.email === 'admin@mit.asia'
+  const isFYAdmin = role === 'FY_ADMIN' || role === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia' || pathname.startsWith('/fy-admin')
+  const isOEAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN' || role === 'OE_ADMIN' || user?.email === 'admin@mit.asia' || pathname.startsWith('/admin')
 
   if (!isFYAdmin && !isOEAdmin) return null
 

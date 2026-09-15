@@ -238,17 +238,17 @@ export default function ClubAdminDashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-teal-700 via-accent-700 to-accent-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-teal-600 rounded-2xl p-6 sm:p-8 text-white shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-accent-100 mb-2">
-              <span>🎯 Equal-Level Administrator</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/80 rounded-full text-xs font-semibold tracking-wide text-teal-50 mb-2">
+              <span>Academic Year 2026-2027 • First-Year Club Dashboard</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               First-Year Club Dashboard
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-accent-200">
-              Manage First-Year Co-Curricular & Extra-Curricular Clubs, dynamic branches, and student re-allocations
+            <p className="mt-1 text-sm sm:text-base text-teal-100">
+              Manage First-Year Co-Curricular &amp; Extra-Curricular Clubs, dynamic branches, and student re-allocations
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

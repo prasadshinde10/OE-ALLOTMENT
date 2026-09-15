@@ -7,8 +7,8 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Allocation Portal - MIT",
-  description: "Student Course & Club Allocation Portal",
+  title: "Allocation Portal - MIT CSN (2026-2027)",
+  description: "Student Course & Club Allocation Portal 2026-2027 - MIT CSN",
 };
 
 export default function RootLayout({

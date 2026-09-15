@@ -59,7 +59,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       </main>
       <footer className="border-t border-neutral-200 bg-white px-6 py-3 text-center text-xs text-neutral-400">
         Designed &amp; Developed by{' '}
-        <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitra.tech Solutions</a>
+        <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitraStudio</a>
       </footer>
     </div>
   )

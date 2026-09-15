@@ -123,7 +123,7 @@ export default function ElectiveDashboardPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500 rounded-full text-xs font-semibold tracking-wide text-teal-50 mb-2">
-              <span>Open Elective Administrator</span>
+              <span>Academic Year 2026-2027 • Open Elective Administrator</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Open Elective Dashboard

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -61,17 +61,17 @@ export default function FYAdminDashboardPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-teal-700 via-teal-800 to-accent-800 rounded-2xl p-6 sm:p-8 text-white shadow-lg">
+      <div className="bg-teal-600 rounded-2xl p-6 sm:p-8 text-white shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide text-teal-100 mb-2">
-              <span>🛡️ Dedicated Admin 2 Portal</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/80 rounded-full text-xs font-semibold tracking-wide text-teal-50 mb-2">
+              <span>Academic Year 2026-2027 • First-Year Club Admin</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               First-Year Club Allocation Portal
             </h1>
-            <p className="mt-1 text-sm sm:text-base text-teal-200">
-              Manage First-Year Co-Curricular & Extra-Curricular Clubs, student registrations, and division alloting
+            <p className="mt-1 text-sm sm:text-base text-teal-100">
+              Manage First-Year Co-Curricular &amp; Extra-Curricular Clubs, student registrations, and division allotments
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

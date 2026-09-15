@@ -33,7 +33,7 @@ export default function StudentLoginPage() {
       if (err.response?.data?.needsVerification) {
         toast.error('Account not verified. Please sign in using Microsoft SSO on the home page.')
       } else if (err.response?.data?.message?.toLowerCase().includes('password')) {
-        toast.error(err.response?.data?.message || 'Invalid password. Try reset password or sign in with Microsoft.')
+        toast.error(err.response?.data?.message || 'Invalid password. Please sign in with Microsoft.')
       } else {
         toast.error(err.response?.data?.message || 'Invalid credentials or student not found')
       }
@@ -45,8 +45,8 @@ export default function StudentLoginPage() {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Student Login</h2>
-        <p className="mt-2 text-center text-sm text-gray-600">Password login for existing students</p>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-900">Student Login</h2>
+        <p className="mt-2 text-center text-sm text-neutral-600">Password login for existing students • Academic Year 2026-2027</p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -82,7 +82,7 @@ export default function StudentLoginPage() {
         </div>
         <p className="mt-6 text-center text-xs text-neutral-400">
           Designed &amp; Developed by{' '}
-          <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitra.tech Solutions</a>
+          <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitraStudio</a>
         </p>
       </div>
     </div>

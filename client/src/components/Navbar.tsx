@@ -1,7 +1,7 @@
 'use client'
 import { useAuthContext } from '@/context/AuthContext'
 import { Button } from '@/components/ui/Button'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Logo from '@/components/Logo'
 
 interface NavbarProps {
@@ -11,6 +11,7 @@ interface NavbarProps {
 export default function Navbar({ onToggleSidebar }: NavbarProps) {
   const { user, logout } = useAuthContext()
   const router = useRouter()
+  const pathname = usePathname()
 
   const handleLogout = () => {
     logout()
@@ -35,8 +36,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
   }
 
   const userRole = (user?.role || '').toUpperCase()
-  const isFYAdmin = userRole === 'FY_ADMIN' || userRole === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia'
-  const isOEAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'OE_ADMIN' || user?.email === 'admin@mit.asia'
+  const isFYAdmin = userRole === 'FY_ADMIN' || userRole === 'FIRST_YEAR_ADMIN' || user?.email === 'admin2@mit.asia' || pathname.startsWith('/fy-admin')
+  const isOEAdmin = userRole === 'ADMIN' || userRole === 'SUPER_ADMIN' || userRole === 'OE_ADMIN' || user?.email === 'admin@mit.asia' || pathname.startsWith('/admin')
 
   const getRoleLabel = () => {
     if (isFYAdmin) return 'Club Admin'

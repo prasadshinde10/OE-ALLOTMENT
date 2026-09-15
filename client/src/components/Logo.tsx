@@ -22,7 +22,7 @@ export default function Logo({
       <img
         src="/mit-csn-logo.png"
         alt="MIT CSN Logo"
-        className="h-9 w-auto object-contain shrink-0"
+        className="h-10 w-auto object-contain shrink-0"
       />
       {variant !== 'icon' && (
         <div className="flex flex-col justify-center leading-tight">
@@ -31,7 +31,7 @@ export default function Logo({
           </span>
           {variant === 'full' && (
             <span className={`text-[10px] font-medium tracking-wide ${textSub}`}>
-              Elective Allocation Platform
+              Allocation Portal
             </span>
           )}
         </div>
