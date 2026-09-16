@@ -126,7 +126,7 @@ async function start() {
     // Hydrates clubSeatCache + clubMetaCache and starts the 500ms flush interval.
     await initializeAllocationEngine();
 
-    // Ensure default OE admin exists
+    // Ensure default OE admin exists and password matches environment
     try {
       const adminEmail = env.ADMIN_EMAIL.toLowerCase();
       const adminPassword = env.ADMIN_PASSWORD;
@@ -144,16 +144,28 @@ async function start() {
         } else {
           console.log(`ℹ️ OE Admin account does not exist. Set ADMIN_PASSWORD in environment to initialize.`);
         }
-      } else if (existingAdmin.name === 'Super Admin') {
-        existingAdmin.name = 'OE Admin';
-        await existingAdmin.save();
-        console.log(`👑 Admin verified & renamed to OE Admin: ${adminEmail}`);
+      } else {
+        let isUpdated = false;
+        if (existingAdmin.name === 'Super Admin') {
+          existingAdmin.name = 'OE Admin';
+          isUpdated = true;
+        }
+        if (adminPassword) {
+          existingAdmin.password = adminPassword;
+          isUpdated = true;
+        }
+        if (isUpdated) {
+          await existingAdmin.save();
+          console.log(`👑 OE Admin updated with environment credentials: ${adminEmail}`);
+        } else {
+          console.log(`👑 OE Admin verified: ${adminEmail}`);
+        }
       }
     } catch (adminErr) {
       console.warn('⚠️ Could not verify OE admin:', adminErr);
     }
 
-    // Ensure Admin 2 (First-Year Club Admin) exists with role FY_ADMIN
+    // Ensure Admin 2 (First-Year Club Admin) exists and password matches environment
     try {
       const admin2Email = env.ADMIN2_EMAIL.toLowerCase();
       const admin2Password = env.ADMIN2_PASSWORD;
@@ -172,11 +184,21 @@ async function start() {
           console.log(`ℹ️ Admin 2 account does not exist. Set ADMIN2_PASSWORD in environment to initialize.`);
         }
       } else {
+        let isUpdated = false;
         if (existingAdmin2.role !== 'FY_ADMIN') {
           existingAdmin2.role = 'FY_ADMIN';
-          await existingAdmin2.save();
+          isUpdated = true;
         }
-        console.log(`👑 Admin 2 verified: ${admin2Email}`);
+        if (admin2Password) {
+          existingAdmin2.password = admin2Password;
+          isUpdated = true;
+        }
+        if (isUpdated) {
+          await existingAdmin2.save();
+          console.log(`👑 Admin 2 updated with environment credentials: ${admin2Email}`);
+        } else {
+          console.log(`👑 Admin 2 verified: ${admin2Email}`);
+        }
       }
     } catch (admin2Err) {
       console.warn('⚠️ Could not verify Admin 2:', admin2Err);
