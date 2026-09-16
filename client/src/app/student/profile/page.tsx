@@ -23,6 +23,7 @@ const DIVISION_OPTIONS = [
   { value: 'C', label: 'Division C' },
   { value: 'D', label: 'Division D' },
   { value: 'E', label: 'Division E' },
+  { value: 'F', label: 'Division F' },
 ]
 
 export default function StudentProfilePage() {

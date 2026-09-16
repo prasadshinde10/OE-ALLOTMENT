@@ -411,6 +411,7 @@ export default function FYAdminStudentsPage() {
               <option value="C">Division C</option>
               <option value="D">Division D</option>
               <option value="E">Division E</option>
+              <option value="F">Division F</option>
             </select>
           </div>
 
