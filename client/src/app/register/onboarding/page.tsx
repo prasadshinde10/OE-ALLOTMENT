@@ -9,14 +9,10 @@ import { Input } from '@/components/ui/Input'
 import { Skeleton } from '@/components/ui/Skeleton'
 import toast from 'react-hot-toast'
 
-const DIVISION_OPTIONS = [
-  { value: 'A', label: 'Division A' },
-  { value: 'B', label: 'Division B' },
-  { value: 'C', label: 'Division C' },
-  { value: 'D', label: 'Division D' },
-  { value: 'E', label: 'Division E' },
-  { value: 'F', label: 'Division F' },
-]
+const DIVISION_OPTIONS = Array.from({ length: 26 }, (_, i) => {
+  const char = String.fromCharCode(65 + i)
+  return { value: char, label: `Division ${char}` }
+})
 
 export default function StudentOnboardingPage() {
   const router = useRouter()

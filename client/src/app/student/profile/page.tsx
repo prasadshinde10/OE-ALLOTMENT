@@ -17,14 +17,10 @@ const APPROVED_DEPARTMENTS = [
   'Electronics and Telecommunication',
 ]
 
-const DIVISION_OPTIONS = [
-  { value: 'A', label: 'Division A' },
-  { value: 'B', label: 'Division B' },
-  { value: 'C', label: 'Division C' },
-  { value: 'D', label: 'Division D' },
-  { value: 'E', label: 'Division E' },
-  { value: 'F', label: 'Division F' },
-]
+const DIVISION_OPTIONS = Array.from({ length: 26 }, (_, i) => {
+  const char = String.fromCharCode(65 + i)
+  return { value: char, label: `Division ${char}` }
+})
 
 export default function StudentProfilePage() {
   const { user, login } = useAuthContext()

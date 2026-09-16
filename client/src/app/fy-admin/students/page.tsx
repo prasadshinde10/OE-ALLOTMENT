@@ -406,12 +406,11 @@ export default function FYAdminStudentsPage() {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-600"
             >
               <option value="">All Divisions</option>
-              <option value="A">Division A</option>
-              <option value="B">Division B</option>
-              <option value="C">Division C</option>
-              <option value="D">Division D</option>
-              <option value="E">Division E</option>
-              <option value="F">Division F</option>
+              {Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i)).map((div) => (
+                <option key={div} value={div}>
+                  Division {div}
+                </option>
+              ))}
             </select>
           </div>
 
