@@ -18,6 +18,10 @@ const envSchema = z.object({
   AZURE_CLIENT_SECRET: z.string().default(''),
   AZURE_TENANT_ID: z.string().default(''),
   REDIRECT_URI: z.string().default(''),
+  ADMIN_EMAIL: z.string().default('admin@mit.asia'),
+  ADMIN_PASSWORD: z.string().optional(),
+  ADMIN2_EMAIL: z.string().default('admin2@mit.asia'),
+  ADMIN2_PASSWORD: z.string().optional(),
 });
 
 const _env = envSchema.safeParse(process.env);
@@ -25,6 +29,10 @@ const _env = envSchema.safeParse(process.env);
 if (!_env.success) {
   console.error('❌ Invalid environment variables:', _env.error.format());
   process.exit(1);
+}
+
+if (_env.data.NODE_ENV === 'production' && _env.data.JWT_SECRET === 'oe_allotment_development_secret_key_2026') {
+  console.warn('⚠️ WARNING: Using default development JWT_SECRET in production. Set a strong JWT_SECRET in EC2 env file.');
 }
 
 export const env = _env.data;

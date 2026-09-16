@@ -26,12 +26,17 @@ async function seedAdmins() {
 
     // 1. OE Admin
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@mit.asia').toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD;
     let admin = await User.findOne({ email: adminEmail });
     if (!admin) {
+      if (!adminPassword) {
+        console.error('❌ Error: ADMIN_PASSWORD environment variable is required to create OE Admin.');
+        process.exit(1);
+      }
       admin = new User({
         name: 'OE Admin',
         email: adminEmail,
-        password: 'admin123',
+        password: adminPassword,
         role: 'admin'
       });
       await admin.save();
@@ -46,21 +51,27 @@ async function seedAdmins() {
 
     // 2. Second Admin (FY Club Admin)
     const admin2Email = (process.env.ADMIN2_EMAIL || 'admin2@mit.asia').toLowerCase();
+    const admin2Password = process.env.ADMIN2_PASSWORD;
     let admin2 = await User.findOne({ email: admin2Email });
     if (!admin2) {
+      if (!admin2Password) {
+        console.error('❌ Error: ADMIN2_PASSWORD environment variable is required to create FY Club Admin.');
+        process.exit(1);
+      }
       admin2 = new User({
         name: 'First Year Club Admin',
         email: admin2Email,
-        password: 'admin123',
+        password: admin2Password,
         role: 'FY_ADMIN'
       });
       await admin2.save();
-      console.log(`✓ Admin 2 created: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
+      console.log(`✓ Admin 2 created: ${admin2Email} (role: FY_ADMIN)`);
     } else {
-      admin2.role = 'FY_ADMIN';
-      admin2.password = 'admin123';
-      await admin2.save();
-      console.log(`✓ Admin 2 verified and updated: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
+      if (admin2.role !== 'FY_ADMIN') {
+        admin2.role = 'FY_ADMIN';
+        await admin2.save();
+      }
+      console.log(`✓ Admin 2 verified: ${admin2Email} (role: FY_ADMIN)`);
     }
 
     await mongoose.disconnect();

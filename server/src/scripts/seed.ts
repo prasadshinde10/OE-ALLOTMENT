@@ -10,45 +10,51 @@ const seedAdmin = async () => {
     await mongoose.connect(env.MONGO_URI as string);
     console.log('Connected to MongoDB');
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@mit.asia';
+    const adminEmail = (env.ADMIN_EMAIL || 'admin@mit.asia').toLowerCase();
+    const adminPassword = env.ADMIN_PASSWORD;
     const existingAdmin = await User.findOne({ email: adminEmail });
 
     if (!existingAdmin) {
+      if (!adminPassword) {
+        console.error('❌ Error: ADMIN_PASSWORD environment variable is required to create OE Admin.');
+        process.exit(1);
+      }
       const admin = new User({
         name: 'OE Admin',
         email: adminEmail,
-        password: 'admin123',
+        password: adminPassword,
         role: 'admin'
       });
       await admin.save();
-      console.log('Admin user created:');
-      console.log('Email:', adminEmail);
-      console.log('Password: admin123');
+      console.log('Admin user created:', adminEmail);
     } else {
-      console.log('Admin user already exists.');
+      console.log('Admin user already exists:', adminEmail);
     }
 
     // Seed Second Admin (FY Club Admin)
-    const admin2Email = process.env.ADMIN2_EMAIL || 'admin2@mit.asia';
-    const existingAdmin2 = await User.findOne({ email: admin2Email.toLowerCase() });
+    const admin2Email = (env.ADMIN2_EMAIL || 'admin2@mit.asia').toLowerCase();
+    const admin2Password = env.ADMIN2_PASSWORD;
+    const existingAdmin2 = await User.findOne({ email: admin2Email });
 
     if (!existingAdmin2) {
+      if (!admin2Password) {
+        console.error('❌ Error: ADMIN2_PASSWORD environment variable is required to create FY Club Admin.');
+        process.exit(1);
+      }
       const admin2 = new User({
         name: 'First Year Club Admin',
-        email: admin2Email.toLowerCase(),
-        password: 'admin123',
+        email: admin2Email,
+        password: admin2Password,
         role: 'FY_ADMIN'
       });
       await admin2.save();
-      console.log('Admin 2 (FY Club Admin) user created:');
-      console.log('Email:', admin2Email);
-      console.log('Password: admin123');
-      console.log('Role: FY_ADMIN');
+      console.log('Admin 2 (FY Club Admin) user created:', admin2Email);
     } else {
-      existingAdmin2.role = 'FY_ADMIN';
-      existingAdmin2.password = 'admin123';
-      await existingAdmin2.save();
-      console.log('Admin 2 user verified/updated (role: FY_ADMIN).');
+      if (existingAdmin2.role !== 'FY_ADMIN') {
+        existingAdmin2.role = 'FY_ADMIN';
+        await existingAdmin2.save();
+      }
+      console.log('Admin 2 user verified:', admin2Email);
     }
 
     await mongoose.disconnect();

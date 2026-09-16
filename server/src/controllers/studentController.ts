@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import Student from '../models/Student';
 import Elective from '../models/Elective';
 import Club from '../models/Club';
-import TestSubmission from '../models/TestSubmission';
 import { logAudit } from '../services/auditService';
 import { transferSeat } from '../services/allocationService';
 import { broadcastSeatUpdate, broadcastClubSeatUpdate } from '../socket';
@@ -218,14 +217,7 @@ export const deleteStudent = async (req: Request, res: Response): Promise<void> 
       }
     }
 
-    // 4. Purge test submissions if any
-    try {
-      await TestSubmission.deleteMany({ studentId: String(student._id) });
-    } catch (e) {
-      // ignore
-    }
-
-    // 5. Delete student record
+    // 4. Delete student record
     await Student.findByIdAndDelete(student._id);
 
     // 6. Log audit
@@ -273,18 +265,6 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
         },
       ],
     };
-
-    // Find all FY student IDs to clean up associated TestSubmissions
-    const fyStudents = await Student.find(fyFilter, '_id').lean();
-    const fyStudentIds = fyStudents.map((s) => String(s._id));
-
-    if (fyStudentIds.length > 0) {
-      try {
-        await TestSubmission.deleteMany({ studentId: { $in: fyStudentIds } });
-      } catch (e) {
-        // ignore
-      }
-    }
 
     // 1. Execute hardcoded bulk delete strictly on FY students FIRST
     const deleteResult = await Student.deleteMany(fyFilter);
@@ -334,18 +314,6 @@ export const deleteAllFYStudents = async (req: Request, res: Response): Promise<
 export const deleteAllOEStudents = async (req: Request, res: Response): Promise<void> => {
   try {
     const oeFilter: any = { year: { $gte: 2 } };
-
-    // Clean up associated TestSubmissions for OE students
-    const oeStudents = await Student.find(oeFilter, '_id').lean();
-    const oeStudentIds = oeStudents.map((s) => String(s._id));
-
-    if (oeStudentIds.length > 0) {
-      try {
-        await TestSubmission.deleteMany({ studentId: { $in: oeStudentIds } });
-      } catch (e) {
-        // ignore
-      }
-    }
 
     // 1. Execute bulk delete strictly on 2nd and 3rd year students
     const deleteResult = await Student.deleteMany(oeFilter);

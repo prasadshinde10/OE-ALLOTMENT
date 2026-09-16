@@ -15,8 +15,6 @@ import allocationRoutes from './routes/allocationRoutes';
 import studentRoutes from './routes/studentRoutes';
 import adminRoutes from './routes/adminRoutes';
 import exportRoutes from './routes/exportRoutes';
-import testRoutes from './routes/testRoutes';
-import choiceRoutes from './routes/choiceRoutes';
 import clubRoutes from './routes/clubRoutes';
 import clubAllocationRoutes from './routes/clubAllocationRoutes';
 import fyAdminRoutes from './routes/fyAdminRoutes';
@@ -44,7 +42,7 @@ const corsOriginHandler = (origin: string | undefined, callback: (err: Error | n
   ) {
     return callback(null, true);
   }
-  return callback(null, true);
+  return callback(new Error('Not allowed by CORS'));
 };
 
 const io = new Server(server, {
@@ -88,8 +86,6 @@ app.use('/api/students', studentRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/export', exportRoutes);
-app.use('/api/test', testRoutes);
-app.use('/api/choices', choiceRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/club-allocation', clubAllocationRoutes);
 app.use('/api/fy-admin', fyAdminRoutes);
@@ -132,44 +128,55 @@ async function start() {
 
     // Ensure default OE admin exists
     try {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@mit.asia';
-      const existingAdmin = await User.findOne({ email: adminEmail.toLowerCase() });
+      const adminEmail = env.ADMIN_EMAIL.toLowerCase();
+      const adminPassword = env.ADMIN_PASSWORD;
+      const existingAdmin = await User.findOne({ email: adminEmail });
       if (!existingAdmin) {
-        const defaultAdmin = new User({
-          name: 'OE Admin',
-          email: adminEmail.toLowerCase(),
-          password: 'admin123',
-          role: 'admin',
-        });
-        await defaultAdmin.save();
-        console.log(`👑 Default OE admin created: ${adminEmail} (password: admin123)`);
+        if (adminPassword) {
+          const defaultAdmin = new User({
+            name: 'OE Admin',
+            email: adminEmail,
+            password: adminPassword,
+            role: 'admin',
+          });
+          await defaultAdmin.save();
+          console.log(`👑 OE Admin created: ${adminEmail}`);
+        } else {
+          console.log(`ℹ️ OE Admin account does not exist. Set ADMIN_PASSWORD in environment to initialize.`);
+        }
       } else if (existingAdmin.name === 'Super Admin') {
         existingAdmin.name = 'OE Admin';
         await existingAdmin.save();
-        console.log(`👑 Default admin verified & renamed to OE Admin: ${adminEmail}`);
+        console.log(`👑 Admin verified & renamed to OE Admin: ${adminEmail}`);
       }
     } catch (adminErr) {
-      console.warn('⚠️ Could not verify default OE admin:', adminErr);
+      console.warn('⚠️ Could not verify OE admin:', adminErr);
     }
 
     // Ensure Admin 2 (First-Year Club Admin) exists with role FY_ADMIN
     try {
-      const admin2Email = process.env.ADMIN2_EMAIL || 'admin2@mit.asia';
-      const existingAdmin2 = await User.findOne({ email: admin2Email.toLowerCase() });
+      const admin2Email = env.ADMIN2_EMAIL.toLowerCase();
+      const admin2Password = env.ADMIN2_PASSWORD;
+      const existingAdmin2 = await User.findOne({ email: admin2Email });
       if (!existingAdmin2) {
-        const defaultAdmin2 = new User({
-          name: 'First Year Club Admin',
-          email: admin2Email.toLowerCase(),
-          password: 'admin123',
-          role: 'FY_ADMIN',
-        });
-        await defaultAdmin2.save();
-        console.log(`👑 Default Admin 2 created: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
+        if (admin2Password) {
+          const defaultAdmin2 = new User({
+            name: 'First Year Club Admin',
+            email: admin2Email,
+            password: admin2Password,
+            role: 'FY_ADMIN',
+          });
+          await defaultAdmin2.save();
+          console.log(`👑 Admin 2 (FY Club Admin) created: ${admin2Email}`);
+        } else {
+          console.log(`ℹ️ Admin 2 account does not exist. Set ADMIN2_PASSWORD in environment to initialize.`);
+        }
       } else {
-        existingAdmin2.role = 'FY_ADMIN';
-        existingAdmin2.password = 'admin123';
-        await existingAdmin2.save();
-        console.log(`👑 Admin 2 verified & updated: ${admin2Email} (password: admin123, role: FY_ADMIN)`);
+        if (existingAdmin2.role !== 'FY_ADMIN') {
+          existingAdmin2.role = 'FY_ADMIN';
+          await existingAdmin2.save();
+        }
+        console.log(`👑 Admin 2 verified: ${admin2Email}`);
       }
     } catch (admin2Err) {
       console.warn('⚠️ Could not verify Admin 2:', admin2Err);
@@ -209,7 +216,6 @@ async function start() {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 Socket.io ready`);
       console.log(`🌐 Client URL: ${env.CLIENT_URL}`);
-      console.log(`⚡ High-Throughput Stress Testing Route ready: POST /api/test/stress-db`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);

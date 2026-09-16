@@ -97,6 +97,14 @@ export const getAuditLog = async (req: Request, res: Response): Promise<void> =>
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, role } = req.body;
+    if (!name || !email || !password || !role) {
+      res.status(400).json({ success: false, message: 'All fields (name, email, password, role) are required' });
+      return;
+    }
+    if (typeof password === 'string' && password.length < 8) {
+      res.status(400).json({ success: false, message: 'Password must be at least 8 characters long' });
+      return;
+    }
     const user = new User({ name, email, password, role });
     await user.save();
     await logAudit({

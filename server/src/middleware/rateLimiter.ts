@@ -16,9 +16,9 @@ import { Request, Response, NextFunction } from 'express';
  * ⚠️  NEVER leave LOAD_TEST=true in a production environment.
  * ─────────────────────────────────────────────────────────────────────────────
  */
-const isLoadTest = process.env.LOAD_TEST === 'true';
+const isLoadTest = process.env.LOAD_TEST === 'true' && process.env.NODE_ENV !== 'production';
 
-/** No-op middleware used when LOAD_TEST=true to bypass all rate limiters. */
+/** No-op middleware used when LOAD_TEST=true in development to bypass rate limiters. */
 const noopLimiter = (_req: Request, _res: Response, next: NextFunction): void => next();
 
 /**
