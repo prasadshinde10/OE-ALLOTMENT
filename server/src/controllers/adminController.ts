@@ -6,6 +6,7 @@ import TermConfig from '../models/TermConfig';
 import AuditLog from '../models/AuditLog';
 import Branch from '../models/Branch';
 import { logAudit } from '../services/auditService';
+import { parseISTDate } from '../utils/timezone';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const archiver = require('archiver');
 
@@ -135,7 +136,13 @@ export const getTermConfigs = async (req: Request, res: Response): Promise<void>
 
 export const createTermConfig = async (req: Request, res: Response): Promise<void> => {
   try {
-    const config = new TermConfig(req.body);
+    const payload = { ...req.body };
+    if (payload.registrationOpensAt) payload.registrationOpensAt = parseISTDate(payload.registrationOpensAt);
+    if (payload.registrationClosesAt) payload.registrationClosesAt = parseISTDate(payload.registrationClosesAt);
+    if (payload.registrationStartDate !== undefined) payload.registrationStartDate = parseISTDate(payload.registrationStartDate);
+    if (payload.registrationEndDate !== undefined) payload.registrationEndDate = parseISTDate(payload.registrationEndDate);
+
+    const config = new TermConfig(payload);
     await config.save();
     await logAudit({
       action: 'TERM_CONFIG_CREATE',
@@ -152,7 +159,13 @@ export const createTermConfig = async (req: Request, res: Response): Promise<voi
 
 export const updateTermConfig = async (req: Request, res: Response): Promise<void> => {
   try {
-    const updated = await TermConfig.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const payload = { ...req.body };
+    if (payload.registrationOpensAt) payload.registrationOpensAt = parseISTDate(payload.registrationOpensAt);
+    if (payload.registrationClosesAt) payload.registrationClosesAt = parseISTDate(payload.registrationClosesAt);
+    if (payload.registrationStartDate !== undefined) payload.registrationStartDate = parseISTDate(payload.registrationStartDate);
+    if (payload.registrationEndDate !== undefined) payload.registrationEndDate = parseISTDate(payload.registrationEndDate);
+
+    const updated = await TermConfig.findByIdAndUpdate(req.params.id, payload, { new: true });
     if (!updated) {
       res.status(404).json({ success: false, message: 'Config not found' });
       return;

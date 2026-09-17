@@ -9,6 +9,7 @@ import { logAudit } from '../services/auditService';
 import { transferClubSeat } from '../services/clubAllocationService';
 import { broadcastClubSeatUpdate } from '../socket';
 import { reconcileSeats } from '../services/allocationEngine';
+import { parseISTDate } from '../utils/timezone';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const archiver = require('archiver');
 
@@ -304,7 +305,13 @@ export const getFYTermConfigs = async (_req: Request, res: Response): Promise<vo
 
 export const createFYTermConfig = async (req: Request, res: Response): Promise<void> => {
   try {
-    const config = new TermConfig({ ...req.body, year: 1 });
+    const payload = { ...req.body, year: 1 };
+    if (payload.registrationOpensAt) payload.registrationOpensAt = parseISTDate(payload.registrationOpensAt);
+    if (payload.registrationClosesAt) payload.registrationClosesAt = parseISTDate(payload.registrationClosesAt);
+    if (payload.registrationStartDate !== undefined) payload.registrationStartDate = parseISTDate(payload.registrationStartDate);
+    if (payload.registrationEndDate !== undefined) payload.registrationEndDate = parseISTDate(payload.registrationEndDate);
+
+    const config = new TermConfig(payload);
     await config.save();
     await logAudit({
       action: 'FY_TERM_CONFIG_CREATE',
@@ -321,7 +328,13 @@ export const createFYTermConfig = async (req: Request, res: Response): Promise<v
 
 export const updateFYTermConfig = async (req: Request, res: Response): Promise<void> => {
   try {
-    const updated = await TermConfig.findOneAndUpdate({ _id: req.params.id, year: 1 }, req.body, {
+    const payload = { ...req.body };
+    if (payload.registrationOpensAt) payload.registrationOpensAt = parseISTDate(payload.registrationOpensAt);
+    if (payload.registrationClosesAt) payload.registrationClosesAt = parseISTDate(payload.registrationClosesAt);
+    if (payload.registrationStartDate !== undefined) payload.registrationStartDate = parseISTDate(payload.registrationStartDate);
+    if (payload.registrationEndDate !== undefined) payload.registrationEndDate = parseISTDate(payload.registrationEndDate);
+
+    const updated = await TermConfig.findOneAndUpdate({ _id: req.params.id, year: 1 }, payload, {
       new: true,
     });
     if (!updated) {

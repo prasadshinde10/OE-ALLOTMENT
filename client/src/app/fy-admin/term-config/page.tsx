@@ -8,6 +8,13 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import { TermConfig } from '@/types'
+import {
+  formatToISTDateTimeInput,
+  parseISTInputToISO,
+  formatToISTDisplay,
+  getNowInISTInput,
+  getFutureInISTInput,
+} from '@/utils/timezone'
 
 export default function FYAdminTermConfigPage() {
   const [configs, setConfigs] = useState<TermConfig[]>([])
@@ -47,16 +54,8 @@ export default function FYAdminTermConfigPage() {
       const active = data.find((c) => c.isActive) || data[0]
       if (active) {
         setRegPhaseActive(active.isRegistrationActive !== false)
-        setRegStartDate(
-          active.registrationStartDate
-            ? new Date(active.registrationStartDate).toISOString().slice(0, 16)
-            : ''
-        )
-        setRegEndDate(
-          active.registrationEndDate
-            ? new Date(active.registrationEndDate).toISOString().slice(0, 16)
-            : ''
-        )
+        setRegStartDate(formatToISTDateTimeInput(active.registrationStartDate))
+        setRegEndDate(formatToISTDateTimeInput(active.registrationEndDate))
       }
     } catch (err) {
       toast.error('Failed to load FY term configs')
@@ -77,12 +76,12 @@ export default function FYAdminTermConfigPage() {
       setSavingPhase(true)
       const payload = {
         isRegistrationActive: regPhaseActive,
-        registrationStartDate: regStartDate ? new Date(regStartDate).toISOString() : null,
-        registrationEndDate: regEndDate ? new Date(regEndDate).toISOString() : null,
+        registrationStartDate: parseISTInputToISO(regStartDate),
+        registrationEndDate: parseISTInputToISO(regEndDate),
       }
 
       await api.put(`/api/fy-admin/term-configs/${active._id}`, payload)
-      toast.success('Student Registration Phase updated successfully!')
+      toast.success('Student Registration Phase updated successfully (IST)!')
       fetchConfigs()
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update registration phase')
@@ -96,29 +95,23 @@ export default function FYAdminTermConfigPage() {
       setEditingId(config._id)
       setFormData({
         term: config.term,
-        registrationOpensAt: new Date(config.registrationOpensAt).toISOString().slice(0, 16),
-        registrationClosesAt: new Date(config.registrationClosesAt).toISOString().slice(0, 16),
+        registrationOpensAt: formatToISTDateTimeInput(config.registrationOpensAt),
+        registrationClosesAt: formatToISTDateTimeInput(config.registrationClosesAt),
         isActive: config.isActive,
         isRegistrationActive: config.isRegistrationActive !== false,
-        registrationStartDate: config.registrationStartDate
-          ? new Date(config.registrationStartDate).toISOString().slice(0, 16)
-          : '',
-        registrationEndDate: config.registrationEndDate
-          ? new Date(config.registrationEndDate).toISOString().slice(0, 16)
-          : '',
+        registrationStartDate: formatToISTDateTimeInput(config.registrationStartDate),
+        registrationEndDate: formatToISTDateTimeInput(config.registrationEndDate),
       })
     } else {
       setEditingId(null)
-      const now = new Date()
-      const inSevenDays = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       setFormData({
         term: 'Sem-1',
-        registrationOpensAt: now.toISOString().slice(0, 16),
-        registrationClosesAt: inSevenDays.toISOString().slice(0, 16),
+        registrationOpensAt: getNowInISTInput(),
+        registrationClosesAt: getFutureInISTInput(7),
         isActive: true,
         isRegistrationActive: true,
-        registrationStartDate: now.toISOString().slice(0, 16),
-        registrationEndDate: inSevenDays.toISOString().slice(0, 16),
+        registrationStartDate: getNowInISTInput(),
+        registrationEndDate: getFutureInISTInput(7),
       })
     }
     setIsModalOpen(true)
@@ -129,20 +122,18 @@ export default function FYAdminTermConfigPage() {
     try {
       const payload = {
         ...formData,
-        registrationStartDate: formData.registrationStartDate
-          ? new Date(formData.registrationStartDate).toISOString()
-          : null,
-        registrationEndDate: formData.registrationEndDate
-          ? new Date(formData.registrationEndDate).toISOString()
-          : null,
+        registrationOpensAt: parseISTInputToISO(formData.registrationOpensAt),
+        registrationClosesAt: parseISTInputToISO(formData.registrationClosesAt),
+        registrationStartDate: parseISTInputToISO(formData.registrationStartDate),
+        registrationEndDate: parseISTInputToISO(formData.registrationEndDate),
       }
 
       if (editingId) {
         await api.put(`/api/fy-admin/term-configs/${editingId}`, payload)
-        toast.success('Term window updated')
+        toast.success('Term window updated (IST)')
       } else {
         await api.post('/api/fy-admin/term-configs', payload)
-        toast.success('Term window configured')
+        toast.success('Term window configured (IST)')
       }
       setIsModalOpen(false)
       fetchConfigs()
@@ -205,14 +196,14 @@ export default function FYAdminTermConfigPage() {
       ),
     },
     {
-      header: 'Club Allotment Window',
+      header: 'Club Allotment Window (IST)',
       accessor: (row: TermConfig) => (
         <div className="text-xs space-y-0.5">
           <div className="text-gray-700 font-medium">
-            Opens: {new Date(row.registrationOpensAt).toLocaleString()}
+            Opens: {formatToISTDisplay(row.registrationOpensAt)}
           </div>
           <div className="text-gray-500">
-            Closes: {new Date(row.registrationClosesAt).toLocaleString()}
+            Closes: {formatToISTDisplay(row.registrationClosesAt)}
           </div>
         </div>
       ),
@@ -338,7 +329,7 @@ export default function FYAdminTermConfigPage() {
           {/* Start Date & Time */}
           <div>
             <Input
-              label="Phase Start Date & Time"
+              label="Phase Start Date & Time (IST)"
               type="datetime-local"
               value={regStartDate}
               onChange={(e) => setRegStartDate(e.target.value)}
@@ -349,7 +340,7 @@ export default function FYAdminTermConfigPage() {
           {/* End Date & Time */}
           <div>
             <Input
-              label="Phase End Date & Time"
+              label="Phase End Date & Time (IST)"
               type="datetime-local"
               value={regEndDate}
               onChange={(e) => setRegEndDate(e.target.value)}
@@ -405,14 +396,14 @@ export default function FYAdminTermConfigPage() {
               Club Allotment (FCFS) Window
             </h4>
             <Input
-              label="Registration Opens At"
+              label="Registration Opens At (IST)"
               type="datetime-local"
               value={formData.registrationOpensAt}
               onChange={(e) => setFormData({ ...formData, registrationOpensAt: e.target.value })}
               required
             />
             <Input
-              label="Registration Closes At"
+              label="Registration Closes At (IST)"
               type="datetime-local"
               value={formData.registrationClosesAt}
               onChange={(e) => setFormData({ ...formData, registrationClosesAt: e.target.value })}
@@ -449,14 +440,14 @@ export default function FYAdminTermConfigPage() {
               </label>
             </div>
             <Input
-              label="Profile Phase Start (Optional)"
+              label="Profile Phase Start (IST, Optional)"
               type="datetime-local"
               value={formData.registrationStartDate}
               onChange={(e) => setFormData({ ...formData, registrationStartDate: e.target.value })}
               disabled={!formData.isRegistrationActive}
             />
             <Input
-              label="Profile Phase End (Optional)"
+              label="Profile Phase End (IST, Optional)"
               type="datetime-local"
               value={formData.registrationEndDate}
               onChange={(e) => setFormData({ ...formData, registrationEndDate: e.target.value })}

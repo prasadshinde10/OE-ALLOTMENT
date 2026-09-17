@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { Club, TermConfig } from '@/types'
 import Link from 'next/link'
+import { formatToISTDisplay } from '@/utils/timezone'
 
 export default function SelectClubPage() {
   const { user } = useAuthContext()
@@ -186,7 +187,7 @@ export default function SelectClubPage() {
             <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 bg-amber-200/70 rounded">Upcoming</span>
             <div>
               <strong>Club registration is upcoming.</strong> Selection opens on{' '}
-              {new Date(termConfig!.registrationOpensAt).toLocaleString()}.
+              {formatToISTDisplay(termConfig!.registrationOpensAt)}.
             </div>
           </div>
         )}
@@ -196,7 +197,7 @@ export default function SelectClubPage() {
             <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 bg-red-200/70 rounded">Closed</span>
             <div>
               <strong>Club registration is currently closed.</strong> Submissions closed on{' '}
-              {termConfig ? new Date(termConfig.registrationClosesAt).toLocaleString() : 'N/A'}.
+              {termConfig ? formatToISTDisplay(termConfig.registrationClosesAt) : 'N/A'}.
             </div>
           </div>
         )}

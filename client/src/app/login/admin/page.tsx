@@ -65,10 +65,6 @@ export default function AdminLoginPage() {
             </Button>
           </form>
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-400">
-          Designed &amp; Developed by{' '}
-          <a href="https://webmitra.tech" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 font-semibold transition-colors">WebMitraStudio</a>
-        </p>
       </div>
     </div>
   )

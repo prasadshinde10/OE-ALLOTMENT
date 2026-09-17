@@ -7,6 +7,13 @@ import { Modal } from '@/components/ui/Modal'
 import { Input } from '@/components/ui/Input'
 import toast from 'react-hot-toast'
 import { TermConfig } from '@/types'
+import {
+  formatToISTDateTimeInput,
+  parseISTInputToISO,
+  formatToISTDisplay,
+  getNowInISTInput,
+  getFutureInISTInput,
+} from '@/utils/timezone'
 
 export default function AdminTermConfigPage() {
   const [configs, setConfigs] = useState<TermConfig[]>([])
@@ -35,12 +42,17 @@ export default function AdminTermConfigPage() {
       setFormData({
         term: config.term,
         year: config.year,
-        registrationOpensAt: new Date(config.registrationOpensAt).toISOString().slice(0, 16),
-        registrationClosesAt: new Date(config.registrationClosesAt).toISOString().slice(0, 16)
+        registrationOpensAt: formatToISTDateTimeInput(config.registrationOpensAt),
+        registrationClosesAt: formatToISTDateTimeInput(config.registrationClosesAt)
       })
     } else {
       setEditingId(null)
-      setFormData({ term: 'Sem-1', year: 1, registrationOpensAt: '', registrationClosesAt: '' })
+      setFormData({
+        term: 'Sem-1',
+        year: 1,
+        registrationOpensAt: getNowInISTInput(),
+        registrationClosesAt: getFutureInISTInput(7)
+      })
     }
     setIsModalOpen(true)
   }
@@ -48,12 +60,17 @@ export default function AdminTermConfigPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
+      const payload = {
+        ...formData,
+        registrationOpensAt: parseISTInputToISO(formData.registrationOpensAt),
+        registrationClosesAt: parseISTInputToISO(formData.registrationClosesAt),
+      }
       if (editingId) {
-        await api.put(`/api/admin/term-configs/${editingId}`, formData)
-        toast.success('Config updated')
+        await api.put(`/api/admin/term-configs/${editingId}`, payload)
+        toast.success('Config updated (IST)')
       } else {
-        await api.post('/api/admin/term-configs', formData)
-        toast.success('Config created')
+        await api.post('/api/admin/term-configs', payload)
+        toast.success('Config created (IST)')
       }
       setIsModalOpen(false)
       fetchConfigs()
@@ -65,8 +82,8 @@ export default function AdminTermConfigPage() {
   const columns = [
     { header: 'Semester', accessor: 'term' },
     { header: 'Year', accessor: 'year' },
-    { header: 'Opens At', accessor: (row: TermConfig) => new Date(row.registrationOpensAt).toLocaleString() },
-    { header: 'Closes At', accessor: (row: TermConfig) => new Date(row.registrationClosesAt).toLocaleString() },
+    { header: 'Opens At (IST)', accessor: (row: TermConfig) => formatToISTDisplay(row.registrationOpensAt) },
+    { header: 'Closes At (IST)', accessor: (row: TermConfig) => formatToISTDisplay(row.registrationClosesAt) },
     { 
       header: 'Status', 
       accessor: (row: TermConfig) => {
@@ -113,8 +130,8 @@ export default function AdminTermConfigPage() {
             </select>
           </div>
           <Input label="Year" type="number" value={formData.year} onChange={e => setFormData({...formData, year: Number(e.target.value)})} required min={1} max={4} />
-          <Input label="Registration Opens At" type="datetime-local" value={formData.registrationOpensAt} onChange={e => setFormData({...formData, registrationOpensAt: e.target.value})} required />
-          <Input label="Registration Closes At" type="datetime-local" value={formData.registrationClosesAt} onChange={e => setFormData({...formData, registrationClosesAt: e.target.value})} required />
+          <Input label="Registration Opens At (IST)" type="datetime-local" value={formData.registrationOpensAt} onChange={e => setFormData({...formData, registrationOpensAt: e.target.value})} required />
+          <Input label="Registration Closes At (IST)" type="datetime-local" value={formData.registrationClosesAt} onChange={e => setFormData({...formData, registrationClosesAt: e.target.value})} required />
           <div className="flex justify-end gap-2 mt-4">
             <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
             <Button type="submit">Save</Button>
