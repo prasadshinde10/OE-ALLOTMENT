@@ -27,9 +27,6 @@ const APPROVED_DEPARTMENTS = [
   'Electronics and Telecommunication',
 ]
 
-const TARGET_PROGRAMS = [
-  'ME', 'MTX', 'EE', 'E&TC', 'CSE', 'AI&DS', 'CSD', 'E&CE', 'AE', 'PPE', 'CIVIL',
-]
 
 export default function FYAdminClubsPage() {
   const [clubs, setClubs] = useState<Club[]>([])
@@ -51,7 +48,6 @@ export default function FYAdminClubsPage() {
     coordinatorName: '',
     coordinatorContact: '',
     description: '',
-    targetBranches: [] as string[],
   })
   const [divisions, setDivisions] = useState<ClubDivision[]>([])
 
@@ -95,7 +91,6 @@ export default function FYAdminClubsPage() {
         coordinatorName: club.coordinatorName || '',
         coordinatorContact: club.coordinatorContact || '',
         description: club.description || '',
-        targetBranches: club.targetBranches || [],
       })
       setDivisions(
         club.divisions && club.divisions.length > 0
@@ -121,7 +116,6 @@ export default function FYAdminClubsPage() {
         coordinatorName: '',
         coordinatorContact: '',
         description: '',
-        targetBranches: [],
       })
       setDivisions([
         { divisionName: 'Div-A', coordinatorName: '', hallRoom: '', coordinatorContact: '', capacity: 30 },
@@ -236,25 +230,6 @@ export default function FYAdminClubsPage() {
         >
           {row.category === 'co-curricular' ? 'Co-Curricular' : 'Extra-Curricular'}
         </span>
-      ),
-    },
-    {
-      header: 'Target Programs',
-      accessor: (row: Club) => (
-        <div className="flex flex-wrap gap-1 max-w-[200px]">
-          {row.targetBranches && row.targetBranches.length > 0 ? (
-            row.targetBranches.map((branch) => (
-              <span
-                key={branch}
-                className="text-[10px] font-semibold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded"
-              >
-                {branch}
-              </span>
-            ))
-          ) : (
-            <span className="text-[10px] text-gray-400 italic">All Branches</span>
-          )}
-        </div>
       ),
     },
     {
@@ -447,42 +422,6 @@ export default function FYAdminClubsPage() {
               </select>
             </div>
           </div>
-
-          {/* Target Programs (Branch Restriction) */}
-          {formData.category === 'co-curricular' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Programs (Branch Restriction)</label>
-              <p className="text-xs text-gray-500 mb-2">Select which branches can join this club. Leave empty for all branches.</p>
-              <div className="flex flex-wrap gap-2">
-                {TARGET_PROGRAMS.map((prog) => (
-                  <button
-                    key={prog}
-                    type="button"
-                    onClick={() => {
-                      const current = formData.targetBranches || []
-                      if (current.includes(prog)) {
-                        setFormData({ ...formData, targetBranches: current.filter((b) => b !== prog) })
-                      } else {
-                        setFormData({ ...formData, targetBranches: [...current, prog] })
-                      }
-                    }}
-                    className={`px-3 py-1 text-xs font-semibold rounded-full border transition-colors ${
-                      (formData.targetBranches || []).includes(prog)
-                        ? 'bg-teal-600 text-white border-teal-600'
-                        : 'bg-white text-gray-600 border-gray-300 hover:border-teal-400'
-                    }`}
-                  >
-                    {prog}
-                  </button>
-                ))}
-              </div>
-              {formData.targetBranches && formData.targetBranches.length > 0 && (
-                <p className="text-xs text-teal-600 mt-1 font-medium">
-                  Selected: {formData.targetBranches.join(', ')}
-                </p>
-              )}
-            </div>
-          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input

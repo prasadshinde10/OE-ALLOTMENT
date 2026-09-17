@@ -26,7 +26,10 @@ export interface IClub extends Document {
   coordinatorName?: string;
   coordinatorContact?: string;
   description?: string;
+  /** @deprecated Obsolete branch restrictions - all clubs are open to all branches */
   targetBranches?: string[];
+  /** @deprecated Legacy alias for branch restrictions */
+  targetProgram?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -146,6 +149,12 @@ const clubSchema = new Schema<IClub>(
     targetBranches: {
       type: [String],
       default: [],
+      required: false,
+    },
+    targetProgram: {
+      type: [String],
+      default: [],
+      required: false,
     },
   },
   { timestamps: true }

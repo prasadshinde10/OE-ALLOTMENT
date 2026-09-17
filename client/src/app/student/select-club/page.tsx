@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { Club, TermConfig } from '@/types'
 import Link from 'next/link'
-import { normalizeBranch } from '@/utils/branchMatcher'
 
 export default function SelectClubPage() {
   const { user } = useAuthContext()
@@ -158,8 +157,8 @@ export default function SelectClubPage() {
                 First-Year Mandatory Selection
               </span>
               {studentBranch && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-bold text-blue-800">
-                  Your Branch: {studentBranch} ({normalizeBranch(studentBranch)})
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 border border-teal-100 rounded-full text-xs font-medium text-teal-800">
+                  Branch: {studentBranch}
                 </span>
               )}
             </div>
@@ -270,16 +269,6 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {/* Target Program Badges */}
-                  {club.targetBranches && club.targetBranches.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {club.targetBranches.map((branch) => (
-                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded">
-                          {branch}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   {club.coordinatorName && (
                     <div className="mt-3 text-xs text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
@@ -405,16 +394,6 @@ export default function SelectClubPage() {
 
                   <h3 className="text-base font-bold text-gray-900 leading-snug">{club.name}</h3>
 
-                  {/* Target Program Badges */}
-                  {club.targetBranches && club.targetBranches.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {club.targetBranches.map((branch) => (
-                        <span key={branch} className="text-[10px] font-semibold px-1.5 py-0.5 bg-accent-50 text-accent-700 border border-accent-200 rounded">
-                          {branch}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   {club.coordinatorName && (
                     <div className="mt-3 text-xs text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100">

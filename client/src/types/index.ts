@@ -132,7 +132,10 @@ export interface Club {
   coordinatorName?: string;
   coordinatorContact?: string;
   description?: string;
+  /** @deprecated Obsolete branch restrictions - all clubs are open to all branches */
   targetBranches?: string[];
+  /** @deprecated Legacy alias for branch restrictions */
+  targetProgram?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -150,8 +153,10 @@ export interface ClubSeatCount {
   coordinatorName?: string;
   coordinatorContact?: string;
   syllabusUrl?: string;
-  description?: string;
+  /** @deprecated Obsolete branch restrictions */
   targetBranches?: string[];
+  /** @deprecated Legacy alias */
+  targetProgram?: string[];
 }
 
 export interface AuditLogEntry {

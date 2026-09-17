@@ -52,6 +52,7 @@ export const createClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorContact,
       description,
       targetBranches,
+      targetProgram,
     } = req.body;
 
 
@@ -84,7 +85,7 @@ export const createClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorName,
       coordinatorContact,
       description,
-      targetBranches: targetBranches || [],
+      targetBranches: targetBranches || targetProgram || [],
     });
 
     await club.save();
@@ -142,6 +143,7 @@ export const updateClub = async (req: Request, res: Response): Promise<void> => 
       coordinatorContact,
       description,
       targetBranches,
+      targetProgram,
     } = req.body;
 
     if (divisions && Array.isArray(divisions) && divisions.length > 0 && capacity !== undefined) {
@@ -175,6 +177,7 @@ export const updateClub = async (req: Request, res: Response): Promise<void> => 
     }
     if (description !== undefined) club.description = description;
     if (targetBranches !== undefined) (club as any).targetBranches = targetBranches;
+    else if (targetProgram !== undefined) (club as any).targetBranches = targetProgram;
 
     if (divisions !== undefined && Array.isArray(divisions)) {
       club.divisions = divisions.map((div: any) => ({
