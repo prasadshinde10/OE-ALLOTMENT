@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Club from '../models/Club';
 import Student from '../models/Student';
-import { isBranchEligible } from '../utils/branchMatcher';
 import { logAudit } from '../services/auditService';
 
 export const getClubs = async (req: Request, res: Response): Promise<void> => {
@@ -16,18 +15,7 @@ export const getClubs = async (req: Request, res: Response): Promise<void> => {
 
     const clubs = await Club.find(filter).sort({ category: 1, name: 1 });
 
-    // If studentBranch query param is provided, filter co-curricular clubs by branch eligibility
-    const { studentBranch } = req.query;
-    if (studentBranch && typeof studentBranch === 'string') {
-      const filtered = clubs.filter((club) => {
-        // Extra-curricular clubs are always visible
-        if (club.category === 'extra-curricular') return true;
-        // Co-curricular clubs: check target branch eligibility
-        return isBranchEligible(studentBranch, (club as any).targetBranches || []);
-      });
-      res.status(200).json({ success: true, data: filtered });
-      return;
-    }
+    // studentBranch param is no longer used for filtering — all clubs are visible to all FY students
 
     res.status(200).json({ success: true, data: clubs });
   } catch (error: any) {

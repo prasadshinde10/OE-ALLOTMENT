@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { Club, TermConfig } from '@/types'
 import Link from 'next/link'
-import { normalizeBranch, isBranchEligible } from '@/utils/branchMatcher'
+import { normalizeBranch } from '@/utils/branchMatcher'
 
 export default function SelectClubPage() {
   const { user } = useAuthContext()
@@ -77,17 +77,10 @@ export default function SelectClubPage() {
     }
   })
 
-  // Helper: check if student branch is eligible for a club's target programs
-  const isEligibleForClub = (club: Club): boolean => {
-    if (!club.targetBranches || club.targetBranches.length === 0) return true
-    if (!studentBranch) return true // If branch unknown, show all
-    return isBranchEligible(studentBranch, club.targetBranches)
-  }
-
   const coCurricularClubs = mergedClubs.filter((c) => c.category === 'co-curricular')
   const extraCurricularClubs = mergedClubs.filter((c) => c.category === 'extra-curricular')
-  const eligibleCoCurricular = coCurricularClubs.filter(isEligibleForClub)
-  const restrictedCoCurricular = coCurricularClubs.filter(c => !isEligibleForClub(c))
+  // All co-curricular clubs are open to all FY students regardless of branch
+  const eligibleCoCurricular = coCurricularClubs
 
   const now = new Date()
   const isWindowOpen =
@@ -356,42 +349,6 @@ export default function SelectClubPage() {
             )
           })}
         </div>
-
-        {/* Restricted Co-Curricular Clubs (other branches) */}
-        {restrictedCoCurricular.length > 0 && (
-          <div className="mt-6">
-            <p className="text-xs font-medium text-gray-400 mb-3 uppercase tracking-wide">
-              Other Branch Clubs ({restrictedCoCurricular.length})
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 opacity-50">
-              {restrictedCoCurricular.map((club) => (
-                <div
-                  key={club._id}
-                  className="bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col"
-                >
-                  <div className="flex justify-between items-start gap-2 mb-2">
-                    <span className="text-xs font-bold tracking-wider text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                      {club.code}
-                    </span>
-                    <span className="text-[10px] font-medium text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
-                      Restricted
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-semibold text-gray-500">{club.name}</h3>
-                  {club.targetBranches && club.targetBranches.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {club.targetBranches.map((branch) => (
-                        <span key={branch} className="text-[10px] font-medium px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
-                          {branch}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* SECTION 2: EXTRA-CURRICULAR CLUBS */}

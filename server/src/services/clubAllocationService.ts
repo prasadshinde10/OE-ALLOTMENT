@@ -3,7 +3,6 @@ import Student from '../models/Student';
 import Club from '../models/Club';
 import TermConfig from '../models/TermConfig';
 import AuditLog from '../models/AuditLog';
-import { isBranchEligible } from '../utils/branchMatcher';
 
 export const allocateClubSeat = async (studentId: string, clubId: string) => {
   const student = await Student.findById(studentId).lean();
@@ -24,13 +23,7 @@ export const allocateClubSeat = async (studentId: string, clubId: string) => {
     throw new Error('Club not found or inactive');
   }
 
-  // Enforce target branch restrictions for co-curricular clubs
-  if (targetClub.category === 'co-curricular') {
-    const clubTargetBranches = (targetClub as any).targetBranches || [];
-    if (clubTargetBranches.length > 0 && !isBranchEligible(student.branch, clubTargetBranches)) {
-      throw new Error('Your branch is not eligible for this co-curricular club. Please select a club that matches your program.');
-    }
-  }
+  // Co-curricular clubs are now open to all First-Year students regardless of branch
 
   const category = targetClub.category;
 
@@ -108,13 +101,7 @@ export const transferClubSeat = async (studentId: string, newClubId: string, adm
     throw new Error('Student is already allocated to this club');
   }
 
-  // Validate branch eligibility for co-curricular clubs
-  if (isCoCurricular) {
-    const clubTargetBranches = (newClub as any).targetBranches || [];
-    if (clubTargetBranches.length > 0 && !isBranchEligible(student.branch, clubTargetBranches)) {
-      throw new Error(`Student's branch (${student.branch}) is not eligible for this co-curricular club (${newClub.name}). Target branches: ${clubTargetBranches.join(', ')}`);
-    }
-  }
+  // Co-curricular clubs are now open to all First-Year students regardless of branch
 
   // Attempt transaction
   try {

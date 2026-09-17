@@ -304,9 +304,7 @@ function findEligibleClub(
     if (meta.term !== term) continue;
     const remaining = clubSeatCache.get(id) ?? 0;
     if (remaining <= 0) continue;
-    if (category === 'co-curricular' && meta.targetBranches.length > 0) {
-      if (!isBranchEligible(branch, meta.targetBranches)) continue;
-    }
+    // Co-curricular clubs are now open to all FY students regardless of branch
     return meta;
   }
   return null;
